@@ -9,10 +9,14 @@ from snakemake.exceptions import WorkflowError
 configfile: "config/config.yaml"
 
 
-OUTDIR = config["outdir"]
+RESULTS = config["outdir"]
+RUN_ID = config.get("run_id", "default")
+OUTDIR = f"{RESULTS}/{RUN_ID}"        # per-sample outputs, grouped per run
 FASTA = config["references"]["fasta"]
 FAI = config["references"]["fai"]
-CHROM_SIZES = f"{OUTDIR}/refs/chrom.sizes"
+BLACKLIST = config["references"].get("blacklist") or None
+CHROM_SIZES = f"{RESULTS}/refs/chrom.sizes"   # run-independent, shared across runs
+LOGDIR = f"logs/{RUN_ID}"
 
 # Absolute so the conda: directive resolves the same from any rule file.
 CONDA_ENV = str((Path(workflow.basedir).parent / config["conda_env"]).resolve())
@@ -93,6 +97,11 @@ def _list_flag(name, values):
     return f"--{name} " + " ".join(str(v) for v in values)
 
 
+# The blacklist as a rule input (for dependency tracking) or [] when unset.
+def blacklist_input(wildcards):
+    return [BLACKLIST] if BLACKLIST else []
+
+
 def fit_flags():
     """All fit.py hyperparameter flags built from config['fit']."""
     f = config["fit"]
@@ -128,6 +137,8 @@ def fit_flags():
         flags.append("--summits")
     if f.get("random_state") is not None:
         flags.append(f"--random_state {f['random_state']}")
+    if BLACKLIST:
+        flags.append(f"--exclusion_lists {BLACKLIST}")
     return " ".join(flags)
 
 
@@ -144,4 +155,6 @@ def eval_flags():
     ]
     if e["reverse_complement_average"]:
         flags.append("--reverse_complement_average")
+    if BLACKLIST:
+        flags.append(f"--exclusion_lists {BLACKLIST}")
     return " ".join(flags)

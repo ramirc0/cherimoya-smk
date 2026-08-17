@@ -5,16 +5,14 @@ rule fit:
         peaks=peaks_for,
         negatives=f"{OUTDIR}/{{sample}}/{{sample}}.negatives.bed",
         signal=lambda wc: signal_bw(wc.sample),
+        blacklist=blacklist_input,
     output:
         model=f"{OUTDIR}/{{sample}}/{{sample}}.torch",
     params:
         name=lambda wc: prefix(wc.sample),
         flags=fit_flags(),
-    threads: 8
     log:
-        "logs/fit/{sample}.log",
-    resources:
-        mem_mb=48000,
+        f"{LOGDIR}/fit/{{sample}}.log",
     conda:
         CONDA_ENV
     shell:
@@ -30,15 +28,13 @@ rule evaluate:
         peaks=peaks_for,
         signal=lambda wc: signal_bw(wc.sample),
         model=f"{OUTDIR}/{{sample}}/{{sample}}.torch",
+        blacklist=blacklist_input,
     output:
         performance=f"{OUTDIR}/{{sample}}/{{sample}}.performance.tsv",
     params:
         flags=eval_flags(),
-    threads: 8
     log:
-        "logs/evaluate/{sample}.log",
-    resources:
-        mem_mb=48000,
+        f"{LOGDIR}/evaluate/{{sample}}.log",
     conda:
         CONDA_ENV
     shell:

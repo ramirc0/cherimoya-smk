@@ -1,10 +1,12 @@
 samples: config/samples.tsv
 outdir: results
 conda_env: workflow/envs/cherimoya.yaml
+run_id: default          # logs go under logs/<run_id>/; override per run to keep runs separate
 
 references:
-  fasta: resources/GRCh38.fasta
-  fai: resources/GRCh38.fasta.fai
+  fasta: resources/GRCh38_no_alt_analysis_set_GCA_000001405.15.fasta
+  fai: resources/GRCh38_no_alt_analysis_set_GCA_000001405.15.fasta.fai
+  blacklist: resources/ENCFF356LFX.slop1057.bed   # optional BED of regions to exclude (fit + evaluate)
 
 # macs3 + bam2bw.
 preprocess:

@@ -12,9 +12,7 @@ rule negatives:
         in_window=config["negatives"]["in_window"],
         out_window=config["negatives"]["out_window"],
     log:
-        "logs/negatives/{sample}.log",
-    resources:
-        mem_mb=8000,
+        f"{LOGDIR}/negatives/{{sample}}.log",
     conda:
         CONDA_ENV
     shell:

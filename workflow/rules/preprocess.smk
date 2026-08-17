@@ -5,7 +5,7 @@ rule chrom_sizes:
     output:
         sizes=CHROM_SIZES,
     log:
-        "logs/chrom_sizes/refs.log",
+        f"{LOGDIR}/chrom_sizes/refs.log",
     conda:
         CONDA_ENV
     shell:
@@ -19,7 +19,7 @@ rule prep_peaks:
     output:
         peaks=f"{OUTDIR}/{{sample}}/{{sample}}.peaks.narrowPeak",
     log:
-        "logs/prep_peaks/{sample}.log",
+        f"{LOGDIR}/prep_peaks/{{sample}}.log",
     conda:
         CONDA_ENV
     shell:
@@ -43,9 +43,7 @@ rule macs3:
         control=lambda wc, input: f"-c {input.control}" if input.control else "",
         max_count="--max-count 1" if config["preprocess"]["fragments"] else "",
     log:
-        "logs/macs3/{sample}.log",
-    resources:
-        mem_mb=8000,
+        f"{LOGDIR}/macs3/{{sample}}.log",
     conda:
         CONDA_ENV
     shell:
@@ -71,11 +69,8 @@ rule bam2bw:
             + ("-f " if config["preprocess"]["fragments"] else "")
             + ("-r " if config["preprocess"]["read_depth"] else "")
         ).strip(),
-    threads: 4
     log:
-        "logs/bam2bw/{sample}.log",
-    resources:
-        mem_mb=8000,
+        f"{LOGDIR}/bam2bw/{{sample}}.log",
     conda:
         CONDA_ENV
     shell:
