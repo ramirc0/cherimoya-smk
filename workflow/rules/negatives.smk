@@ -11,6 +11,7 @@ rule negatives:
         beta=config["negatives"]["beta"],
         in_window=config["negatives"]["in_window"],
         out_window=config["negatives"]["out_window"],
+        on_missing_contig=config["peaks"]["on_missing_contig"],
     log:
         f"{LOGDIR}/negatives/{{sample}}.log",
     benchmark:
@@ -20,4 +21,5 @@ rule negatives:
     shell:
         "python workflow/scripts/negatives.py -i {input.peaks} -f {input.fasta} "
         "-o {output.bed} -l {params.bin_width} -n {params.max_n_perc} "
-        "-a {params.beta} -w {params.in_window} -x {params.out_window} > {log} 2>&1"
+        "-a {params.beta} -w {params.in_window} -x {params.out_window} "
+        "--on_missing_contig {params.on_missing_contig} > {log} 2>&1"

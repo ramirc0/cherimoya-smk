@@ -25,13 +25,59 @@ def build_parser():
     parser.add_argument("-x", "--out_window", type=int, default=1000,
         help="Output window size. Default 1000.")
     parser.add_argument("-v", "--verbose", action="store_true")
+    parser.add_argument("--on_missing_contig", choices=("filter", "fail"),
+        default="filter",
+        help="What to do with peaks on contigs absent from the FASTA. "
+             "filter: drop and warn (default); fail: error out.")
     return parser
+
+
+def resolve_present_chroms(peaks_path, fasta_path, policy):
+    """Return the sorted peak contigs that are present in the FASTA.
+
+    Peaks on contigs missing from the FASTA would crash extract_matching_loci
+    (a pyfaidx KeyError when it builds chrom sizes from the peak contigs). This
+    filters them out under ``policy="filter"`` (warning to stderr) or errors
+    under ``policy="fail"``. It always errors if no peaks remain, since that
+    signals the wrong reference genome rather than a stray contig.
+    """
+    import sys
+
+    import pandas as pd
+    import pyfaidx
+
+    peak_chroms = pd.read_csv(peaks_path, sep="\t", usecols=[0], header=None,
+        names=["chrom"], dtype=str)["chrom"]
+    fasta_contigs = set(map(str, pyfaidx.Fasta(fasta_path).keys()))
+
+    present = sorted(set(peak_chroms) & fasta_contigs)
+    missing = sorted(set(peak_chroms) - fasta_contigs)
+
+    if missing:
+        n_dropped = int(peak_chroms.isin(missing).sum())
+        detail = (f"{n_dropped} peak(s) on {len(missing)} contig(s) absent from the "
+                  f"FASTA: {', '.join(missing)}")
+        if policy == "fail":
+            raise SystemExit(
+                f"[negatives] ERROR: {detail}. Fix the peaks/reference or set "
+                "peaks.on_missing_contig=filter."
+            )
+        print(f"[negatives] WARNING: dropping {detail}.", file=sys.stderr)
+
+    if not present:
+        raise SystemExit(
+            "[negatives] ERROR: no peaks remain on FASTA contigs; wrong reference genome?"
+        )
+
+    return present
 
 
 def main():
     args = build_parser().parse_args()
 
     from tangermeme.match import extract_matching_loci
+
+    present = resolve_present_chroms(args.peaks, args.fasta, args.on_missing_contig)
 
     matched_loci = extract_matching_loci(
         loci=args.peaks,
@@ -42,7 +88,7 @@ def main():
         signal_beta=args.beta,
         in_window=args.in_window,
         out_window=args.out_window,
-        chroms=None,
+        chroms=present,
         verbose=args.verbose,
         n_jobs=1,
     )

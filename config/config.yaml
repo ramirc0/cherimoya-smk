@@ -20,6 +20,9 @@ preprocess:
   callpeaks_gsize: hs
   callpeaks_q: 0.05
 
+peaks:
+  on_missing_contig: filter   # filter | fail — peaks on contigs absent from the FASTA
+
 negatives:
   bin_width: 0.02
   max_n_perc: 0.1
