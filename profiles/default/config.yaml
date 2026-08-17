@@ -1,0 +1,14 @@
+# Local execution. Set fit.device/evaluate.device to cpu for a CPU-only box.
+software-deployment-method:
+  - conda
+conda-prefix: .conda
+
+cores: 16
+printshellcmds: true
+rerun-incomplete: true
+keep-going: true
+retries: 1
+
+default-resources:
+  mem_mb: 4000
+  runtime: 120

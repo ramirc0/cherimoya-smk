@@ -1,0 +1,27 @@
+# Needs snakemake-executor-plugin-slurm in the launching env.
+executor: slurm
+software-deployment-method:
+  - conda
+conda-base-path: /zata/zippy/ramirezc/Miniforge3
+conda-prefix: .conda
+
+jobs: 100
+
+default-resources:
+  slurm_partition: "12hours"
+  # slurm_account: "<account>"   # set if your cluster requires it
+  runtime: 120
+  mem_mb: 4000
+
+set-resources:
+  macs3:     {slurm_partition: "12hours", runtime: 240, mem_mb: 8000}
+  bam2bw:    {slurm_partition: "12hours", runtime: 240, mem_mb: 8000}
+  negatives: {slurm_partition: "12hours", runtime: 120, mem_mb: 8000}
+  fit:       {slurm_partition: "gpuh200", slurm_extra: "'--gres=gpu:1'", runtime: 1440, mem_mb: 48000}
+  evaluate:  {slurm_partition: "gpuh200", slurm_extra: "'--gres=gpu:1'", runtime: 240, mem_mb: 48000}
+
+rerun-incomplete: true
+keep-going: true
+slurm-requeue: false
+printshellcmds: true
+latency-wait: 60

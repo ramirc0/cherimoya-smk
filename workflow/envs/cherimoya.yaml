@@ -1,0 +1,11 @@
+name: cherimoya
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.12
+  - pip
+  - polars>=1.43
+  - pip:
+      # pulls torch, tangermeme, macs3, bam2bw transitively.
+      - "cherimoya @ git+https://github.com/jmschrei/cherimoya.git@d9a9e7c5e4d3b309e3125d2a3d6244a0c98a19da"

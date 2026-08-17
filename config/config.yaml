@@ -1,0 +1,65 @@
+samples: config/samples.tsv
+outdir: results
+conda_env: workflow/envs/cherimoya.yaml
+
+references:
+  fasta: resources/GRCh38.fasta
+  fai: resources/GRCh38.fasta.fai
+
+# macs3 + bam2bw.
+preprocess:
+  unstranded: true
+  paired_end: true
+  fragments: false
+  read_depth: false
+  pos_shift: 4          # Tn5 shift
+  neg_shift: -4
+  scale_factor: 1
+  callpeaks_gsize: hs
+  callpeaks_q: 0.05
+
+negatives:
+  bin_width: 0.02
+  max_n_perc: 0.1
+  beta: 0.5
+  in_window: 2114
+  out_window: 1000
+
+fit:
+  n_filters: 128
+  n_layers: 9
+  expansion: 2
+  residual_scale: 0.15
+  batch_size: 64
+  in_window: 2114
+  out_window: 1000
+  max_jitter: 500
+  negative_ratio: 0.25
+  reverse_complement: true
+  summits: false
+  max_epochs: 20
+  n_warmup_epochs: 2
+  early_stopping: 5
+  muon_lr: 0.025
+  muon_wd: 0.03
+  adam_lr: 0.001
+  adam_wd: 0.0
+  lw_lr: 0.001
+  lw_wd: 0.0
+  lw_momentum: 0.9
+  num_workers: 1
+  dtype: float32
+  device: cuda
+  random_state: null
+  training_chroms: [chr2, chr4, chr5, chr7, chr9, chr10, chr11, chr12, chr13,
+    chr14, chr15, chr16, chr17, chr18, chr19, chr21, chr22, chrX, chrY]
+  validation_chroms: [chr8, chr20]
+
+evaluate:
+  batch_size: 512
+  in_window: 2114
+  out_window: 1000
+  reverse_complement_average: false
+  dtype: float32
+  device: cuda
+  chroms: [chr8, chr20]

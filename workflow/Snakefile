@@ -1,0 +1,11 @@
+# cherimoya-smk: macs3 -> bam2bw -> negatives -> fit -> evaluate, per sample.
+
+include: "rules/common.smk"
+include: "rules/preprocess.smk"
+include: "rules/negatives.smk"
+include: "rules/train.smk"
+
+
+rule all:
+    input:
+        [f"{OUTDIR}/{s}/{s}.performance.tsv" for s in SAMPLES],

@@ -1,0 +1,2 @@
+sample_id	signal	control	peaks
+example	resources/example.bam		resources/example_peaks.narrowPeak.gz
