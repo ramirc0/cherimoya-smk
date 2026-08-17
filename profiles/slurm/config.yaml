@@ -30,3 +30,4 @@ keep-going: true
 slurm-requeue: false
 printshellcmds: true
 latency-wait: 60
+benchmark-extended: true

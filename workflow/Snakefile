@@ -4,8 +4,12 @@ include: "rules/common.smk"
 include: "rules/preprocess.smk"
 include: "rules/negatives.smk"
 include: "rules/train.smk"
+include: "rules/report.smk"
 
 
 rule all:
     input:
-        [f"{OUTDIR}/{s}/{s}.performance.tsv" for s in SAMPLES],
+        # Gathers every sample's performance.tsv (-> evaluate -> per-sample
+        # epochs plots) plus the run-level distribution plot.
+        f"{OUTDIR}/report/performance_distribution.svg",
+        [f"{OUTDIR}/{s}/{s}.epochs.svg" for s in SAMPLES],

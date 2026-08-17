@@ -8,6 +8,7 @@ printshellcmds: true
 rerun-incomplete: true
 keep-going: true
 retries: 1
+benchmark-extended: true
 
 default-resources:
   mem_mb: 4000

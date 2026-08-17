@@ -13,6 +13,8 @@ rule negatives:
         out_window=config["negatives"]["out_window"],
     log:
         f"{LOGDIR}/negatives/{{sample}}.log",
+    benchmark:
+        f"{BENCHDIR}/negatives/{{sample}}.tsv"
     conda:
         CONDA_ENV
     shell:

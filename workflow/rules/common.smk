@@ -17,6 +17,7 @@ FAI = config["references"]["fai"]
 BLACKLIST = config["references"].get("blacklist") or None
 CHROM_SIZES = f"{RESULTS}/refs/chrom.sizes"   # run-independent, shared across runs
 LOGDIR = f"logs/{RUN_ID}"
+BENCHDIR = f"benchmarks/{RUN_ID}"
 
 # Absolute so the conda: directive resolves the same from any rule file.
 CONDA_ENV = str((Path(workflow.basedir).parent / config["conda_env"]).resolve())

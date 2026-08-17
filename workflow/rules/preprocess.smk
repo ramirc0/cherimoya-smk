@@ -6,6 +6,8 @@ rule chrom_sizes:
         sizes=CHROM_SIZES,
     log:
         f"{LOGDIR}/chrom_sizes/refs.log",
+    benchmark:
+        f"{BENCHDIR}/chrom_sizes/refs.tsv"
     conda:
         CONDA_ENV
     shell:
@@ -20,6 +22,8 @@ rule prep_peaks:
         peaks=f"{OUTDIR}/{{sample}}/{{sample}}.peaks.narrowPeak",
     log:
         f"{LOGDIR}/prep_peaks/{{sample}}.log",
+    benchmark:
+        f"{BENCHDIR}/prep_peaks/{{sample}}.tsv"
     conda:
         CONDA_ENV
     shell:
@@ -44,6 +48,8 @@ rule macs3:
         max_count="--max-count 1" if config["preprocess"]["fragments"] else "",
     log:
         f"{LOGDIR}/macs3/{{sample}}.log",
+    benchmark:
+        f"{BENCHDIR}/macs3/{{sample}}.tsv"
     conda:
         CONDA_ENV
     shell:
@@ -71,6 +77,8 @@ rule bam2bw:
         ).strip(),
     log:
         f"{LOGDIR}/bam2bw/{{sample}}.log",
+    benchmark:
+        f"{BENCHDIR}/bam2bw/{{sample}}.tsv"
     conda:
         CONDA_ENV
     shell:

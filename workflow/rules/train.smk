@@ -8,11 +8,14 @@ rule fit:
         blacklist=blacklist_input,
     output:
         model=f"{OUTDIR}/{{sample}}/{{sample}}.torch",
+        history=f"{OUTDIR}/{{sample}}/{{sample}}.log",   # per-epoch training log
     params:
         name=lambda wc: prefix(wc.sample),
         flags=fit_flags(),
     log:
         f"{LOGDIR}/fit/{{sample}}.log",
+    benchmark:
+        f"{BENCHDIR}/fit/{{sample}}.tsv"
     conda:
         CONDA_ENV
     shell:
@@ -28,16 +31,26 @@ rule evaluate:
         peaks=peaks_for,
         signal=lambda wc: signal_bw(wc.sample),
         model=f"{OUTDIR}/{{sample}}/{{sample}}.torch",
+        history=f"{OUTDIR}/{{sample}}/{{sample}}.log",
         blacklist=blacklist_input,
     output:
         performance=f"{OUTDIR}/{{sample}}/{{sample}}.performance.tsv",
+        epochs=report(
+            f"{OUTDIR}/{{sample}}/{{sample}}.epochs.svg",
+            category="Training curves",
+            labels={"sample": "{sample}"},
+        ),
     params:
         flags=eval_flags(),
     log:
         f"{LOGDIR}/evaluate/{{sample}}.log",
+    benchmark:
+        f"{BENCHDIR}/evaluate/{{sample}}.tsv"
     conda:
         CONDA_ENV
     shell:
         "python workflow/scripts/evaluate.py -s {input.fasta} -l {input.peaks} "
         "-sig {input.signal} -m {input.model} -o {output.performance} "
-        "{params.flags} > {log} 2>&1"
+        "{params.flags} > {log} 2>&1 && "
+        "python workflow/scripts/plot_epochs.py -i {input.history} "
+        "-o {output.epochs} --sample {wildcards.sample} >> {log} 2>&1"
