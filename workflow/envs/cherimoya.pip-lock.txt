@@ -46,11 +46,8 @@ nvidia-nccl-cu13==2.29.7
 nvidia-nvjitlink==13.3.33
 nvidia-nvshmem-cu13==3.4.5
 nvidia-nvtx==13.0.85
-packaging @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_packaging_1785888127/work
 pandas==3.0.5
 pillow==12.3.0
-polars @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_polars_1785582019/work/polars-python
-polars-runtime-32 @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_polars-runtime-32_1785582019/work/polars-runtime-32
 pybigtools==0.3.0
 pyBigWig==0.3.25
 pyfaidx==0.9.0.4

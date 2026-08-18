@@ -29,23 +29,31 @@ def main():
     from _style import apply_style
     apply_style()
 
+    import math
+
     import pandas as pd
-    import seaborn as sns
+    import matplotlib.pyplot as plt
 
     df = pd.read_csv(args.history, sep="\t")
     metrics = [m for m in METRICS if m in df.columns]
-    long = df.melt(
-        id_vars="Epoch", value_vars=metrics, var_name="metric", value_name="value"
-    )
 
-    g = sns.relplot(
-        data=long, x="Epoch", y="value", col="metric", col_wrap=3,
-        kind="line", marker="o", facet_kws={"sharey": False},
-    )
-    g.set_titles("{col_name}")
+    # One subplot per metric (own y-scale); constrained_layout spaces the
+    # suptitle so it does not collide with the axis titles.
+    ncols = min(3, len(metrics))
+    nrows = math.ceil(len(metrics) / ncols)
+    fig, axes = plt.subplots(nrows, ncols, figsize=(4 * ncols, 3 * nrows),
+        squeeze=False)
+    axes = axes.ravel()
+    for ax, metric in zip(axes, metrics):
+        ax.plot(df["Epoch"], df[metric], marker="o")
+        ax.set_title(metric)
+        ax.set_xlabel("Epoch")
+    for ax in axes[len(metrics):]:
+        ax.set_visible(False)
+
     if args.sample:
-        g.figure.suptitle(args.sample)
-    g.figure.savefig(args.output)
+        fig.suptitle(args.sample)
+    fig.savefig(args.output)
 
 
 if __name__ == "__main__":

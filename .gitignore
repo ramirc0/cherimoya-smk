@@ -1,7 +1,11 @@
+logs
+results
+config/*.tsv
 .snakemake
 scratch
 .conda
 resources
+benchmarks
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

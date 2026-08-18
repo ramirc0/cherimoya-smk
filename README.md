@@ -39,13 +39,13 @@ cherimoya.pip-lock.txt`).
 
 ```bash
 # local
-snakemake --profile profiles/default
+snakemake --profile profiles/local
 
 # SLURM (GPU rules -> gpuh200 with --gres=gpu:1)
 snakemake --profile profiles/slurm
 ```
 
-`snakemake -n -p --profile profiles/default` shows the plan without executing.
+`snakemake -n -p --profile profiles/local` shows the plan without executing.
 Because dependencies are file-based, editing one sample's bigWig re-runs only
 that sample's `fit`/`evaluate`; everything else stays cached.
 

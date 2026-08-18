@@ -1,4 +1,3 @@
-# cherimoya-smk: macs3 -> bam2bw -> negatives -> fit -> evaluate, per sample.
 
 include: "rules/common.smk"
 include: "rules/preprocess.smk"
@@ -9,7 +8,5 @@ include: "rules/report.smk"
 
 rule all:
     input:
-        # Gathers every sample's performance.tsv (-> evaluate -> per-sample
-        # epochs plots) plus the run-level distribution plot.
         f"{OUTDIR}/report/performance_distribution.svg",
         [f"{OUTDIR}/{s}/{s}.epochs.svg" for s in SAMPLES],

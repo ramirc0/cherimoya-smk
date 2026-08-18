@@ -11,15 +11,14 @@ slurm-efficiency-report-path: logs/efficiency
 slurm-efficiency-threshold: 0.8
 
 default-resources:
-  slurm_account: ramirezc
-  slurm_partition: 12hours
+  slurm_account: genomeatlas_umassmed
+  slurm_partition: cpu
   runtime: 60m
   mem_mb: 4000
-  slurm_extra: "--exclude=z1056,z1062"
 
 set-threads:
   macs3: 1
-  bam2bw: 2
+  bam2bw: 4
   negatives: 1
   fit: 4
   evaluate: 4
@@ -27,25 +26,23 @@ set-threads:
 set-resources:
   macs3:
     mem_mb: max(8000, 5 * input.size_mb) * attempt
-    runtime: min(720, max(60, 0.05 * input.size_mb) * attempt)
+    runtime: min(1440, max(60, 0.05 * input.size_mb) * attempt)
   bam2bw:
-    mem_mb: max(6000, 2 * input.size_mb) * attempt
-    runtime: min(720, max(30, 0.02 * input.size_mb) * attempt)
+    mem_mb: 16000 * attempt
+    runtime: min(1440, 480 * attempt)
   negatives:
-    mem_mb: 2000 * attempt
-    runtime: 30m
+    mem_mb: 8000 * attempt
+    runtime: 60m
   fit:
-    slurm_partition: gpuh200
+    slurm_partition: b200-batch
     gres: gpu:1
-    tasks_per_gpu: 0        # suppress --ntasks-per-gpu (conflicts with cpus-per-task for pytorch)
-    mem_mb: 48000 * attempt
-    runtime: 1440m
-  evaluate:
-    slurm_partition: gpuh200
-    gres: gpu:1
-    tasks_per_gpu: 0
-    mem_mb: 48000 * attempt
+    mem_mb: 32000 * attempt
     runtime: 240m
+  evaluate:
+    slurm_partition: b200-batch
+    gres: gpu:1
+    mem_mb: 24000 * attempt
+    runtime: 120m
 
 rerun-incomplete: true
 keep-going: true

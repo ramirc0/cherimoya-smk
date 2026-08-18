@@ -1,0 +1,27 @@
+# Local execution. Set fit.device/evaluate.device to cpu for a CPU-only box.
+software-deployment-method:
+  - conda
+conda-prefix: .conda
+
+cores: 16
+printshellcmds: true
+rerun-incomplete: true
+keep-going: true
+retries: 1
+benchmark-extended: true
+
+default-resources:          # fallback for the trivial rules (~1s, ~60 MB)
+  mem_mb: 2000
+  runtime: 30
+
+set-threads:
+  bam2bw: 2      # I/O-bound: benched ~1 core of real work
+  fit: 8
+  evaluate: 8
+
+set-resources:                 # mem tuned from the MOHD benchmark run
+  macs3:     {mem_mb: 8000}    # estimate (un-benched)
+  bam2bw:    {mem_mb: 6000}    # bench: ~3.5 GB
+  negatives: {mem_mb: 2000}    # bench: ~0.35 GB
+  fit:       {mem_mb: 48000}   # un-benched
+  evaluate:  {mem_mb: 48000}   # un-benched

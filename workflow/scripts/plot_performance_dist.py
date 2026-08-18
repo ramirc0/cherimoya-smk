@@ -19,8 +19,11 @@ def main():
     from _style import apply_style
     apply_style()
 
+    import math
+
     import pandas as pd
     import seaborn as sns
+    import matplotlib.pyplot as plt
 
     # Each performance TSV holds one row per signal group; tag with the sample
     # (its parent dir name) so every model contributes to the distribution.
@@ -32,16 +35,23 @@ def main():
     df = pd.concat(frames, ignore_index=True)
 
     metrics = [c for c in df.columns if c != "sample"]
-    long = df.melt(
-        id_vars="sample", value_vars=metrics, var_name="metric", value_name="value"
-    )
 
-    g = sns.displot(
-        data=long, x="value", col="metric", col_wrap=4, kind="hist", kde=True,
-        facet_kws={"sharex": False, "sharey": False},
-    )
-    g.set_titles("{col_name}")
-    g.figure.savefig(args.output)
+    # One subplot per metric, each with its own x-scale -- the metrics span very
+    # different ranges (e.g. profile_mnll ~130 vs spearman ~0.08), so a shared
+    # axis crushes them. KDE only when a metric has more than one distinct value.
+    ncols = min(4, len(metrics))
+    nrows = math.ceil(len(metrics) / ncols)
+    fig, axes = plt.subplots(nrows, ncols, figsize=(3.2 * ncols, 2.8 * nrows),
+        squeeze=False)
+    axes = axes.ravel()
+    for ax, metric in zip(axes, metrics):
+        sns.histplot(data=df, x=metric, kde=df[metric].nunique() > 1, ax=ax)
+        ax.set_title(metric)
+        ax.set_xlabel("")
+    for ax in axes[len(metrics):]:
+        ax.set_visible(False)
+
+    fig.savefig(args.output)
 
 
 if __name__ == "__main__":
