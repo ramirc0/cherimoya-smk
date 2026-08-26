@@ -19,5 +19,10 @@ rule performance_distribution:
     conda:
         CONDA_ENV
     shell:
-        "python workflow/scripts/plot_performance_dist.py -i {input.performance} "
-        "-o {output.plot} > {log} 2>&1"
+        r"""
+        exec &> >(tee {log:q})
+
+        python workflow/scripts/plot_performance_dist.py \
+            -i {input.performance:q} \
+            -o {output.plot:q}
+        """

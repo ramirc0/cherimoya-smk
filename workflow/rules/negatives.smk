@@ -6,12 +6,12 @@ rule negatives:
     output:
         bed=f"{OUTDIR}/{{sample}}/{{sample}}.negatives.bed",
     params:
-        bin_width=config["negatives"]["bin_width"],
-        max_n_perc=config["negatives"]["max_n_perc"],
-        beta=config["negatives"]["beta"],
-        in_window=config["negatives"]["in_window"],
-        out_window=config["negatives"]["out_window"],
-        on_missing_contig=config["peaks"]["on_missing_contig"],
+        bin_width=lambda _: config["negatives"]["bin_width"],
+        max_n_perc=lambda _: config["negatives"]["max_n_perc"],
+        beta=lambda _: config["negatives"]["beta"],
+        in_window=lambda _: config["negatives"]["in_window"],
+        out_window=lambda _: config["negatives"]["out_window"],
+        on_missing_contig=lambda _: config["peaks"]["on_missing_contig"],
     log:
         f"{LOGDIR}/negatives/{{sample}}.log",
     benchmark:
@@ -19,7 +19,17 @@ rule negatives:
     conda:
         CONDA_ENV
     shell:
-        "python workflow/scripts/negatives.py -i {input.peaks} -f {input.fasta} "
-        "-o {output.bed} -l {params.bin_width} -n {params.max_n_perc} "
-        "-a {params.beta} -w {params.in_window} -x {params.out_window} "
-        "--on_missing_contig {params.on_missing_contig} > {log} 2>&1"
+        r"""
+        exec &> >(tee {log:q})
+
+        python workflow/scripts/negatives.py \
+            -i {input.peaks:q} \
+            -f {input.fasta:q} \
+            -o {output.bed:q} \
+            -l {params.bin_width:q} \
+            -n {params.max_n_perc:q} \
+            -a {params.beta:q} \
+            -w {params.in_window:q} \
+            -x {params.out_window:q} \
+            --on_missing_contig {params.on_missing_contig:q}
+        """

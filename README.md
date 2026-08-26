@@ -38,6 +38,9 @@ cherimoya.pip-lock.txt`).
 ## Running
 
 ```bash
+# one-time: create your config from the tracked template, then edit
+cp config/config.yaml.template config/config.yaml
+
 # local
 snakemake --profile profiles/local
 

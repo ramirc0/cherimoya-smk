@@ -11,7 +11,7 @@ rule fit:
         history=f"{OUTDIR}/{{sample}}/{{sample}}.log",   # per-epoch training log
     params:
         name=lambda wc: prefix(wc.sample),
-        flags=fit_flags(),
+        flags=lambda _: fit_flags(),
     log:
         f"{LOGDIR}/fit/{{sample}}.log",
     benchmark:
@@ -19,9 +19,17 @@ rule fit:
     conda:
         CONDA_ENV
     shell:
-        "python workflow/scripts/fit.py -s {input.fasta} -l {input.peaks} "
-        "-neg {input.negatives} -sig {input.signal} -o {params.name} "
-        "{params.flags} > {log} 2>&1"
+        r"""
+        exec &> >(tee {log:q})
+
+        python workflow/scripts/fit.py \
+            -s {input.fasta:q} \
+            -l {input.peaks:q} \
+            -neg {input.negatives:q} \
+            -sig {input.signal:q} \
+            -o {params.name:q} \
+            {params.flags:q}
+        """
 
 
 # Score the trained model into a per-signal-group performance table.
@@ -41,7 +49,7 @@ rule evaluate:
             labels={"sample": "{sample}"},
         ),
     params:
-        flags=eval_flags(),
+        flags=lambda _: eval_flags(),
     log:
         f"{LOGDIR}/evaluate/{{sample}}.log",
     benchmark:
@@ -49,8 +57,19 @@ rule evaluate:
     conda:
         CONDA_ENV
     shell:
-        "python workflow/scripts/evaluate.py -s {input.fasta} -l {input.peaks} "
-        "-sig {input.signal} -m {input.model} -o {output.performance} "
-        "{params.flags} > {log} 2>&1 && "
-        "python workflow/scripts/plot_epochs.py -i {input.history} "
-        "-o {output.epochs} --sample {wildcards.sample} >> {log} 2>&1"
+        r"""
+        exec &> >(tee {log:q})
+
+        python workflow/scripts/evaluate.py \
+            -s {input.fasta:q} \
+            -l {input.peaks:q} \
+            -sig {input.signal:q} \
+            -m {input.model:q} \
+            -o {output.performance:q} \
+            {params.flags:q}
+
+        python workflow/scripts/plot_epochs.py \
+            -i {input.history:q} \
+            -o {output.epochs:q} \
+            --sample {wildcards.sample:q}
+        """

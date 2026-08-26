@@ -1,6 +1,8 @@
 logs
 results
 config/*.tsv
+# copy from config.yaml.template, then edit
+config/config.yaml
 .snakemake
 scratch
 .conda

@@ -95,7 +95,7 @@ def macs3_format(wildcards):
 
 
 def _list_flag(name, values):
-    return f"--{name} " + " ".join(str(v) for v in values)
+    return [f"--{name}", *(str(v) for v in values)]
 
 
 # The blacklist as a rule input (for dependency tracking) or [] when unset.
@@ -104,58 +104,58 @@ def blacklist_input(wildcards):
 
 
 def fit_flags():
-    """All fit.py hyperparameter flags built from config['fit']."""
+    """All fit.py hyperparameter flag tokens from config['fit'] (use with :q)."""
     f = config["fit"]
     flags = [
-        f"--n_filters {f['n_filters']}",
-        f"--n_layers {f['n_layers']}",
-        f"--expansion {f['expansion']}",
-        f"--residual_scale {f['residual_scale']}",
-        f"--in_window {f['in_window']}",
-        f"--out_window {f['out_window']}",
-        f"--max_jitter {f['max_jitter']}",
-        f"--negative_ratio {f['negative_ratio']}",
-        f"--batch_size {f['batch_size']}",
-        f"--max_epochs {f['max_epochs']}",
-        f"--n_warmup_epochs {f['n_warmup_epochs']}",
-        f"--early_stopping {f['early_stopping']}",
-        f"--muon_lr {f['muon_lr']}",
-        f"--muon_wd {f['muon_wd']}",
-        f"--adam_lr {f['adam_lr']}",
-        f"--adam_wd {f['adam_wd']}",
-        f"--lw_lr {f['lw_lr']}",
-        f"--lw_wd {f['lw_wd']}",
-        f"--lw_momentum {f['lw_momentum']}",
-        f"--num_workers {f['num_workers']}",
-        f"--dtype {f['dtype']}",
-        f"--device {f['device']}",
-        _list_flag("training_chroms", f["training_chroms"]),
-        _list_flag("validation_chroms", f["validation_chroms"]),
+        "--n_filters", f["n_filters"],
+        "--n_layers", f["n_layers"],
+        "--expansion", f["expansion"],
+        "--residual_scale", f["residual_scale"],
+        "--in_window", f["in_window"],
+        "--out_window", f["out_window"],
+        "--max_jitter", f["max_jitter"],
+        "--negative_ratio", f["negative_ratio"],
+        "--batch_size", f["batch_size"],
+        "--max_epochs", f["max_epochs"],
+        "--n_warmup_epochs", f["n_warmup_epochs"],
+        "--early_stopping", f["early_stopping"],
+        "--muon_lr", f["muon_lr"],
+        "--muon_wd", f["muon_wd"],
+        "--adam_lr", f["adam_lr"],
+        "--adam_wd", f["adam_wd"],
+        "--lw_lr", f["lw_lr"],
+        "--lw_wd", f["lw_wd"],
+        "--lw_momentum", f["lw_momentum"],
+        "--num_workers", f["num_workers"],
+        "--dtype", f["dtype"],
+        "--device", f["device"],
+        *_list_flag("training_chroms", f["training_chroms"]),
+        *_list_flag("validation_chroms", f["validation_chroms"]),
     ]
     if not f["reverse_complement"]:
         flags.append("--no_reverse_complement")
     if f["summits"]:
         flags.append("--summits")
-    if f.get("random_state") is not None:
-        flags.append(f"--random_state {f['random_state']}")
+    if f["random_state"] is not None:
+        flags += ["--random_state", f["random_state"]]
     if BLACKLIST:
-        flags.append(f"--exclusion_lists {BLACKLIST}")
-    return " ".join(flags)
+        flags += ["--exclusion_lists", BLACKLIST]
+    return [str(x) for x in flags]
 
 
 def eval_flags():
-    """All evaluate.py flags built from config['evaluate']."""
+    """All evaluate.py flag tokens from config['evaluate'] (use with :q)."""
     e = config["evaluate"]
     flags = [
-        f"--batch_size {e['batch_size']}",
-        f"--in_window {e['in_window']}",
-        f"--out_window {e['out_window']}",
-        f"--dtype {e['dtype']}",
-        f"--device {e['device']}",
-        _list_flag("chroms", e["chroms"]),
+        "--batch_size", e["batch_size"],
+        "--in_window", e["in_window"],
+        "--out_window", e["out_window"],
+        "--dtype", e["dtype"],
+        "--device", e["device"],
+        *_list_flag("chroms", e["chroms"]),
     ]
     if e["reverse_complement_average"]:
         flags.append("--reverse_complement_average")
     if BLACKLIST:
-        flags.append(f"--exclusion_lists {BLACKLIST}")
-    return " ".join(flags)
+        flags += ["--exclusion_lists", BLACKLIST]
+    return [str(x) for x in flags]
