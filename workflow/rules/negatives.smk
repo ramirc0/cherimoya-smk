@@ -2,7 +2,7 @@
 rule negatives:
     input:
         peaks=peaks_for,
-        fasta=FASTA,
+        fasta=lambda wc: fasta_of(wc.sample),
     output:
         bed=f"{OUTDIR}/{{sample}}/{{sample}}.negatives.bed",
     params:

@@ -4,9 +4,22 @@ conda_env: workflow/envs/cherimoya.yaml
 run_id: default          # logs go under logs/<run_id>/; override per run to keep runs separate
 
 references:
-  fasta: resources/GRCh38_no_alt_analysis_set_GCA_000001405.15.fasta
-  fai: resources/GRCh38_no_alt_analysis_set_GCA_000001405.15.fasta.fai
   blacklist: resources/ENCFF356LFX.slop1057.bed   # optional BED of regions to exclude (fit + evaluate)
+
+# CV folds to train + evaluate. Fold JSONs (train/valid/test chrom splits) live in
+# resources/folds/<genome>/fold_<k>.json; generate them once per genome with
+# `python workflow/scripts/make_folds.py` (reads each genome's chrom.sizes).
+folds: [0]               # e.g. [0, 1, 2, 3, 4] for the full 5-fold CV
+
+# Per-assembly references. Each sample picks its genome via the `genome` column of
+# the sample sheet (multi-species data). Provide fasta + .fai + chrom.sizes per
+# genome under resources/refs/ (fai: `samtools faidx`; chrom.sizes: `cut -f1,2 fai`).
+genomes:
+  hg38:
+    fasta: resources/refs/hg38.fa
+    fai: resources/refs/hg38.fa.fai
+    chrom_sizes: resources/refs/hg38.chrom.sizes
+    gsize: hs             # macs3 -g (preset hs/mm or a bp number)
 
 # macs3 + bam2bw.
 preprocess:
@@ -17,8 +30,7 @@ preprocess:
   pos_shift: 4          # Tn5 shift
   neg_shift: -4
   scale_factor: 1
-  callpeaks_gsize: hs
-  callpeaks_q: 0.05
+  callpeaks_q: 0.05     # macs3 genome size (-g) is per-genome (config genomes.<g>.gsize)
 
 peaks:
   on_missing_contig: filter   # filter | fail — peaks on contigs absent from the FASTA
@@ -56,9 +68,7 @@ fit:
   dtype: float32
   device: cuda
   random_state: null
-  training_chroms: [chr2, chr4, chr5, chr7, chr9, chr10, chr11, chr12, chr13,
-    chr14, chr15, chr16, chr17, chr18, chr19, chr21, chr22, chrX, chrY]
-  validation_chroms: [chr8, chr20]
+  # training/validation chroms come from the per-genome CV fold JSON.
 
 evaluate:
   batch_size: 512
@@ -67,4 +77,4 @@ evaluate:
   reverse_complement_average: false
   dtype: float32
   device: cuda
-  chroms: [chr8, chr20]
+  # eval chroms come from the per-genome CV fold JSON (the fold's test set).

@@ -1,21 +1,5 @@
-# chrom sizes from the .fai (bam2bw -s accepts a sizes file).
-rule chrom_sizes:
-    input:
-        fai=FAI,
-    output:
-        sizes=CHROM_SIZES,
-    log:
-        f"{LOGDIR}/chrom_sizes/refs.log",
-    benchmark:
-        f"{BENCHDIR}/chrom_sizes/refs.tsv"
-    conda:
-        CONDA_ENV
-    shell:
-        r"""
-        exec &> >(tee {log:q})
-
-        cut -f1,2 {input.fai:q} > {output.sizes:q}
-        """
+# chrom.sizes are pre-generated per genome (config genomes.<g>.chrom_sizes,
+# selected per sample by chrom_sizes_of); no chrom_sizes rule is needed.
 
 
 # Decompress/copy a provided peak file to the canonical path.
@@ -51,7 +35,7 @@ rule macs3:
         peaks=f"{OUTDIR}/{{sample}}/{{sample}}_peaks.narrowPeak",
     params:
         fmt=macs3_format,
-        gsize=lambda _: config["preprocess"]["callpeaks_gsize"],
+        gsize=lambda wc: gsize_of(wc.sample),
         q=lambda _: config["preprocess"]["callpeaks_q"],
         name=lambda wc: prefix(wc.sample),
         control=lambda wc, input: ["-c", *input.control] if input.control else [],
@@ -81,7 +65,7 @@ rule macs3:
 rule bam2bw:
     input:
         signal=lambda wc: SIGNAL_OF[wc.sample],
-        sizes=CHROM_SIZES,
+        sizes=lambda wc: chrom_sizes_of(wc.sample),
     output:
         bw=f"{OUTDIR}/{{sample}}/{{sample}}.bw",
     params:

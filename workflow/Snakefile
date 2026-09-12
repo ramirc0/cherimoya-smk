@@ -8,5 +8,13 @@ include: "rules/report.smk"
 
 rule all:
     input:
+        # per-model QC
+        [f"{OUTDIR}/{s}/fold_{fold}/{s}.epochs.svg"
+         for s in SAMPLES for fold in FOLDS],
+        [f"{OUTDIR}/{s}/fold_{fold}/{s}.count_scatter.svg"
+         for s in SAMPLES for fold in FOLDS],
+        # run-level QC
         f"{OUTDIR}/report/performance_distribution.svg",
-        [f"{OUTDIR}/{s}/{s}.epochs.svg" for s in SAMPLES],
+        [f"{OUTDIR}/report/count_pearson_vs_{c}.svg" for c in COVARIATES],
+        f"{OUTDIR}/report/outliers.svg",
+        f"{OUTDIR}/report/worst_offenders.tsv",

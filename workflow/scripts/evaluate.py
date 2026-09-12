@@ -28,6 +28,8 @@ def build_parser():
         help="Trained model checkpoint (<name>.torch).")
     parser.add_argument("-o", "--performance_filename", required=True,
         help="Destination TSV for the performance table.")
+    parser.add_argument("--counts_filename", default=None,
+        help="Optional TSV of per-region observed vs predicted log-counts.")
     parser.add_argument("--chroms", nargs="+", default=["chr8", "chr20"])
     parser.add_argument("--batch_size", type=int, default=512)
     parser.add_argument("--in_window", type=int, default=2114)
@@ -131,6 +133,19 @@ def main():
 
     with open(args.performance_filename, "w") as outfile:
         outfile.write("\n".join(_format_rows()))
+
+    # Per-region observed vs predicted log-counts, the points behind count_pearson.
+    if args.counts_filename:
+        counts = y_hat_logcounts if y_hat_logcounts.ndim > 1 else y_hat_logcounts[:, None]
+        lines = ["group\tobs_logcount\tpred_logcount"]
+        offset = 0
+        for i, g in enumerate(groups):
+            obs = torch.log1p(y[:, offset:offset + g, :].sum(dim=(1, 2)))
+            lines += [f"{i}\t{o}\t{p}"
+                      for o, p in zip(obs.tolist(), counts[:, i].tolist())]
+            offset += g
+        with open(args.counts_filename, "w") as outfile:
+            outfile.write("\n".join(lines))
 
     if args.verbose:
         for line in _format_rows():

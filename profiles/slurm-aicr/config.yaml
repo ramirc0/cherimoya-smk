@@ -23,26 +23,28 @@ set-threads:
   fit: 4
   evaluate: 4
 
+# Flat presets, no size/attempt scaling. Right-size once from benchmarks/<run_id>/;
+# to catch stragglers, bump the preset and rerun (only the failed jobs re-run).
 set-resources:
   macs3:
-    mem_mb: max(8000, 5 * input.size_mb) * attempt
-    runtime: min(1440, max(60, 0.05 * input.size_mb) * attempt)
+    mem_mb: 16000
+    runtime: 240
   bam2bw:
-    mem_mb: 16000 * attempt
-    runtime: min(1440, 480 * attempt)
+    mem_mb: 16000
+    runtime: 480
   negatives:
-    mem_mb: 8000 * attempt
-    runtime: 60m
+    mem_mb: 8000
+    runtime: 60
   fit:
     slurm_partition: b200-batch
     gres: gpu:1
-    mem_mb: 32000 * attempt
-    runtime: 240m
+    mem_mb: 32000
+    runtime: 240
   evaluate:
     slurm_partition: b200-batch
     gres: gpu:1
-    mem_mb: 24000 * attempt
-    runtime: 120m
+    mem_mb: 24000
+    runtime: 120
 
 rerun-incomplete: true
 keep-going: true
