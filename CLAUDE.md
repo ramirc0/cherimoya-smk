@@ -25,6 +25,18 @@ peaks (provided) ── prep_peaks ───────┘                     
 `*` fan out per fold. Out of scope: attribution, seqlets, tomtom, modisco,
 marginalize.
 
+## Entry points
+
+A sample enters at whatever stage its inputs allow (see `docs/run-paths.svg`,
+rendered from `docs/run-paths.dot`):
+
+- `signal` = BAM/fragments -> `bam2bw` builds the bigWig; `signal` = a `.bw`/
+  `.bigwig` -> used as-is, `bam2bw` is skipped.
+- `peaks` provided -> `prep_peaks` normalizes it; else `macs3` calls peaks from
+  the BAM.
+- A bigWig signal with no peaks is a `WorkflowError` (peaks can't be called from a
+  bigWig). Detection is by extension in `_is_bigwig` (common.smk).
+
 ## Layout
 
 ```

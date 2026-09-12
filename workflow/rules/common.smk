@@ -29,8 +29,9 @@ _SHEET = Path(config["samples"])
 if not _SHEET.exists():
     raise WorkflowError(
         f"Sample sheet not found: {_SHEET}\n"
-        "Create it (columns: sample_id, signal, [control], [peaks]); see "
-        "config/samples.tsv for the expected layout."
+        "Create it (columns: sample_id, signal, genome, [control], [peaks]); "
+        "signal is a BAM/fragments file (bam2bw + macs3) or an already-built "
+        "bigWig (requires provided peaks). See config/samples.tsv for the layout."
     )
 
 _manifest = pl.read_csv(_SHEET, separator="\t", infer_schema_length=0)
@@ -44,6 +45,11 @@ def _column(name):
         row["sample_id"]: (row[name] or None)
         for row in _manifest.iter_rows(named=True)
     }
+
+
+def _is_bigwig(path):
+    """True when `path` is already a bigWig (bam2bw can be skipped)."""
+    return path.lower().endswith((".bw", ".bigwig"))
 
 
 SAMPLES = _manifest.get_column("sample_id").to_list()
@@ -70,6 +76,16 @@ if _unknown_genomes:
     raise WorkflowError(
         f"genome(s) not defined in config['genomes']: {_unknown_genomes}"
     )
+# A bigWig signal skips bam2bw; peaks cannot be called from it, so they must be
+# provided (macs3 needs a BAM/fragments file).
+_bw_no_peaks = [s for s in SAMPLES
+                if _is_bigwig(SIGNAL_OF[s]) and not PEAKS_OF.get(s)]
+if _bw_no_peaks:
+    raise WorkflowError(
+        f"{len(_bw_no_peaks)} sample(s) give a bigWig signal but no peaks "
+        f"(e.g. {_bw_no_peaks[:3]}); provide a `peaks` file or a BAM/fragments "
+        "signal so macs3 can call peaks."
+    )
 
 
 wildcard_constraints:
@@ -83,8 +99,10 @@ def prefix(sample):
 
 
 def signal_bw(sample):
-    """The unstranded bigWig produced by the bam2bw rule for `sample`."""
-    return f"{prefix(sample)}.bw"
+    """The signal bigWig for `sample`: the provided file when it is already a
+    bigWig (skips bam2bw), else the bam2bw output path."""
+    signal = SIGNAL_OF[sample]
+    return signal if _is_bigwig(signal) else f"{prefix(sample)}.bw"
 
 
 # Per-sample genome lookups (the sample's assembly from the sheet).

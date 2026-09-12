@@ -1,0 +1,75 @@
+// How a sample flows through the pipeline, given what its sample-sheet row
+// provides. Render: dot -Tsvg docs/run-paths.dot -o docs/run-paths.svg
+digraph run_paths {
+    rankdir=LR;
+    bgcolor="white";
+    node [fontname="Arial", fontsize=11, margin="0.12,0.06"];
+    edge [fontname="Arial", fontsize=9, color="#555555"];
+
+    sheet [shape=folder, fillcolor="#eeeeee", style=filled,
+           label="sample sheet row\nsignal · [peaks] · genome"];
+
+    // --- input decisions ------------------------------------------------
+    q_sig   [shape=diamond, style=filled, fillcolor="#fff3cf",
+             label="signal is\na bigWig?"];
+    q_peaks [shape=diamond, style=filled, fillcolor="#fff3cf",
+             label="peaks\nprovided?"];
+
+    // --- preprocessing (per sample, fold-agnostic) ----------------------
+    subgraph cluster_pre {
+        label="preprocessing (skipped when already provided)";
+        fontname="Arial"; fontsize=10; color="#bbbbbb"; style=dashed;
+        bam2bw [shape=box, style="filled,rounded", fillcolor="#dbe9f6", label="bam2bw"];
+        macs3  [shape=box, style="filled,rounded", fillcolor="#dbe9f6", label="macs3"];
+        prep   [shape=box, style="filled,rounded", fillcolor="#dbe9f6", label="prep_peaks"];
+    }
+
+    bw    [shape=note, fillcolor="#f2f7fb", style=filled, label="<sample>.bw"];
+    peaks [shape=note, fillcolor="#f2f7fb", style=filled, label="<sample> peaks\n.narrowPeak"];
+    err   [shape=octagon, style=filled, fillcolor="#f6d9d9",
+           label="WorkflowError\nbigWig needs\nprovided peaks"];
+
+    // --- shared core (per CV fold) --------------------------------------
+    neg [shape=box, style="filled,rounded", fillcolor="#dbe9f6", label="negatives"];
+    subgraph cluster_fold {
+        label="per CV fold (config.folds)";
+        fontname="Arial"; fontsize=10; color="#9ec59e"; style=dashed;
+        fit  [shape=box, style="filled,rounded", fillcolor="#d7efd7", label="fit"];
+        evaluate [shape=box, style="filled,rounded", fillcolor="#d7efd7", label="evaluate"];
+    }
+    perf [shape=note, fillcolor="#f2f7fb", style=filled,
+          label="performance.tsv\ncounts.tsv\nepochs.svg · count_scatter.svg"];
+
+    // --- run-level QC ---------------------------------------------------
+    subgraph cluster_qc {
+        label="run-level QC";
+        fontname="Arial"; fontsize=10; color="#bbbbbb"; style=dashed;
+        gather [shape=box, style="filled,rounded", fillcolor="#dbe9f6", label="gather_metrics"];
+        qc [shape=note, fillcolor="#f2f7fb", style=filled,
+            label="performance_distribution.svg\ncount_pearson_vs_<cov>.svg\noutliers.svg · worst_offenders"];
+    }
+
+    // signal branch
+    sheet -> q_sig;
+    q_sig -> bam2bw [label="no (BAM/fragments)"];
+    bam2bw -> bw;
+    q_sig -> bw [label="yes: use as-is", style=dashed, color="#2c7fb8"];
+
+    // peaks branch
+    sheet -> q_peaks;
+    q_peaks -> prep  [label="yes"];
+    prep -> peaks;
+    q_peaks -> macs3 [label="no: call from BAM"];
+    macs3 -> peaks;
+    q_peaks -> err   [label="no + bigWig", style=dashed, color="#c0392b"];
+
+    // convergence + core
+    peaks -> neg;
+    bw -> fit;
+    peaks -> fit;
+    neg -> fit;
+    fit -> evaluate -> perf;
+    perf -> gather -> qc;
+
+    { rank=same; bw; peaks; }
+}
