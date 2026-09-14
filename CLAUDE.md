@@ -37,6 +37,13 @@ rendered from `docs/run-paths.dot`):
 - A bigWig signal with no peaks is a `WorkflowError` (peaks can't be called from a
   bigWig). Detection is by extension in `_is_bigwig` (common.smk).
 
+The sample sheet is a pure manifest (`sample_id, signal, genome, [control],
+[peaks]`); QC covariates are derived, not sheet columns. `n_peaks` is counted
+from the narrowPeak; `n_fragments` is a full scan of the signal
+(`count_fragments` rule, bigWig -> NaN). The `config["qc"]` block
+(`n_peaks`/`n_fragments`) toggles each covariate plot and, for `n_fragments`, the
+scan itself. `COVARIATES` in common.smk is the single gate.
+
 ## Layout
 
 ```

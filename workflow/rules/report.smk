@@ -9,10 +9,14 @@ rule gather_metrics:
     input:
         performance=_ALL_PERFORMANCE,
         samples=config["samples"],
+        # Depth files only when n_fragments is an active covariate (gates the scan).
+        n_fragments=([n_fragments_file(s) for s in SAMPLES if not _is_bigwig(SIGNAL_OF[s])]
+                     if "n_fragments" in COVARIATES else []),
     output:
         metrics=f"{OUTDIR}/report/metrics.tsv",
     params:
         results_dir=OUTDIR,
+        covariates=COVARIATES,
     log:
         f"{LOGDIR}/gather_metrics/all.log",
     benchmark:
@@ -27,6 +31,7 @@ rule gather_metrics:
             -i {input.performance:q} \
             -s {input.samples:q} \
             -r {params.results_dir:q} \
+            --covariates {params.covariates:q} \
             -o {output.metrics:q}
         """
 

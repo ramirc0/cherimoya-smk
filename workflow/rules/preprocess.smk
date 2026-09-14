@@ -102,3 +102,30 @@ rule bam2bw:
             {params.extra:q} \
             {input.signal:q}
         """
+
+
+# Fragment count of the signal, the depth QC covariate (full scan).
+rule count_fragments:
+    input:
+        signal=lambda wc: SIGNAL_OF[wc.sample],
+    output:
+        n_fragments=f"{OUTDIR}/{{sample}}/{{sample}}.n_fragments.txt",
+    params:
+        fragments=lambda _: ["--fragments"] if config["preprocess"]["fragments"] else [],
+        paired_end=lambda _: ["--paired_end"] if config["preprocess"]["paired_end"] else [],
+    log:
+        f"{LOGDIR}/count_fragments/{{sample}}.log",
+    benchmark:
+        f"{BENCHDIR}/count_fragments/{{sample}}.tsv"
+    conda:
+        CONDA_ENV
+    shell:
+        r"""
+        exec &> >(tee {log:q})
+
+        python workflow/scripts/count_fragments.py \
+            -i {input.signal:q} \
+            -o {output.n_fragments:q} \
+            {params.fragments:q} \
+            {params.paired_end:q}
+        """

@@ -36,6 +36,9 @@ set-resources:
   negatives:
     mem_mb: 8000
     runtime: 60m
+  count_fragments:
+    mem_mb: 4000
+    runtime: 240m
   fit:
     slurm_partition: gpuh200
     gres: gpu:1

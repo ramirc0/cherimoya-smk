@@ -25,16 +25,16 @@ def main():
     import seaborn as sns
     import matplotlib.pyplot as plt
 
-    # Each performance TSV holds one row per signal group; tag with the sample
-    # (its parent dir name) so every model contributes to the distribution.
+    # Each performance TSV holds one row per signal group; tag with the model id
+    # (<sample>/fold_<k> from the path) so every model contributes to the distribution.
     frames = []
     for path in args.performance:
         d = pd.read_csv(path, sep="\t")
-        d["sample"] = Path(path).parent.name
+        d["model"] = f"{Path(path).parents[1].name}/{Path(path).parent.name}"
         frames.append(d)
     df = pd.concat(frames, ignore_index=True)
 
-    metrics = [c for c in df.columns if c != "sample"]
+    metrics = [c for c in df.columns if c != "model"]
 
     # One subplot per metric, each with its own x-scale -- the metrics span very
     # different ranges (e.g. profile_mnll ~130 vs spearman ~0.08), so a shared

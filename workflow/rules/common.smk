@@ -58,9 +58,13 @@ CONTROL_OF = _column("control")
 PEAKS_OF = _column("peaks")
 GENOME_OF = _column("genome")
 
-# QC covariates for perf_vs_covariate: n_peaks is always derivable; n_fragments
-# only when the sheet carries the column.
-COVARIATES = ["n_peaks"] + (["n_fragments"] if "n_fragments" in _manifest.columns else [])
+# QC covariates for perf_vs_covariate, gated by config["qc"] and computability:
+# n_peaks is always derivable; n_fragments needs a scannable (non-bigWig) signal.
+_qc = config["qc"]
+_has_depth = any(not _is_bigwig(SIGNAL_OF[s]) for s in SAMPLES)
+COVARIATES = [c for c, on in (("n_peaks", _qc["n_peaks"]),
+                              ("n_fragments", _qc["n_fragments"] and _has_depth))
+              if on]
 
 if not SAMPLES:
     raise WorkflowError(f"Sample sheet {_SHEET} has no rows.")
@@ -103,6 +107,11 @@ def signal_bw(sample):
     bigWig (skips bam2bw), else the bam2bw output path."""
     signal = SIGNAL_OF[sample]
     return signal if _is_bigwig(signal) else f"{prefix(sample)}.bw"
+
+
+def n_fragments_file(sample):
+    """The count_fragments output (fragment count) for `sample`."""
+    return f"{prefix(sample)}.n_fragments.txt"
 
 
 # Per-sample genome lookups (the sample's assembly from the sheet).

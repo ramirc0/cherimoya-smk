@@ -35,6 +35,13 @@ preprocess:
 peaks:
   on_missing_contig: filter   # filter | fail — peaks on contigs absent from the FASTA
 
+# QC covariate plots (count_pearson vs each enabled covariate). n_fragments needs a
+# full scan of every BAM/fragments signal (skipped for bigWig inputs); turn it off
+# to skip both the scan and the plot.
+qc:
+  n_peaks: true
+  n_fragments: true
+
 negatives:
   bin_width: 0.02
   max_n_perc: 0.1
