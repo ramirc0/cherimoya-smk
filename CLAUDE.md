@@ -19,7 +19,7 @@ peaks (provided) ── prep_peaks ───────┘                     
                                                                ├─ epochs.svg, count_scatter.svg  (per model)
                                                                └─ gather_metrics ─ metrics.tsv ─┬─ performance_distribution.svg
                                                                                                 ├─ count_pearson_vs_<cov>.svg
-                                                                                                └─ outliers.svg + worst_offenders.{tsv,html}
+                                                                                                └─ outliers.svg + outliers.tsv
 ```
 
 `*` fan out per fold. Out of scope: attribution, seqlets, tomtom, modisco,

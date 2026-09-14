@@ -29,25 +29,25 @@ set-threads:
 set-resources:
   macs3:
     mem_mb: 16000
-    runtime: 240
+    runtime: 240m
   bam2bw:
     mem_mb: 32000
-    runtime: 240
+    runtime: 240m
   negatives:
     mem_mb: 8000
-    runtime: 60
+    runtime: 60m
   fit:
     slurm_partition: gpuh200
     gres: gpu:1
     tasks_per_gpu: 0        # suppress --ntasks-per-gpu (conflicts with cpus-per-task for pytorch)
     mem_mb: 48000
-    runtime: 1440
+    runtime: 1440m
   evaluate:
     slurm_partition: gpuh200
     gres: gpu:1
     tasks_per_gpu: 0
     mem_mb: 32000
-    runtime: 240
+    runtime: 240m
 
 rerun-incomplete: true
 keep-going: true

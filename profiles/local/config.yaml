@@ -13,7 +13,7 @@ benchmark-extended: true
 
 default-resources:          # fallback for the trivial rules (~1s, ~60 MB)
   mem_mb: 2000
-  runtime: 30
+  runtime: 30m
 
 set-threads:
   bam2bw: 2      # I/O-bound: benched ~1 core of real work

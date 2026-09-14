@@ -61,17 +61,15 @@ rule perf_vs_covariate:
         """
 
 
-# Under-performing models: rank plot + worst-offenders table.
+# Under-performing models: rank plot + per-model metrics table with an outlier flag.
 rule outliers:
     input:
         metrics=f"{OUTDIR}/report/metrics.tsv",
     output:
         plot=report(f"{OUTDIR}/report/outliers.svg",
                     category="Count QC", labels={"plot": "outliers"}),
-        table_html=report(f"{OUTDIR}/report/worst_offenders.html",
-                          category="Count QC", labels={"table": "worst offenders"}),
-        table=report(f"{OUTDIR}/report/worst_offenders.tsv",
-                     category="Count QC", labels={"table": "worst offenders (download)"}),
+        table=report(f"{OUTDIR}/report/outliers.tsv",
+                     category="Count QC", labels={"table": "per-model metrics + outlier flag"}),
     log:
         f"{LOGDIR}/outliers/all.log",
     benchmark:
@@ -85,8 +83,7 @@ rule outliers:
         python workflow/scripts/plot_outliers.py \
             -i {input.metrics:q} \
             -o {output.plot:q} \
-            -t {output.table:q} \
-            -T {output.table_html:q}
+            -t {output.table:q}
         """
 
 

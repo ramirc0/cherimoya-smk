@@ -5,6 +5,7 @@ conda-prefix: .conda
 
 jobs: 40
 max-jobs-per-second: 5
+scheduler: greedy
 
 slurm-efficiency-report: true
 slurm-efficiency-report-path: logs/efficiency
@@ -28,23 +29,23 @@ set-threads:
 set-resources:
   macs3:
     mem_mb: 16000
-    runtime: 240
+    runtime: 240m
   bam2bw:
     mem_mb: 16000
-    runtime: 480
+    runtime: 480m
   negatives:
     mem_mb: 8000
-    runtime: 60
+    runtime: 60m
   fit:
     slurm_partition: b200-batch
     gres: gpu:1
-    mem_mb: 32000
-    runtime: 240
+    mem_mb: 20000
+    runtime: 60m
   evaluate:
     slurm_partition: b200-batch
     gres: gpu:1
-    mem_mb: 24000
-    runtime: 120
+    mem_mb: 12000
+    runtime: 30m
 
 rerun-incomplete: true
 keep-going: true
