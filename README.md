@@ -27,9 +27,13 @@ are out of scope for now.
   (`bam2bw` + `macs3`) or an already-built bigWig (`.bw`/`.bigwig`, used as-is;
   requires provided peaks). An empty `peaks` cell triggers macs3 peak-calling.
 - `config/config.yaml` — per-assembly `genomes` (fasta/fai/chrom_sizes/gsize),
-  the CV `folds` to run, and every model/ATAC parameter, passed to the scripts as
-  explicit CLI flags. Defaults mirror `cherimoya_cli/defaults.py`. Train/valid/
-  test chroms come from per-genome fold JSONs, not config.
+  the CV `folds` to run, and every model/preprocess parameter, passed to the
+  scripts as explicit CLI flags. Defaults mirror `cherimoya_cli/defaults.py`.
+  Train/valid/test chroms come from per-genome fold JSONs, not config. Three
+  assay-specific starting points are tracked: `config.atac.yaml.template`
+  (unstranded, paired-end, Tn5 shift), `config.dnase.yaml.template` (unstranded,
+  single-end, no shift), and `config.chipseq-tf.yaml.template` (stranded, no
+  shift, input control).
 
 ## Environment
 
@@ -43,8 +47,10 @@ cherimoya.pip-lock.txt`).
 ## Running
 
 ```bash
-# one-time: create your config from the tracked template, then edit
-cp config/config.yaml.template config/config.yaml
+# one-time: copy the template for your assay, then edit
+cp config/config.atac.yaml.template config/config.yaml        # ATAC
+# cp config/config.dnase.yaml.template config/config.yaml       # DNase-seq
+# cp config/config.chipseq-tf.yaml.template config/config.yaml  # TF ChIP-seq
 
 # one-time per genome: build fold JSONs from resources/refs/<g>.chrom.sizes
 python workflow/scripts/make_folds.py

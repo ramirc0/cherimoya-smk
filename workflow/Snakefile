@@ -17,4 +17,4 @@ rule all:
         f"{OUTDIR}/report/performance_distribution.svg",
         [f"{OUTDIR}/report/count_pearson_vs_{c}.svg" for c in COVARIATES],
         f"{OUTDIR}/report/outliers.svg",
-        f"{OUTDIR}/report/outliers.tsv",
+        f"{OUTDIR}/report/metrics.tsv",

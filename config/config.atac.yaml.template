@@ -1,0 +1,91 @@
+# ATAC-seq / accessibility template (cherimoya "DNase-seq" recipe).
+# One unstranded signal track, Tn5 shift, no control. Copy to config/config.yaml.
+#   https://cherimoya.readthedocs.io/en/latest/recipes/dnaseq.html
+# Sample sheet: sample_id, signal (BAM/fragments/bigWig), genome, [peaks]. No control.
+samples: config/samples.tsv
+outdir: results
+conda_env: workflow/envs/cherimoya.yaml
+run_id: default          # logs go under logs/<run_id>/; override per run to keep runs separate
+
+references:
+  blacklist: resources/ENCFF356LFX.slop1057.bed   # optional BED of regions to exclude (fit + evaluate)
+
+# CV folds to train + evaluate. Fold JSONs (train/valid/test chrom splits) live in
+# resources/folds/<genome>/fold_<k>.json; generate them once per genome with
+# `python workflow/scripts/make_folds.py` (reads each genome's chrom.sizes).
+folds: [0]               # e.g. [0, 1, 2, 3, 4] for the full 5-fold CV
+
+# Per-assembly references. Each sample picks its genome via the `genome` column of
+# the sample sheet (multi-species data). Provide fasta + .fai + chrom.sizes per
+# genome under resources/refs/ (fai: `samtools faidx`; chrom.sizes: `cut -f1,2 fai`).
+genomes:
+  hg38:
+    fasta: resources/refs/hg38.fa
+    fai: resources/refs/hg38.fa.fai
+    chrom_sizes: resources/refs/hg38.chrom.sizes
+    gsize: hs             # macs3 -g (preset hs/mm or a bp number)
+
+# macs3 + bam2bw. ATAC: unstranded single track with the Tn5 +4/-4 shift.
+preprocess:
+  unstranded: true
+  paired_end: true
+  fragments: false      # true if `signal` is a fragments file (macs3 -f FRAG)
+  read_depth: false
+  pos_shift: 4          # Tn5 shift
+  neg_shift: -4
+  scale_factor: 1
+  callpeaks_q: 0.05     # macs3 genome size (-g) is per-genome (config genomes.<g>.gsize)
+
+peaks:
+  on_missing_contig: filter   # filter | fail — peaks on contigs absent from the FASTA
+
+# QC covariate plots (count_pearson vs each enabled covariate). n_fragments needs a
+# full scan of every BAM/fragments signal (skipped for bigWig inputs); turn it off
+# to skip both the scan and the plot.
+qc:
+  n_peaks: true
+  n_fragments: true
+
+negatives:
+  bin_width: 0.02
+  max_n_perc: 0.1
+  beta: 0.5
+  in_window: 2114
+  out_window: 1000
+
+fit:
+  n_filters: 128
+  n_layers: 9
+  expansion: 2
+  residual_scale: 0.15
+  batch_size: 64
+  in_window: 2114
+  out_window: 1000
+  max_jitter: 500
+  negative_ratio: 0.25
+  reverse_complement: true
+  summits: false
+  max_epochs: 20
+  n_warmup_epochs: 2
+  early_stopping: 5
+  muon_lr: 0.025
+  muon_wd: 0.03
+  adam_lr: 0.001
+  adam_wd: 0.0
+  lw_lr: 0.001
+  lw_wd: 0.0
+  lw_momentum: 0.9
+  num_workers: 1
+  dtype: float32
+  device: cuda
+  random_state: null
+  # training/validation chroms come from the per-genome CV fold JSON.
+
+evaluate:
+  batch_size: 512
+  in_window: 2114
+  out_window: 1000
+  reverse_complement_average: false
+  dtype: float32
+  device: cuda
+  # eval chroms come from the per-genome CV fold JSON (the fold's test set).

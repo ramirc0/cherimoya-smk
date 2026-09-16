@@ -46,7 +46,7 @@ digraph run_paths {
         fontname="Arial"; fontsize=10; color="#bbbbbb"; style=dashed;
         gather [shape=box, style="filled,rounded", fillcolor="#dbe9f6", label="gather_metrics"];
         qc [shape=note, fillcolor="#f2f7fb", style=filled,
-            label="performance_distribution.svg\ncount_pearson_vs_<cov>.svg\noutliers.svg · outliers.tsv"];
+            label="metrics.tsv (+ outlier col)\nperformance_distribution.svg\ncount_pearson_vs_<cov>.svg · outliers.svg"];
     }
 
     // signal branch

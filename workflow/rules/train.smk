@@ -57,6 +57,8 @@ rule evaluate:
             category="Count QC",
             labels={"sample": "{sample}", "fold": "{fold}"},
         ),
+        epochs_png=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.epochs.png",
+        count_scatter_png=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.count_scatter.png",
     params:
         flags=lambda wc: eval_flags(wc.sample, wc.fold),
     log:

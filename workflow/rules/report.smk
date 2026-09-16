@@ -13,7 +13,9 @@ rule gather_metrics:
         n_fragments=([n_fragments_file(s) for s in SAMPLES if not _is_bigwig(SIGNAL_OF[s])]
                      if "n_fragments" in COVARIATES else []),
     output:
-        metrics=f"{OUTDIR}/report/metrics.tsv",
+        metrics=report(f"{OUTDIR}/report/metrics.tsv",
+                       category="Count QC",
+                       labels={"table": "per-model metrics + outlier flag"}),
     params:
         results_dir=OUTDIR,
         covariates=COVARIATES,
@@ -46,6 +48,7 @@ rule perf_vs_covariate:
             category="Count QC",
             labels={"plot": "count_pearson vs {covariate}"},
         ),
+        plot_png=f"{OUTDIR}/report/count_pearson_vs_{{covariate}}.png",
     wildcard_constraints:
         covariate="|".join(COVARIATES),
     log:
@@ -66,15 +69,15 @@ rule perf_vs_covariate:
         """
 
 
-# Under-performing models: rank plot + per-model metrics table with an outlier flag.
+# Rank plot of models by count_pearson, highlighting the flagged outliers.
+# The outlier flag itself is the `outlier` column of metrics.tsv (gather_metrics).
 rule outliers:
     input:
         metrics=f"{OUTDIR}/report/metrics.tsv",
     output:
         plot=report(f"{OUTDIR}/report/outliers.svg",
                     category="Count QC", labels={"plot": "outliers"}),
-        table=report(f"{OUTDIR}/report/outliers.tsv",
-                     category="Count QC", labels={"table": "per-model metrics + outlier flag"}),
+        plot_png=f"{OUTDIR}/report/outliers.png",
     log:
         f"{LOGDIR}/outliers/all.log",
     benchmark:
@@ -87,8 +90,7 @@ rule outliers:
 
         python workflow/scripts/plot_outliers.py \
             -i {input.metrics:q} \
-            -o {output.plot:q} \
-            -t {output.table:q}
+            -o {output.plot:q}
         """
 
 
@@ -104,6 +106,7 @@ rule performance_distribution:
             category="Performance",
             labels={"plot": "distribution"},
         ),
+        plot_png=f"{OUTDIR}/report/performance_distribution.png",
     log:
         f"{LOGDIR}/performance_distribution/all.log",
     benchmark:

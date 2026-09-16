@@ -1,3 +1,12 @@
+# Transcription-factor ChIP-seq template (cherimoya "TF ChIP-seq" recipe).
+# Stranded (+/-) signal, no shift, with input/control tracks. Copy to config/config.yaml.
+#   https://cherimoya.readthedocs.io/en/latest/recipes/chipseq_tf.html
+# Sample sheet: sample_id, signal (ChIP BAM), control (input BAM), genome, [peaks].
+# The `control` column is required: macs3 uses it as -c for peak calling.
+#
+# CAVEAT: the current rules only wire the control into macs3 peak-calling. Stranded
+# bam2bw output and control tracks in fit/evaluate (n_control_tracks=2) are supported
+# by the scripts but not yet built/passed by the workflow rules.
 samples: config/samples.tsv
 outdir: results
 conda_env: workflow/envs/cherimoya.yaml
@@ -21,14 +30,14 @@ genomes:
     chrom_sizes: resources/refs/hg38.chrom.sizes
     gsize: hs             # macs3 -g (preset hs/mm or a bp number)
 
-# macs3 + bam2bw.
+# macs3 + bam2bw. TF ChIP: stranded (+/-) tracks, no Tn5 shift, input control.
 preprocess:
-  unstranded: true
-  paired_end: true
+  unstranded: false     # stranded: separate + and - tracks
+  paired_end: false
   fragments: false
   read_depth: false
-  pos_shift: 4          # Tn5 shift
-  neg_shift: -4
+  pos_shift: 0          # no shift for ChIP
+  neg_shift: 0
   scale_factor: 1
   callpeaks_q: 0.05     # macs3 genome size (-g) is per-genome (config genomes.<g>.gsize)
 
@@ -61,7 +70,7 @@ fit:
   negative_ratio: 0.25
   reverse_complement: true
   summits: false
-  max_epochs: 20
+  max_epochs: 50        # TF ChIP recipe default
   n_warmup_epochs: 2
   early_stopping: 5
   muon_lr: 0.025

@@ -16,7 +16,7 @@ def build_parser():
 def main():
     args = build_parser().parse_args()
 
-    from _style import apply_style
+    from _style import apply_style, save_figure
     apply_style()
 
     import math
@@ -51,7 +51,7 @@ def main():
     for ax in axes[len(metrics):]:
         ax.set_visible(False)
 
-    fig.savefig(args.output)
+    save_figure(fig, args.output)
 
 
 if __name__ == "__main__":

@@ -25,7 +25,7 @@ def main():
 
     import numpy as np
     import pandas as pd
-    from _style import apply_style
+    from _style import apply_style, save_figure
     apply_style()
     import matplotlib.pyplot as plt
 
@@ -55,7 +55,7 @@ def main():
     ax.set_ylabel(args.metric)
     ax.set_title(f"{args.metric} vs {args.covariate}  (Spearman ρ={rho:.2f})")
     ax.legend(frameon=False, fontsize=8)
-    fig.savefig(args.output)
+    save_figure(fig, args.output)
 
 
 if __name__ == "__main__":

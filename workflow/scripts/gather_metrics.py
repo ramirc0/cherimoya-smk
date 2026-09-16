@@ -6,7 +6,9 @@ One row per (sample, CV fold): joins each model's `<sample>.performance.tsv`
 the requested QC covariates. `dataset` is the sample_id prefix before the first
 `__`. Covariate columns are emitted only when named in `--covariates`: `n_peaks`
 (lines in the narrowPeak) and `n_fragments` (from the count_fragments output);
-each is NaN when its source file is absent (e.g. a bigWig signal has no depth).
+each is NaN when its source file is absent (e.g. a bigWig signal has no depth). A
+boolean `outlier` column flags the lower Tukey tail of the screen metric (this is
+the single table; there is no separate outliers file).
 """
 
 import argparse
@@ -24,6 +26,10 @@ def build_parser():
     parser.add_argument("--covariates", nargs="*", default=[],
         choices=["n_peaks", "n_fragments"],
         help="QC covariate columns to emit.")
+    parser.add_argument("--outlier_metric", default="count_pearson",
+        help="Metric screened for the `outlier` flag (default count_pearson).")
+    parser.add_argument("--outlier_iqr", type=float, default=1.5,
+        help="Tukey fence multiplier for the outlier flag (default 1.5).")
     parser.add_argument("-o", "--output", required=True, help="Destination TSV.")
     return parser
 
@@ -76,8 +82,15 @@ def main():
     df = pd.DataFrame(rows)
     lead = ["sample", "fold", "dataset", "genome", *args.covariates]
     df = df[lead + [c for c in df.columns if c not in lead]]
+
+    # Flag under-performing models in place: lower Tukey tail (< Q1 - k*IQR) of the
+    # screen metric. `outlier` is a column of this one table, not a separate file.
+    m = df[args.outlier_metric]
+    q1, q3 = m.quantile(0.25), m.quantile(0.75)
+    df["outlier"] = m < q1 - args.outlier_iqr * (q3 - q1)
+
     df.to_csv(args.output, sep="\t", index=False)
-    print(f"wrote {len(df)} rows -> {args.output}")
+    print(f"wrote {len(df)} rows ({int(df['outlier'].sum())} outliers) -> {args.output}")
 
 
 if __name__ == "__main__":

@@ -17,9 +17,9 @@ macs3 (only if a sample has no peaks) ┐
 signal(bam) ── bam2bw ────────────────┼─ negatives ─ fit* ─ evaluate* ─ performance.tsv + counts.tsv
 peaks (provided) ── prep_peaks ───────┘                        │
                                                                ├─ epochs.svg, count_scatter.svg  (per model)
-                                                               └─ gather_metrics ─ metrics.tsv ─┬─ performance_distribution.svg
-                                                                                                ├─ count_pearson_vs_<cov>.svg
-                                                                                                └─ outliers.svg + outliers.tsv
+                                                               └─ gather_metrics ─ metrics.tsv (+ outlier col) ─┬─ performance_distribution.svg
+                                                                                                                 ├─ count_pearson_vs_<cov>.svg
+                                                                                                                 └─ outliers.svg
 ```
 
 `*` fan out per fold. Out of scope: attribution, seqlets, tomtom, modisco,
@@ -59,13 +59,14 @@ workflow/
                          gather_metrics.py, plot_*.py, _style.py
   envs/cherimoya.yaml    single conda env (pins cherimoya from a git commit)
 config/
-  config.yaml.template   tracked; copy to config.yaml (gitignored), then edit
+  config.<assay>.yaml.template   tracked per assay (atac, dnase, chipseq-tf); copy
+                         one to config.yaml (gitignored), then edit
   samples.*.tsv          sample sheet (gitignored)
 profiles/{local,slurm}/  execution profiles (slurm-aicr is a reference only)
 resources/               gitignored data: refs/<genome>.{fa,fa.fai,chrom.sizes},
                          folds/<genome>/fold_{0..4}.json, blacklist BED
 tests/                   parser-drift + argparse smoke + negatives + slow e2e
-scratch/                 HANDOFF*.md, RUN.md (run notes, session history)
+scratch/                 gitignored, local only: HANDOFF*.md, RUN.md (run notes)
 ```
 
 ## Multispecies + CV folds
@@ -85,7 +86,7 @@ column.
 ## Running
 
 ```bash
-cp config/config.yaml.template config/config.yaml    # one-time
+cp config/config.atac.yaml.template config/config.yaml   # one-time (or config.chipseq-tf)
 python workflow/scripts/make_folds.py                # one-time per genome (needs chrom.sizes)
 snakemake --profile profiles/local                   # local (device: cpu for CPU box)
 snakemake --profile profiles/slurm                    # SLURM; GPU rules -> gpuh200
@@ -151,5 +152,6 @@ hyperparameter), so it is deliberately absent from the drift `EVAL_KEYS`.
 - **SLURM resources are flat presets, not scaled.** Run with defaults; to catch
   stragglers, bump the preset in `profiles/slurm` and rerun (only failed jobs
   re-run). No `--stats` in Snakemake 9.
-- See `scratch/HANDOFF-2026-09-12.md` for the fullest session history.
+- `scratch/` (gitignored, local only) holds `HANDOFF*.md` session history and
+  decision notes when present; do not rely on it existing in a fresh clone.
 ```

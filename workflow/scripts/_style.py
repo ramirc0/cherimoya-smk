@@ -1,5 +1,7 @@
 """Shared matplotlib style for cherimoya-smk plots."""
 
+from pathlib import Path
+
 import matplotlib as mpl
 import matplotlib.style  # noqa: F401  (registers mpl.style)
 
@@ -13,3 +15,9 @@ def apply_style():
     mpl.rcParams["savefig.format"] = "svg"
     mpl.rcParams["svg.fonttype"] = "none"
     mpl.rcParams["figure.constrained_layout.use"] = True
+
+
+def save_figure(fig, output):
+    """Write `output` (SVG) plus a 300-DPI PNG sibling (same stem, .png)."""
+    fig.savefig(output)
+    fig.savefig(Path(output).with_suffix(".png"), dpi=300)

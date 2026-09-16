@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-"""Flag under-performing models and write the full per-model metrics table.
+"""Rank plot of models by a metric, highlighting the flagged outliers.
 
-Outliers are the lower tail of `metric` by the Tukey rule (below Q1 - k*IQR).
-Writes a rank plot with the fence + flagged models highlighted, and a TSV of every
-model (all metrics + covariates) carrying an `outlier` boolean column.
+Reads metrics.tsv (which already carries the boolean `outlier` column from
+gather_metrics) and draws every model ranked by `metric`, with the Tukey fence and
+the flagged (lower-tail) models highlighted. No table is written here; the flagged
+models live in the `outlier` column of metrics.tsv.
 """
 
 import argparse
@@ -13,12 +14,10 @@ def build_parser():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-i", "--metrics", required=True, help="metrics.tsv.")
     parser.add_argument("-o", "--output", required=True, help="Destination SVG.")
-    parser.add_argument("-t", "--table", required=True,
-        help="Destination TSV: every model, all metrics, with an `outlier` bool.")
     parser.add_argument("-m", "--metric", default="count_pearson",
-        help="Metric to screen on (default count_pearson).")
+        help="Metric to rank on (default count_pearson).")
     parser.add_argument("-k", "--iqr_mult", type=float, default=1.5,
-        help="Tukey fence multiplier (default 1.5).")
+        help="Tukey fence multiplier for the drawn fence line (default 1.5).")
     return parser
 
 
@@ -27,22 +26,19 @@ def main():
 
     import numpy as np
     import pandas as pd
-    from _style import apply_style
+    from _style import apply_style, save_figure
     apply_style()
     import matplotlib.pyplot as plt
 
     df = pd.read_csv(args.metrics, sep="\t").dropna(subset=[args.metric])
-    v = df[args.metric]
-    q1, q3 = v.quantile(0.25), v.quantile(0.75)
-    fence = q1 - args.iqr_mult * (q3 - q1)
     df = df.sort_values(args.metric, ascending=True).reset_index(drop=True)
-    df["outlier"] = df[args.metric] < fence
 
-    # Every model, all metrics/covariates, flagged by `outlier`.
-    df.to_csv(args.table, sep="\t", index=False)
-
+    m = df[args.metric]
+    q1, q3 = m.quantile(0.25), m.quantile(0.75)
+    fence = q1 - args.iqr_mult * (q3 - q1)
     is_out = df["outlier"].to_numpy()
-    y = df[args.metric].to_numpy()
+    y = m.to_numpy()
+
     fig, ax = plt.subplots(figsize=(6, 3.6))
     rank = np.arange(len(df))
     ax.scatter(rank[~is_out], y[~is_out], s=5, color="#3b6ea5",
@@ -54,9 +50,9 @@ def main():
     ax.set_ylabel(args.metric)
     ax.set_title(f"{args.metric}: {int(is_out.sum())} of {len(df)} below Tukey fence")
     ax.legend(frameon=False, fontsize=8, loc="lower right")
-    fig.savefig(args.output)
+    save_figure(fig, args.output)
 
-    print(f"{int(is_out.sum())} outliers (fence={fence:.3f}); wrote {args.table}")
+    print(f"{int(is_out.sum())} outliers (fence={fence:.3f})")
 
 
 if __name__ == "__main__":
