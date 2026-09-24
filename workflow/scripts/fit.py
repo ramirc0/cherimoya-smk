@@ -16,9 +16,13 @@ def build_parser():
         help="BED file of GC-matched negative loci.")
     parser.add_argument("-sig", "--signals", nargs="+", required=True,
         help="One or more signal bigWigs. A flat list of N files is N "
-             "independent unstranded groups.")
+             "independent unstranded groups; with --stranded the files are "
+             "one stranded (+, -) group.")
     parser.add_argument("-c", "--controls", nargs="+", default=None,
-        help="Optional control bigWig(s).")
+        help="Optional control bigWig(s), grouped like --signals.")
+    parser.add_argument("--stranded", action="store_true", default=False,
+        help="Treat the signal (and control) files as a single stranded "
+             "(+, -) group instead of independent unstranded tracks.")
     parser.add_argument("-e", "--exclusion_lists", nargs="+", default=None,
         help="Optional BED files of regions to exclude.")
     parser.add_argument("-o", "--name", required=True,
@@ -94,16 +98,21 @@ def main():
 
     from tangermeme.io import extract_loci
 
-    # Flat file list feeds extract_loci; group sizes drive RC permutation.
-    signal_files, signal_groups = normalize_signal_groups(args.signals)
-    control_files, control_groups = normalize_signal_groups(args.controls)
+    # --stranded wraps the flat file lists into one (+, -) group each; else
+    # each file is its own unstranded group. The structured spec preserves
+    # grouping for the model; the flat file list feeds extract_loci.
+    signals = [args.signals] if args.stranded else args.signals
+    controls = None if args.controls is None else (
+        [args.controls] if args.stranded else args.controls)
+    signal_files, signal_groups = normalize_signal_groups(signals)
+    control_files, control_groups = normalize_signal_groups(controls)
 
     training_data = PeakGenerator(
         peaks=args.loci,
         negatives=args.negatives,
         sequences=args.sequences,
-        signals=args.signals,
-        controls=args.controls,
+        signals=signals,
+        controls=controls,
         chroms=args.training_chroms,
         in_window=args.in_window,
         out_window=args.out_window,

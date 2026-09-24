@@ -22,7 +22,10 @@ def build_parser():
     parser.add_argument("-sig", "--signals", nargs="+", required=True,
         help="Signal bigWig(s) matching the model's signal groups.")
     parser.add_argument("-c", "--controls", nargs="+", default=None,
-        help="Optional control bigWig(s).")
+        help="Optional control bigWig(s), grouped like --signals.")
+    parser.add_argument("--stranded", action="store_true", default=False,
+        help="Treat the signal (and control) files as a single stranded "
+             "(+, -) group, matching a model trained with --stranded.")
     parser.add_argument("-e", "--exclusion_lists", nargs="+", default=None)
     parser.add_argument("-m", "--model", required=True,
         help="Trained model checkpoint (<name>.torch).")
@@ -54,9 +57,14 @@ def main():
     from cherimoya.io import normalize_signal_groups
     from cherimoya.performance import calculate_performance_measures
 
-    # Flatten structured signals/controls for extract_loci.
-    signal_files, signal_groups = normalize_signal_groups(args.signals)
-    control_files, _ = normalize_signal_groups(args.controls)
+    # --stranded wraps the flat file lists into one (+, -) group each; the
+    # flattened files feed extract_loci while the model's own signal_groups
+    # (recovered below) drive count pooling.
+    signals = [args.signals] if args.stranded else args.signals
+    controls = None if args.controls is None else (
+        [args.controls] if args.stranded else args.controls)
+    signal_files, signal_groups = normalize_signal_groups(signals)
+    control_files, _ = normalize_signal_groups(controls)
 
     model = Cherimoya.load(args.model, device=args.device)
 

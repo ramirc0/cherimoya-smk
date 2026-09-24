@@ -61,27 +61,38 @@ rule macs3:
         """
 
 
-# Convert the signal BAM/fragments to a bigWig.
+# bam2bw flags shared by the signal and control conversions (strand, fragments,
+# read-depth). bam2bw emits `<name>.bw` with -u, else the `<name>.+.bw`/`.-.bw`
+# pair, so the same flags drive both the declared outputs and the tool.
+def _bam2bw_extra():
+    return [
+        flag
+        for flag, on in [
+            ("-u", config["preprocess"]["unstranded"]),
+            ("-f", config["preprocess"]["fragments"]),
+            ("-r", config["preprocess"]["read_depth"]),
+        ]
+        if on
+    ]
+
+
+# Convert the signal BAM/fragments to a bigWig (stranded -> (+, -) pair).
 rule bam2bw:
     input:
         signal=lambda wc: SIGNAL_OF[wc.sample],
         sizes=lambda wc: chrom_sizes_of(wc.sample),
     output:
-        bw=f"{OUTDIR}/{{sample}}/{{sample}}.bw",
+        bw=(
+            [f"{OUTDIR}/{{sample}}/{{sample}}.+.bw",
+             f"{OUTDIR}/{{sample}}/{{sample}}.-.bw"]
+            if STRANDED else f"{OUTDIR}/{{sample}}/{{sample}}.bw"
+        ),
     params:
         name=lambda wc: prefix(wc.sample),
         pos_shift=lambda _: config["preprocess"]["pos_shift"],
         neg_shift=lambda _: config["preprocess"]["neg_shift"],
         scale_factor=lambda _: config["preprocess"]["scale_factor"],
-        extra=lambda _: [
-            flag
-            for flag, on in [
-                ("-u", config["preprocess"]["unstranded"]),
-                ("-f", config["preprocess"]["fragments"]),
-                ("-r", config["preprocess"]["read_depth"]),
-            ]
-            if on
-        ],
+        extra=lambda _: _bam2bw_extra(),
     log:
         f"{LOGDIR}/bam2bw/{{sample}}.log",
     benchmark:
@@ -101,6 +112,44 @@ rule bam2bw:
             -p {threads} \
             {params.extra:q} \
             {input.signal:q}
+        """
+
+
+# Convert the control BAM/fragments to a bigWig model track (stranded -> pair).
+# Only built for samples with a control; no scale factor, matching cherimoya.
+rule bam2bw_control:
+    input:
+        control=lambda wc: CONTROL_OF[wc.sample],
+        sizes=lambda wc: chrom_sizes_of(wc.sample),
+    output:
+        bw=(
+            [f"{OUTDIR}/{{sample}}/{{sample}}.control.+.bw",
+             f"{OUTDIR}/{{sample}}/{{sample}}.control.-.bw"]
+            if STRANDED else f"{OUTDIR}/{{sample}}/{{sample}}.control.bw"
+        ),
+    params:
+        name=lambda wc: f"{prefix(wc.sample)}.control",
+        pos_shift=lambda _: config["preprocess"]["pos_shift"],
+        neg_shift=lambda _: config["preprocess"]["neg_shift"],
+        extra=lambda _: _bam2bw_extra(),
+    log:
+        f"{LOGDIR}/bam2bw_control/{{sample}}.log",
+    benchmark:
+        f"{BENCHDIR}/bam2bw_control/{{sample}}.tsv"
+    conda:
+        CONDA_ENV
+    shell:
+        r"""
+        exec &> >(tee {log:q})
+
+        bam2bw \
+            -s {input.sizes:q} \
+            -n {params.name:q} \
+            -ps {params.pos_shift:q} \
+            -ns {params.neg_shift:q} \
+            -p {threads} \
+            {params.extra:q} \
+            {input.control:q}
         """
 
 

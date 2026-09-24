@@ -20,6 +20,22 @@ peaks  ── prep_peaks ─────┘                        └─ per-mo
 `*` per fold. Attribution, seqlets, tomtom annotation, modisco, and marginalize
 are out of scope for now.
 
+## cherimoya pipeline parity
+
+Each stage mirrors the matching step of `cherimoya pipeline` for the pinned
+cherimoya commit, so results track the library rather than a reimplementation:
+
+- Peak calling (`macs3`), `bam2bw`, and GC-matched negatives take the same flags
+  and defaults; `fit`/`evaluate` mirror the library `fit`/`evaluate` commands.
+- Stranded runs (`preprocess.unstranded: false`, the TF ChIP-seq template) build
+  the `(+, -)` bigWig pair for both signal and control and train with
+  `signal_groups=[2]` and `n_control_tracks=2`; unstranded runs use one track and
+  no control track. The `control` column feeds both `macs3 -c` and the model.
+
+Newer cherimoya adds a `min_total_steps` epoch floor, fixed `loss_weights`, and
+fit-time RNG seeding with a model `random_state`. These are absent from the
+pinned commit; wire them into `fit.py` when the env pin is bumped.
+
 ## Inputs
 
 - `config/samples.tsv` — one row per sample: `sample_id`, `signal`, `genome`,

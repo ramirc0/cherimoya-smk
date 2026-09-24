@@ -2,11 +2,10 @@
 # Stranded (+/-) signal, no shift, with input/control tracks. Copy to config/config.yaml.
 #   https://cherimoya.readthedocs.io/en/latest/recipes/chipseq_tf.html
 # Sample sheet: sample_id, signal (ChIP BAM), control (input BAM), genome, [peaks].
-# The `control` column is required: macs3 uses it as -c for peak calling.
-#
-# CAVEAT: the current rules only wire the control into macs3 peak-calling. Stranded
-# bam2bw output and control tracks in fit/evaluate (n_control_tracks=2) are supported
-# by the scripts but not yet built/passed by the workflow rules.
+# The `control` column is used as macs3 -c for peak calling and, converted by
+# bam2bw, as the model's control tracks in fit/evaluate. With unstranded: false
+# bam2bw builds the (+, -) pair per signal/control, so the model trains with
+# signal_groups=[2] and n_control_tracks=2 (the cherimoya TF ChIP recipe).
 samples: config/samples.tsv
 outdir: results
 conda_env: workflow/envs/cherimoya.yaml

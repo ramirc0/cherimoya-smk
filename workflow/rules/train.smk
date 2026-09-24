@@ -6,6 +6,7 @@ rule fit:
         peaks=peaks_for,
         negatives=f"{OUTDIR}/{{sample}}/{{sample}}.negatives.bed",
         signal=lambda wc: signal_bw(wc.sample),
+        control=lambda wc: control_bw(wc.sample),
         fold=lambda wc: fold_json(wc.sample, wc.fold),
         blacklist=blacklist_input,
     output:
@@ -14,6 +15,7 @@ rule fit:
     params:
         name=lambda wc: fold_prefix(wc.sample, wc.fold),
         flags=lambda wc: fit_flags(wc.sample, wc.fold),
+        control_flag=lambda wc: ["-c"] if control_bw(wc.sample) else [],
     log:
         f"{LOGDIR}/fit/{{sample}}.fold_{{fold}}.log",
     benchmark:
@@ -29,6 +31,7 @@ rule fit:
             -l {input.peaks:q} \
             -neg {input.negatives:q} \
             -sig {input.signal:q} \
+            {params.control_flag:q} {input.control:q} \
             -o {params.name:q} \
             {params.flags:q}
         """
@@ -40,6 +43,7 @@ rule evaluate:
         fasta=lambda wc: fasta_of(wc.sample),
         peaks=peaks_for,
         signal=lambda wc: signal_bw(wc.sample),
+        control=lambda wc: control_bw(wc.sample),
         model=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.torch",
         history=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.log",
         fold=lambda wc: fold_json(wc.sample, wc.fold),
@@ -61,6 +65,7 @@ rule evaluate:
         count_scatter_png=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.count_scatter.png",
     params:
         flags=lambda wc: eval_flags(wc.sample, wc.fold),
+        control_flag=lambda wc: ["-c"] if control_bw(wc.sample) else [],
     log:
         f"{LOGDIR}/evaluate/{{sample}}.fold_{{fold}}.log",
     benchmark:
@@ -75,6 +80,7 @@ rule evaluate:
             -s {input.fasta:q} \
             -l {input.peaks:q} \
             -sig {input.signal:q} \
+            {params.control_flag:q} {input.control:q} \
             -m {input.model:q} \
             -o {output.performance:q} \
             --counts_filename {output.counts:q} \

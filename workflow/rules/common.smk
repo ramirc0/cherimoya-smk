@@ -18,6 +18,9 @@ OUTDIR = f"{RESULTS}/{RUN_ID}"        # per-sample outputs, grouped per run
 GENOMES = config["genomes"]
 BLACKLIST = config["references"].get("blacklist") or None
 FOLDS = [str(f) for f in config.get("folds", [0])]   # CV folds to train/evaluate
+# Stranded runs emit a (+, -) bigWig pair per signal/control (one group of 2);
+# unstranded runs emit a single track. The single gate for the whole workflow.
+STRANDED = not config["preprocess"]["unstranded"]
 LOGDIR = f"logs/{RUN_ID}"
 BENCHDIR = f"benchmarks/{RUN_ID}"
 
@@ -90,6 +93,18 @@ if _bw_no_peaks:
         f"(e.g. {_bw_no_peaks[:3]}); provide a `peaks` file or a BAM/fragments "
         "signal so macs3 can call peaks."
     )
+# A stranded run needs bam2bw to build the (+, -) pair; a provided bigWig is a
+# single track that cannot be split into strands.
+if STRANDED:
+    _bw_stranded = [s for s in SAMPLES if _is_bigwig(SIGNAL_OF[s])
+                    or (CONTROL_OF.get(s) and _is_bigwig(CONTROL_OF[s]))]
+    if _bw_stranded:
+        raise WorkflowError(
+            f"{len(_bw_stranded)} sample(s) give a pre-built bigWig under a "
+            f"stranded run (e.g. {_bw_stranded[:3]}); a stranded (+, -) pair "
+            "can only come from bam2bw. Provide a BAM signal/control or set "
+            "preprocess.unstranded: true."
+        )
 
 
 wildcard_constraints:
@@ -103,10 +118,33 @@ def prefix(sample):
 
 
 def signal_bw(sample):
-    """The signal bigWig for `sample`: the provided file when it is already a
-    bigWig (skips bam2bw), else the bam2bw output path."""
+    """The signal bigWig(s) for `sample` as a fit/evaluate input list.
+
+    A provided bigWig is used as-is (bam2bw skipped); otherwise the bam2bw
+    output(s): a stranded run gives the (+, -) pair, an unstranded run a
+    single track.
+    """
     signal = SIGNAL_OF[sample]
-    return signal if _is_bigwig(signal) else f"{prefix(sample)}.bw"
+    if _is_bigwig(signal):
+        return [signal]
+    p = prefix(sample)
+    return [f"{p}.+.bw", f"{p}.-.bw"] if STRANDED else [f"{p}.bw"]
+
+
+def control_bw(sample):
+    """The control bigWig(s) for `sample` as a fit/evaluate model input, or []
+    when the sample has no control.
+
+    Mirrors `signal_bw` strandedness: a stranded run gives the control (+, -)
+    pair, an unstranded run a single track. A provided bigWig is used as-is.
+    """
+    ctl = CONTROL_OF.get(sample)
+    if not ctl:
+        return []
+    if _is_bigwig(ctl):
+        return [ctl]
+    p = f"{prefix(sample)}.control"
+    return [f"{p}.+.bw", f"{p}.-.bw"] if STRANDED else [f"{p}.bw"]
 
 
 def n_fragments_file(sample):
@@ -214,6 +252,8 @@ def fit_flags(sample, fold):
         *_list_flag("training_chroms", _fold(sample, fold)["train"]),
         *_list_flag("validation_chroms", _fold(sample, fold)["valid"]),
     ]
+    if STRANDED:
+        flags.append("--stranded")
     if not f["reverse_complement"]:
         flags.append("--no_reverse_complement")
     if f["summits"]:
@@ -239,6 +279,8 @@ def eval_flags(sample, fold):
         "--device", e["device"],
         *_list_flag("chroms", _fold(sample, fold)["test"]),
     ]
+    if STRANDED:
+        flags.append("--stranded")
     if e["reverse_complement_average"]:
         flags.append("--reverse_complement_average")
     if BLACKLIST:
