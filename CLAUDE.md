@@ -1,157 +1,102 @@
 # cherimoya-smk
 
-A Snakemake workflow wrapping the `cherimoya` PyTorch library. It replaces the
-`cherimoya pipeline` command with a file-based DAG: per-sample fan-out from a
-sample sheet, per-fold cross-validation, incremental re-execution, SLURM support.
-It does not reimplement the model; each stage is a small flag-driven script that
-imports the library.
+Snakemake workflow around the `cherimoya` PyTorch library. It replaces
+`cherimoya pipeline` with a file-based DAG: per-sample fan-out from a sample
+sheet, per-fold CV, SLURM support. It never reimplements the model. Each stage is
+a flag-driven script in `workflow/scripts/` that imports the library. User-facing
+docs are in `README.md`; this file covers what an agent needs to edit safely.
+
+## Commands
+
+```bash
+conda activate snakemake                              # launcher env (has the SLURM plugin)
+snakemake -n -p --profile profiles/local              # dry run; builds the full DAG
+snakemake --profile profiles/local                    # local
+snakemake --profile profiles/slurm                    # SLURM; fit/evaluate -> gpuh200
+snakemake <target> --profile profiles/local --config samples=... run_id=...
+python workflow/scripts/make_folds.py                 # fold JSONs, once per genome
+.conda/<hash>_/bin/python -m pytest                   # 51 pass, 1 skip; use the .conda env that has pytest
+.conda/<hash>_/bin/python -m pytest -m slow           # e2e; needs CHERIMOYA_SMK_SMOKE fixtures + GPU
+```
+
+Put the target **before** `--config`; otherwise Snakemake parses it as a config
+entry. `config/config.yaml` points `samples:` at a local sheet that may not
+exist. Pass `--config samples=config/samples.atac.tsv` for a dry run.
 
 ## DAG
 
-Preprocessing is fold-agnostic (one bigWig/peaks/negatives per sample); `fit` and
-`evaluate` fan out per CV fold. `config["folds"]` (e.g. `[0]` or `[0,1,2,3,4]`)
-sets which folds run.
-
 ```
-macs3 (only if a sample has no peaks) ┐
-signal(bam) ── bam2bw ────────────────┼─ negatives ─ fit* ─ evaluate* ─ performance.tsv + counts.tsv
-peaks (provided) ── prep_peaks ───────┘                        │
-                                                               ├─ epochs.svg, count_scatter.svg  (per model)
-                                                               └─ gather_metrics ─ metrics.tsv (+ outlier col) ─┬─ performance_distribution.svg
-                                                                                                                 ├─ count_pearson_vs_<cov>.svg
-                                                                                                                 └─ outliers.svg
+macs3 (no peaks) ┐
+signal ─ bam2bw ─┼─ negatives ─ fit* ─ evaluate* ─ performance.tsv + counts.tsv + per-model plots
+peaks ─ prep_peaks ┘                        └─ gather_metrics ─ metrics.tsv ─ run-level plots
 ```
 
-`*` fan out per fold. Out of scope: attribution, seqlets, tomtom, modisco,
-marginalize.
+`*` fans out per `config["folds"]`. `bam2bw_control` builds the control track
+for fit/evaluate. `count_fragments` feeds `gather_metrics`. `config_snapshot`
+writes the resolved config to `results/<run_id>/config.snapshot.json`. Preprocessing is fold-agnostic. Outputs go
+under `results/<run_id>/<sample>/[fold_<k>/]`; logs and benchmarks mirror that
+layout. Out of scope: attribution, seqlets, tomtom, modisco, marginalize.
 
-## Entry points
+## Where things live
 
-A sample enters at whatever stage its inputs allow (see `docs/run-paths.svg`,
-rendered from `docs/run-paths.dot`):
+- `workflow/rules/common.smk`: config, sample sheet validation, path helpers,
+  `fit_flags`/`eval_flags`. Single gates: `STRANDED` (from
+  `preprocess.unstranded`), `COVARIATES` (from `config["qc"]`), `_is_bigwig`
+  (entry-point detection by extension).
+- `preprocess.smk` (prep_peaks, macs3, bam2bw, bam2bw_control, count_fragments),
+  `negatives.smk`, `train.smk` (fit, evaluate), `report.smk` (config_snapshot,
+  gather_metrics, plots).
+- `workflow/scripts/_style.py`: shared figure style. `save_figure` writes SVG
+  and PNG together. Every `plot_*.py` MUST use it and follow the
+  `matplotlib-style` skill.
+- `config/config.<assay>.yaml.template`: tracked (atac, dnase, chipseq-tf).
+  `config.yaml` and `samples.*.tsv` are gitignored.
+- `resources/` (gitignored): `refs/<g>.{fa,fa.fai,chrom.sizes}`,
+  `folds/<g>/fold_<k>.json` (`{train, valid, test}`), blacklist BED.
+- `docs/run-paths.dot`: entry-path diagram. Rerender the SVG after editing it.
 
-- `signal` = BAM/fragments -> `bam2bw` builds the bigWig; `signal` = a `.bw`/
-  `.bigwig` -> used as-is, `bam2bw` is skipped.
-- `peaks` provided -> `prep_peaks` normalizes it; else `macs3` calls peaks from
-  the BAM.
-- A bigWig signal with no peaks is a `WorkflowError` (peaks can't be called from a
-  bigWig). Detection is by extension in `_is_bigwig` (common.smk).
+## Behavior to preserve
 
-The sample sheet is a pure manifest (`sample_id, signal, genome, [control],
-[peaks]`); QC covariates are derived, not sheet columns. `n_peaks` is counted
-from the narrowPeak; `n_fragments` is a full scan of the signal
-(`count_fragments` rule, bigWig -> NaN). The `config["qc"]` block
-(`n_peaks`/`n_fragments`) toggles each covariate plot and, for `n_fragments`, the
-scan itself. `COVARIATES` in common.smk is the single gate.
+- A sample enters where its inputs allow. A bigWig `signal` skips bam2bw. An
+  empty `peaks` cell triggers macs3. bigWig without peaks is a `WorkflowError`.
+  So is any bigWig signal or control under a stranded run (only bam2bw can
+  build the (+, -) pair).
+- Stranded runs train with `signal_groups=[2]` and `n_control_tracks=2`.
+  The `control` column feeds both `macs3 -c` and the model.
+- `n_peaks` is counted from the narrowPeak. `n_fragments` is a full signal
+  scan, NaN for bigWig input. QC covariates are derived, never sheet columns.
+- Fold JSONs are read in `params` lambdas at DAG-build time, so even `-n` fails
+  without them.
+- Script defaults MUST match `cherimoya_cli.defaults` at the **pinned** commit
+  (in `.conda/`), not a dev checkout. `test_parser_drift.py` enforces this.
+  `evaluate.py --counts_filename` is a local output path and is deliberately
+  absent from the drift `EVAL_KEYS`.
 
-## Layout
+## Rule conventions
 
-```
-workflow/
-  Snakefile              includes + rule all (per-model QC + run-level QC)
-  rules/
-    common.smk           config, sample sheet, genomes/folds, path constants, flag builders
-    preprocess.smk       prep_peaks, macs3, bam2bw
-    negatives.smk        GC-matched negatives
-    train.smk            fit, evaluate (per fold; evaluate also emits counts + count_scatter)
-    report.smk           gather_metrics, perf_vs_covariate, outliers, performance_distribution
-  scripts/               fit.py, evaluate.py, negatives.py, make_folds.py,
-                         gather_metrics.py, plot_*.py, _style.py
-  envs/cherimoya.yaml    single conda env (pins cherimoya from a git commit)
-config/
-  config.<assay>.yaml.template   tracked per assay (atac, dnase, chipseq-tf); copy
-                         one to config.yaml (gitignored), then edit
-  samples.*.tsv          sample sheet (gitignored)
-profiles/{local,slurm}/  execution profiles (slurm-aicr is a reference only)
-resources/               gitignored data: refs/<genome>.{fa,fa.fai,chrom.sizes},
-                         folds/<genome>/fold_{0..4}.json, blacklist BED
-tests/                   parser-drift + argparse smoke + negatives + slow e2e
-scratch/                 gitignored, local only: HANDOFF*.md, RUN.md (run notes)
-```
+Follow the [Nextstrain Snakemake style guide][sg]. Keep
+`~/Projects/snakemake-template` in sync; it is the reference for these idioms.
 
-## Multispecies + CV folds
-
-Each sample picks its assembly via the sample sheet's `genome` column. Assemblies
-are defined in `config["genomes"]` (`fasta`, `fai`, `chrom_sizes`, macs3 `gsize`).
-Train/valid/test chrom splits live in per-genome fold JSONs
-(`resources/folds/<genome>/fold_<k>.json`, schema `{train, valid, test}`),
-generated once by `python workflow/scripts/make_folds.py` (hg38 = chrombpnet's
-published folds; others = length-balanced greedy partition). `fit` reads
-train+valid; `evaluate` reads test. There are no chrom lists in config.
-
-Adding a genome: add a `genomes:` block, provide
-`resources/refs/<g>.{fa,fa.fai,chrom.sizes}`, run `make_folds.py`, set the sheet
-column.
-
-## Running
-
-```bash
-cp config/config.atac.yaml.template config/config.yaml   # one-time (or config.chipseq-tf)
-python workflow/scripts/make_folds.py                # one-time per genome (needs chrom.sizes)
-snakemake --profile profiles/local                   # local (device: cpu for CPU box)
-snakemake --profile profiles/slurm                    # SLURM; GPU rules -> gpuh200
-snakemake -n -p --profile profiles/local              # dry run
-snakemake --report report.html                        # collect report() outputs
-```
-
-Override per run: `--config samples=config/samples.mohd.tsv run_id=mytag`.
-Outputs group under `results/<run_id>/<sample>/fold_<fold>/`; logs and benchmarks
-mirror it.
-
-## Conventions
-
-Rules follow the [Nextstrain Snakemake style guide][sg]. When editing rules:
-
-- Raw triple-quoted `shell:` blocks (`r"""`), one option per line.
-- Log via `exec &> >(tee {log:q})`; every interpolation quoted with `:q`.
-- Multi-value args are lists (see `fit_flags`/`eval_flags` in common.smk), so
-  `{params.flags:q}` quotes each token. Never build space-joined flag strings.
-- Config mapped into `shell` through `params:` (lambdas), never interpolated
-  directly. `config[key]` for required keys; never bare `config.get(key)`.
+- Raw `shell: r"""` blocks, one option per line.
+- Log with `exec &> >(tee {log:q})`. Quote every interpolation with `:q`.
+- Multi-value args are lists (`{params.flags:q}` quotes each token). Never build
+  space-joined flag strings.
+- Config reaches `shell` only through `params:` lambdas. Use `config[key]` for
+  required keys, never bare `config.get(key)`.
 - Every rule has `log:`, `benchmark:`, `conda:`. No `run:` blocks, no `message:`.
-
-The `snakemake-template` repo (`~/Projects/snakemake-template`) is the canonical
-demonstrator of these idioms; keep the two in sync.
 
 [sg]: https://docs.nextstrain.org/en/latest/reference/snakemake-style-guide.html
 
-## Environment
-
-Single conda env at `workflow/envs/cherimoya.yaml` (cherimoya pip-installed from
-a pinned commit; pulls torch/CUDA, tangermeme, macs3, bam2bw). Snakemake builds
-it under `.conda/` when run with a profile. Locked pins in
-`cherimoya.{conda,pip}-lock.txt`. The SLURM executor plugin must live in the env
-that launches snakemake, not the per-rule env. The launcher env is the
-`snakemake` conda env (`conda activate snakemake`); pytest with the library deps
-runs in the built per-rule env under `.conda/`.
-
-## Tests
-
-```bash
-pytest              # parser-drift guards + argparse smoke tests (44 pass, 1 skip)
-pytest -m slow      # end-to-end fit->evaluate (needs CHERIMOYA_SMK_SMOKE fixtures + GPU)
-```
-
-`test_parser_drift.py` asserts script defaults still match `cherimoya_cli.defaults`.
-`evaluate.py`'s `--counts_filename` is a local output path (not a library
-hyperparameter), so it is deliberately absent from the drift `EVAL_KEYS`.
-
 ## Gotchas
 
-- **No GPU on the dev/login node.** GPU is only via SLURM `gpuh200`. `fit`/
-  `evaluate` set `device: cuda`; set to `cpu` in config for a CPU-only run.
-- **Fold JSONs must exist before running.** `common.smk` reads them in `params`
-  lambdas at DAG-build time (even for `-n`). Run `make_folds.py` first.
-- **chrom.sizes are provided, not derived.** There is no `chrom_sizes` rule; each
-  genome needs `resources/refs/<g>.chrom.sizes` (e.g. `cut -f1,2 <g>.fa.fai`).
-- **Profile precedence.** Use `--profile profiles/{local,slurm}`. Never a
-  `profiles/default` (Snakemake auto-loads it as a workflow profile that
-  outranks `--profile` and would strip GPU routing).
-- **`tasks_per_gpu: 0`** on fit/evaluate suppresses `--ntasks-per-gpu`, which
-  conflicts with `--cpus-per-task` on this SLURM.
-- **SLURM resources are flat presets, not scaled.** Run with defaults; to catch
-  stragglers, bump the preset in `profiles/slurm` and rerun (only failed jobs
-  re-run). No `--stats` in Snakemake 9.
-- `scratch/` (gitignored, local only) holds `HANDOFF*.md` session history and
-  decision notes when present; do not rely on it existing in a fresh clone.
-```
+- No GPU on the login node. GPU is only via SLURM `gpuh200`. Set
+  `fit.device`/`evaluate.device` to `cpu` for a CPU run.
+- Never add `profiles/default`. Snakemake auto-loads it as a workflow profile
+  that outranks `--profile` and strips GPU routing.
+- `tasks_per_gpu: 0` on fit/evaluate suppresses `--ntasks-per-gpu`, which
+  conflicts with `--cpus-per-task` on this cluster.
+- SLURM resources are flat presets. To fix stragglers, raise the preset and
+  rerun. Snakemake 9 has no `--stats`.
+- The SLURM executor plugin lives in the launcher env, not the per-rule env.
+- `scratch/` (gitignored) may hold `HANDOFF*.md` notes. `_archive/` holds
+  shelved worktrees. Neither exists in a fresh clone.
