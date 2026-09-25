@@ -18,3 +18,5 @@ rule all:
         [f"{OUTDIR}/report/count_pearson_vs_{c}.svg" for c in COVARIATES],
         f"{OUTDIR}/report/outliers.svg",
         f"{OUTDIR}/report/metrics.tsv",
+        # provenance
+        f"{OUTDIR}/config.snapshot.json",

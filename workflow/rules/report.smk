@@ -5,6 +5,27 @@ _ALL_PERFORMANCE = [f"{OUTDIR}/{s}/fold_{fold}/{s}.performance.tsv"
                     for s in SAMPLES for fold in FOLDS]
 
 
+# Provenance: serialize the fully-resolved config (config.yaml + any --config
+# overrides) so every run records exactly what it was run with.
+rule config_snapshot:
+    output:
+        snapshot=f"{OUTDIR}/config.snapshot.json",
+    params:
+        config_json=lambda _: json.dumps(config, indent=2, default=str),
+    log:
+        f"{LOGDIR}/config_snapshot/all.log",
+    benchmark:
+        f"{BENCHDIR}/config_snapshot/all.tsv"
+    conda:
+        CONDA_ENV
+    shell:
+        r"""
+        exec &> >(tee {log:q})
+
+        printf '%s\n' {params.config_json:q} > {output.snapshot:q}
+        """
+
+
 rule gather_metrics:
     input:
         performance=_ALL_PERFORMANCE,
