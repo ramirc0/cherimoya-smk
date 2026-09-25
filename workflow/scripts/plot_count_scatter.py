@@ -23,7 +23,7 @@ def main():
 
     import numpy as np
     import pandas as pd
-    from _style import apply_style, save_figure
+    from _style import apply_style, despine, save_figure
     apply_style()
     import matplotlib.pyplot as plt
 
@@ -46,6 +46,7 @@ def main():
     header = "\n".join(textwrap.wrap(args.sample, 30)) + "\n" if args.sample else ""
     ax.set_title(f"{header}count Pearson r = {r:.3f}  (n={len(x)})", fontsize=11)
     ax.legend(frameon=False, fontsize=8, loc="upper left")
+    despine(ax)
     save_figure(fig, args.output)
 
 

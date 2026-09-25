@@ -26,7 +26,7 @@ def build_parser():
 def main():
     args = build_parser().parse_args()
 
-    from _style import apply_style, save_figure
+    from _style import apply_style, despine, save_figure
     apply_style()
 
     import math
@@ -48,6 +48,7 @@ def main():
         ax.plot(df["Epoch"], df[metric], marker="o")
         ax.set_title(metric)
         ax.set_xlabel("Epoch")
+        despine(ax)
     for ax in axes[len(metrics):]:
         ax.set_visible(False)
 

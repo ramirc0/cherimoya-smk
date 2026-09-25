@@ -25,7 +25,7 @@ def main():
 
     import numpy as np
     import pandas as pd
-    from _style import apply_style, save_figure
+    from _style import apply_style, despine, save_figure
     apply_style()
     import matplotlib.pyplot as plt
 
@@ -53,8 +53,9 @@ def main():
     ax.set_xscale("log")
     ax.set_xlabel(args.covariate)
     ax.set_ylabel(args.metric)
-    ax.set_title(f"{args.metric} vs {args.covariate}  (Spearman ρ={rho:.2f})")
+    ax.set_title(f"{args.metric} vs {args.covariate}  (Spearman rho={rho:.2f})")
     ax.legend(frameon=False, fontsize=8)
+    despine(ax)
     save_figure(fig, args.output)
 
 
