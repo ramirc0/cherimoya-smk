@@ -1,94 +1,113 @@
 # cherimoya-smk
 
-A standalone Snakemake workflow that replaces the `cherimoya pipeline` command's
-orchestration with a file-based DAG: incremental re-execution, multi-sample
-fan-out from a sample sheet, and first-class SLURM support. It does **not**
-replace the `cherimoya` library (the PyTorch model) -- each stage is a small
-flag-driven script in `workflow/scripts/` that imports the library directly.
-
-## Scope (this phase)
-
-Preprocessing is per sample; `fit`/`evaluate` fan out per CV fold. See
-`docs/run-paths.svg` for how a sample enters given its inputs.
+A Snakemake workflow that trains and evaluates
+[cherimoya](https://cherimoya.readthedocs.io) models across many samples. It
+replaces the orchestration in `cherimoya pipeline` with a file-based DAG. Only
+stale outputs re-run, samples fan out from a sheet, and each CV fold is its
+own job. A SLURM profile is included. The model itself stays in the library.
+Each stage is a small script in `workflow/scripts/` that imports it.
 
 ```
 macs3 (no peaks provided) ┐
-signal ── bam2bw ─────────┼─ negatives ─ fit* ─ evaluate* ─ performance.tsv + counts.tsv
-peaks  ── prep_peaks ─────┘                        └─ per-model + run-level QC (svgs, metrics)
+signal ── bam2bw ─────────┼─ negatives ─ fit* ─ evaluate* ─ performance + counts
+peaks  ── prep_peaks ─────┘                        └─ per-model and run-level QC plots
 ```
 
-`*` per fold. Attribution, seqlets, tomtom annotation, modisco, and marginalize
-are out of scope for now.
+`*` runs once per CV fold. Attribution, seqlets, TomTom, modisco and
+marginalize are not implemented.
 
-## cherimoya pipeline parity
+## Quick start
 
-Each stage mirrors the matching step of `cherimoya pipeline` for the pinned
-cherimoya commit, so results track the library rather than a reimplementation:
+```bash
+cp config/config.atac.yaml.template config/config.yaml   # or .dnase / .chipseq-tf
+python workflow/scripts/make_folds.py                    # once per genome
+snakemake -n -p --profile profiles/local                 # dry run
+snakemake --profile profiles/local                       # run locally
+snakemake --profile profiles/slurm                       # run on SLURM
+```
 
-- Peak calling (`macs3`), `bam2bw`, and GC-matched negatives take the same flags
-  and defaults; `fit`/`evaluate` mirror the library `fit`/`evaluate` commands.
-- Stranded runs (`preprocess.unstranded: false`, the TF ChIP-seq template) build
-  the `(+, -)` bigWig pair for both signal and control and train with
-  `signal_groups=[2]` and `n_control_tracks=2`; unstranded runs use one track and
-  no control track. The `control` column feeds both `macs3 -c` and the model.
-
-Newer cherimoya adds a `min_total_steps` epoch floor, fixed `loss_weights`, and
-fit-time RNG seeding with a model `random_state`. These are absent from the
-pinned commit; wire them into `fit.py` when the env pin is bumped.
+Launch from an env that has Snakemake and, for SLURM,
+`snakemake-executor-plugin-slurm`. Snakemake builds the per-rule conda env
+under `.conda/` on first run.
 
 ## Inputs
 
-- `config/samples.tsv` — one row per sample: `sample_id`, `signal`, `genome`,
-  optional `control`, optional `peaks`. `signal` is a BAM/fragments file
-  (`bam2bw` + `macs3`) or an already-built bigWig (`.bw`/`.bigwig`, used as-is;
-  requires provided peaks). An empty `peaks` cell triggers macs3 peak-calling.
-- `config/config.yaml` — per-assembly `genomes` (fasta/fai/chrom_sizes/gsize),
-  the CV `folds` to run, and every model/preprocess parameter, passed to the
-  scripts as explicit CLI flags. Defaults mirror `cherimoya_cli/defaults.py`.
-  Train/valid/test chroms come from per-genome fold JSONs, not config. Three
-  assay-specific starting points are tracked: `config.atac.yaml.template`
-  (unstranded, paired-end, Tn5 shift), `config.dnase.yaml.template` (unstranded,
-  single-end, no shift), and `config.chipseq-tf.yaml.template` (stranded, no
-  shift, input control).
+**Sample sheet** (TSV, path set by `samples:` in config). One row per sample:
+
+| column      | required | meaning |
+|-------------|----------|---------|
+| `sample_id` | yes      | output name |
+| `signal`    | yes      | BAM, fragments file, or a pre-built bigWig (`.bw`/`.bigwig`) |
+| `genome`    | yes      | a key under `genomes:` in config |
+| `control`   | no       | control BAM. Passed to `macs3 -c` and fed to the model |
+| `peaks`     | no       | narrowPeak. If empty, macs3 calls peaks from the BAM |
+
+A bigWig signal skips `bam2bw` but can't be used for peak calling, so it needs
+a `peaks` file. See `docs/run-paths.svg` for every entry path.
+
+**Config** (`config/config.yaml`, gitignored). Start from one of the three
+templates:
+
+| template | tracks | shift | control |
+|----------|--------|-------|---------|
+| `config.atac.yaml.template` | unstranded, paired-end | Tn5 +4/-4 | none |
+| `config.dnase.yaml.template` | unstranded, single-end | none | none |
+| `config.chipseq-tf.yaml.template` | stranded (+, -) | none | input |
+
+Model and preprocessing defaults match `cherimoya_cli/defaults.py` at the pinned
+commit. `folds:` picks which CV folds to run, e.g. `[0]` or `[0, 1, 2, 3, 4]`.
+
+**References**, per genome under `resources/`:
+
+- `refs/<g>.fa`, `refs/<g>.fa.fai`, `refs/<g>.chrom.sizes` (`cut -f1,2 <g>.fa.fai`)
+- `folds/<g>/fold_{0..4}.json` with `{train, valid, test}` chromosome lists,
+  written by `make_folds.py`. hg38 uses the published chrombpnet folds. Other
+  genomes get a length-balanced split.
+
+To add a genome, add a `genomes:` entry, provide the three ref files, rerun
+`make_folds.py`, and use the name in the sheet.
+
+## Outputs
+
+Everything goes under `results/<run_id>/` (`run_id` defaults to `default`).
+Logs and benchmarks use the same layout under `logs/` and `benchmarks/`.
+
+- `<sample>/fold_<k>/`: model (`.torch`), `performance.tsv`, `counts.tsv`,
+  training curve and count scatter plots
+- `report/`: `metrics.tsv` with an outlier flag per model, the performance
+  distribution, count Pearson vs `n_peaks`/`n_fragments`, and the outlier plot
+- `config.snapshot.json`: the fully resolved config, including `--config`
+  overrides. Rerun it with `--configfile results/<run_id>/config.snapshot.json`.
+
+Plots are written as SVG and PNG. `snakemake --report report.html` bundles them.
+
+Keep runs apart with `--config run_id=mytag`. Swap sample sheets with
+`--config samples=config/samples.other.tsv`.
+
+## SLURM
+
+`profiles/slurm` sends `fit` and `evaluate` to the `gpuh200` partition with one
+GPU and everything else to CPU partitions. Resources are fixed per rule. If a
+job runs out of memory or time, raise its value in the profile and rerun. Only
+failed jobs re-run. Set your own `slurm_account` before using it.
+
+With no GPU, set `fit.device` and `evaluate.device` to `cpu`.
 
 ## Environment
 
-A single conda env (`workflow/envs/cherimoya.yaml`) pip-installs cherimoya from a
-pinned git commit, which pulls torch (CUDA), tangermeme, macs3, and bam2bw.
-Snakemake builds and caches it under `.conda/` when run with the profiles below.
-Exact pins from a solved build are in `workflow/envs/cherimoya.{conda,pip}-lock.txt`
-(recreate with `conda create --file cherimoya.conda-lock.txt` + `pip install -r
-cherimoya.pip-lock.txt`).
+`workflow/envs/cherimoya.yaml` pip-installs cherimoya from a pinned git commit.
+That pulls in torch (CUDA), tangermeme, macs3 and bam2bw. The exact solve is in
+`cherimoya.{conda,pip}-lock.txt`.
 
-## Running
-
-```bash
-# one-time: copy the template for your assay, then edit
-cp config/config.atac.yaml.template config/config.yaml        # ATAC
-# cp config/config.dnase.yaml.template config/config.yaml       # DNase-seq
-# cp config/config.chipseq-tf.yaml.template config/config.yaml  # TF ChIP-seq
-
-# one-time per genome: build fold JSONs from resources/refs/<g>.chrom.sizes
-python workflow/scripts/make_folds.py
-
-# local
-snakemake --profile profiles/local
-
-# SLURM (GPU rules -> gpuh200 with --gres=gpu:1)
-snakemake --profile profiles/slurm
-```
-
-`snakemake -n -p --profile profiles/local` shows the plan without executing.
-Because dependencies are file-based, editing one sample's bigWig re-runs only
-that sample's `fit`/`evaluate`; everything else stays cached.
-
-The SLURM profile needs `snakemake-executor-plugin-slurm` in the environment
-that launches snakemake (not in the per-rule cherimoya env). Set an account/QOS
-in `profiles/slurm/config.yaml` if your cluster requires them.
+Newer cherimoya adds `min_total_steps`, fixed `loss_weights` and fit-time
+seeding. The pinned commit has none of them. Wire them into `fit.py` when the
+pin moves.
 
 ## Tests
 
+Run from the built env under `.conda/`:
+
 ```bash
-pytest              # parser-drift guards + argparse smoke tests
-pytest -m slow      # end-to-end fit->evaluate (needs CHERIMOYA_SMK_SMOKE fixtures + GPU)
+pytest            # drift guards against cherimoya defaults, CLI smoke tests
+pytest -m slow    # end-to-end fit + evaluate, needs CHERIMOYA_SMK_SMOKE fixtures and a GPU
 ```
