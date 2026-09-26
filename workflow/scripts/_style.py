@@ -50,24 +50,38 @@ def despine(ax, categorical_x=False):
 
     Each continuous axis is fitted to its data without margins, then widened
     to the nearest ticks enclosing the data, so the trimmed spine never ends
-    short of the data. A categorical x axis has no spine or tick marks; its
-    labels carry the categories.
+    short of the data. When the locator has no enclosing tick (e.g. dates),
+    the spine runs to the data edge without adding a tick. A categorical x
+    axis has no spine or tick marks; its labels carry the categories.
+
+    Data at the limits sits on the axes edge, where matplotlib would clip half
+    of each marker and line width. When both axes are fitted to the data, the
+    plotted artists are unclipped so they draw whole into the spine offset.
+    Explicit limits set by the caller keep clipping on.
     """
     import seaborn as sns
 
+    fitted = ax.get_autoscalex_on() and ax.get_autoscaley_on()
     ax.margins(0)
     ax.autoscale_view()
-    axes = [(ax.yaxis, ax.get_ylim, ax.set_ylim)]
+    sns.despine(ax=ax, bottom=categorical_x, offset=10)
+    axes = [(ax.yaxis, ax.get_ylim, ax.set_ylim, "left")]
     if not categorical_x:
-        axes.append((ax.xaxis, ax.get_xlim, ax.set_xlim))
-    for axis, get_lim, set_lim in axes:
+        axes.append((ax.xaxis, ax.get_xlim, ax.set_xlim, "bottom"))
+    for axis, get_lim, set_lim, spine in axes:
         lo, hi = sorted(get_lim())
-        ticks = axis.get_major_locator().tick_values(lo, hi)
+        # Calling the locator reads the view limits itself; date locators reject raw floats.
+        ticks = axis.get_major_locator()()
+        # lo and hi become the enclosing ticks, or stay at the data edges when
+        # the locator has none (e.g. dates).
         lo = max((t for t in ticks if t <= lo), default=lo)
         hi = min((t for t in ticks if t >= hi), default=hi)
         axis.set_ticks([t for t in ticks if lo <= t <= hi])
         set_lim(lo, hi)
-    sns.despine(ax=ax, bottom=categorical_x, offset=10, trim=True)
+        ax.spines[spine].set_bounds(lo, hi)
+    if fitted:
+        for artist in [*ax.lines, *ax.collections, *ax.patches]:
+            artist.set_clip_on(False)
     if categorical_x:
         ax.tick_params(axis="x", length=0)
 
