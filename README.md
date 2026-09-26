@@ -96,9 +96,11 @@ With no GPU, set `fit.device` and `evaluate.device` to `cpu`.
 
 ## Environment
 
-`workflow/envs/cherimoya.yaml` pip-installs cherimoya from a pinned git commit.
-That pulls in torch (CUDA), tangermeme, macs3 and bam2bw. The exact solve is in
-`cherimoya.{conda,pip}-lock.txt`.
+`workflow/envs/cherimoya.yaml` is the only env definition, and it is fully
+pinned. Conda packages carry version and build, pip packages an exact `==`,
+transitive dependencies included. cherimoya comes from a pinned git commit.
+torch (CUDA), tangermeme, macs3, bam2bw and pytest are pip packages in the same
+env. Any change to the file makes Snakemake build a fresh env under `.conda/`.
 
 Newer cherimoya adds `min_total_steps`, fixed `loss_weights` and fit-time
 seeding. The pinned commit has none of them. Wire them into `fit.py` when the

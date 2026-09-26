@@ -55,6 +55,10 @@ layout. Out of scope: attribution, seqlets, tomtom, modisco, marginalize.
 - `resources/` (gitignored): `refs/<g>.{fa,fa.fai,chrom.sizes}`,
   `folds/<g>/fold_<k>.json` (`{train, valid, test}`), blacklist BED.
 - `docs/run-paths.dot`: entry-path diagram. Rerender the SVG after editing it.
+- `workflow/envs/cherimoya.yaml`: the one per-rule env, fully pinned (conda
+  `name=version=build`, pip `==`, transitive deps included). A new dependency
+  MUST go in with its exact version and any new transitive pins. There are no
+  lock files.
 
 ## Behavior to preserve
 
