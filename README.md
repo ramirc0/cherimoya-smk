@@ -73,7 +73,8 @@ Everything goes under `results/<run_id>/` (`run_id` defaults to `default`).
 Logs and benchmarks use the same layout under `logs/` and `benchmarks/`.
 
 - `<sample>/fold_<k>/`: model (`.torch`), `performance.tsv`, `counts.tsv`,
-  training curve and count scatter plots
+  training curve and count scatter plots, and `summary.txt` (torchinfo layer
+  table with the total parameter count)
 - `report/`: `metrics.tsv` with an outlier flag per model, the performance
   distribution, count Pearson vs `n_peaks`/`n_fragments`, and the outlier plot
 - `config.snapshot.json`: the fully resolved config, including `--config`

@@ -15,7 +15,7 @@ snakemake --profile profiles/local                    # local
 snakemake --profile profiles/slurm                    # SLURM; fit/evaluate -> gpuh200
 snakemake <target> --profile profiles/local --config samples=... run_id=...
 python workflow/scripts/make_folds.py                 # fold JSONs, once per genome
-.conda/<hash>_/bin/python -m pytest                   # 51 pass, 1 skip; use the .conda env that has pytest
+.conda/<hash>_/bin/python -m pytest                   # 53 pass, 1 skip; use the .conda env that has pytest
 .conda/<hash>_/bin/python -m pytest -m slow           # e2e; needs CHERIMOYA_SMK_SMOKE fixtures + GPU
 ```
 
@@ -33,8 +33,9 @@ peaks ─ prep_peaks ┘                        └─ gather_metrics ─ metric
 
 `*` fans out per `config["folds"]`. `bam2bw_control` builds the control track
 for fit/evaluate. `count_fragments` feeds `gather_metrics`. `config_snapshot`
-writes the resolved config to `results/<run_id>/config.snapshot.json`. Preprocessing is fold-agnostic. Outputs go
-under `results/<run_id>/<sample>/[fold_<k>/]`; logs and benchmarks mirror that
+writes the resolved config to `results/<run_id>/config.snapshot.json`.
+`model_summary` (CPU) loads each checkpoint and writes a torchinfo table with
+the param count. Preprocessing is fold-agnostic. Outputs go under `results/<run_id>/<sample>/[fold_<k>/]`; logs and benchmarks mirror that
 layout. Out of scope: attribution, seqlets, tomtom, modisco, marginalize.
 
 ## Where things live
