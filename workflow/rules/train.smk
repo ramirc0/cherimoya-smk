@@ -96,3 +96,28 @@ rule evaluate:
             -o {output.count_scatter:q} \
             --sample {wildcards.sample:q}
         """
+
+
+# Layer table + parameter count of the trained model (CPU, from the checkpoint).
+rule model_summary:
+    input:
+        model=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.torch",
+    output:
+        summary=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.summary.txt",
+    params:
+        in_window=lambda _: config["fit"]["in_window"],
+    log:
+        f"{LOGDIR}/model_summary/{{sample}}.fold_{{fold}}.log",
+    benchmark:
+        f"{BENCHDIR}/model_summary/{{sample}}.fold_{{fold}}.tsv"
+    conda:
+        CONDA_ENV
+    shell:
+        r"""
+        exec &> >(tee {log:q})
+
+        python workflow/scripts/model_summary.py \
+            -m {input.model:q} \
+            -o {output.summary:q} \
+            --in_window {params.in_window:q}
+        """

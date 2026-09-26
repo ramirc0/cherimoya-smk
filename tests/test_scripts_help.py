@@ -9,7 +9,7 @@ import pytest
 SCRIPTS = Path(__file__).resolve().parents[1] / "workflow" / "scripts"
 
 
-@pytest.mark.parametrize("script", ["negatives.py", "fit.py", "evaluate.py"])
+@pytest.mark.parametrize("script", ["negatives.py", "fit.py", "evaluate.py", "model_summary.py"])
 def test_help_exits_zero(script):
     result = subprocess.run(
         [sys.executable, str(SCRIPTS / script), "--help"],
@@ -19,7 +19,7 @@ def test_help_exits_zero(script):
     assert "usage:" in result.stdout.lower()
 
 
-@pytest.mark.parametrize("script", ["negatives.py", "fit.py", "evaluate.py"])
+@pytest.mark.parametrize("script", ["negatives.py", "fit.py", "evaluate.py", "model_summary.py"])
 def test_missing_required_args_exits_two(script):
     result = subprocess.run(
         [sys.executable, str(SCRIPTS / script)],

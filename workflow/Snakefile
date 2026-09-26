@@ -13,6 +13,8 @@ rule all:
          for s in SAMPLES for fold in FOLDS],
         [f"{OUTDIR}/{s}/fold_{fold}/{s}.count_scatter.svg"
          for s in SAMPLES for fold in FOLDS],
+        [f"{OUTDIR}/{s}/fold_{fold}/{s}.summary.txt"
+         for s in SAMPLES for fold in FOLDS],
         # run-level QC
         f"{OUTDIR}/report/performance_distribution.svg",
         [f"{OUTDIR}/report/count_pearson_vs_{c}.svg" for c in COVARIATES],
