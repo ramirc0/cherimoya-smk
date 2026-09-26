@@ -64,6 +64,7 @@ tangermeme==1.4.1
 texttable==1.7.0
 threadpoolctl==3.6.0
 torch==2.13.0
+torchinfo==1.8.0
 tqdm==4.70.0
 triton==3.7.1
 typing_extensions==4.16.0
