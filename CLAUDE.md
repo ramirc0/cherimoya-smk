@@ -1,9 +1,14 @@
 # cherimoya-smk
 
-Snakemake workflow around the `cherimoya` PyTorch library. It replaces
-`cherimoya pipeline` with a file-based DAG: per-sample fan-out from a sample
-sheet, per-fold CV, SLURM support. It never reimplements the model. Each stage is
-a flag-driven script in `workflow/scripts/` that imports the library. User-facing
+Snakemake workflow around the `cherimoya` PyTorch library. It is a full
+replacement for `cherimoya_cli` and all its subcommands, with a file-based DAG:
+per-sample fan-out from a sample sheet, per-fold CV, SLURM support. It never
+reimplements the model. Each stage is a flag-driven script in `workflow/scripts/`
+that calls the library (`cherimoya`, `tangermeme`) directly.
+
+Workflow code MUST NOT import from `cherimoya_cli`, not even private helpers;
+port the logic into the script instead, so any stage can take extra params.
+`cherimoya_cli` is only the reference: tests use it for default drift and parity. User-facing
 docs are in `README.md`; this file covers what an agent needs to edit safely.
 
 ## Commands
@@ -15,7 +20,7 @@ snakemake --profile profiles/local                    # local
 snakemake --profile profiles/slurm                    # SLURM; fit/evaluate -> gpuh200
 snakemake <target> --profile profiles/local --config samples=... run_id=...
 python workflow/scripts/make_folds.py                 # fold JSONs, once per genome
-.conda/<hash>_/bin/python -m pytest                   # 76 pass, 1 skip; the env built from cherimoya.yaml
+.conda/<hash>_/bin/python -m pytest                   # 97 pass, 2 skip; the env built from cherimoya.yaml
 .conda/<hash>_/bin/python -m pytest -m slow           # e2e; needs CHERIMOYA_SMK_SMOKE fixtures + GPU
 ```
 
@@ -28,25 +33,26 @@ exist. Pass `--config samples=config/samples.atac.tsv` for a dry run.
 ```
 macs3 (no peaks) ┐
 signal ─ bam2bw ─┼─ negatives ─ fit* ─ evaluate* ─ performance.tsv + counts.tsv + per-model plots
-peaks ─ prep_peaks ┘                        └─ gather_metrics ─ metrics.tsv ─ run-level plots
+peaks ─ prep_peaks ┘                 │      └─ gather_metrics ─ metrics.tsv ─ run-level plots
+                                     └─ attribute† ─ attributions.{ohe.npz,attr.npz,idxs.npy}
 ```
 
-`*` fans out per `config["folds"]`. `bam2bw_control` builds the control track
+`*` fans out per `config["folds"]`, `†` per `config["attribute"]["folds"]`. `bam2bw_control` builds the control track
 for fit/evaluate. `count_fragments` feeds `gather_metrics`. `config_snapshot`
 writes the resolved config to `results/<run_id>/config.snapshot.json`.
 `model_summary` (CPU) loads each checkpoint and writes a torchinfo table with
 the param count. Preprocessing is fold-agnostic. Outputs go under `results/<run_id>/<sample>/[fold_<k>/]`; logs and benchmarks mirror that
-layout. Out of scope: attribution, seqlets, tomtom, modisco, marginalize.
+layout. Not yet built: seqlets, tomtom, modisco, marginalize.
 
 ## Where things live
 
 - `workflow/rules/common.smk`: config, sample sheet validation, path helpers,
-  `fit_flags`/`eval_flags`. Single gates: `STRANDED` (from
+  `fit_flags`/`eval_flags`/`attr_flags`. Single gates: `STRANDED` (from
   `preprocess.unstranded`), `COVARIATES` (from `config["qc"]`), `_is_bigwig`
   (entry-point detection by extension).
 - `preprocess.smk` (prep_peaks, macs3, bam2bw, bam2bw_control, count_fragments),
-  `negatives.smk`, `train.smk` (fit, evaluate), `report.smk` (config_snapshot,
-  gather_metrics, plots).
+  `negatives.smk`, `train.smk` (fit, evaluate), `interpret.smk` (attribute),
+  `report.smk` (config_snapshot, gather_metrics, plots).
 - `workflow/scripts/_style.py`: shared figure style. `save_figure` writes SVG
   and PNG together. Every `plot_*.py` MUST use it and follow the
   `matplotlib-style` skill.
