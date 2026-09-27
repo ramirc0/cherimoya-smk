@@ -32,8 +32,8 @@ rule fit:
             -neg {input.negatives:q} \
             -sig {input.signal:q} \
             {params.control_flag:q} {input.control:q} \
-            -o {params.name:q} \
-            {params.flags:q}
+            {params.flags:q} \
+            -o {params.name:q}
         """
 
 

@@ -51,13 +51,13 @@ rule macs3:
         exec &> >(tee {log:q})
 
         macs3 callpeak \
+            {params.control:q} \
+            {params.max_count:q} \
             -f {params.fmt:q} \
             -g {params.gsize:q} \
             -n {params.name:q} \
             -q {params.q:q} \
-            -t {input.signal:q} \
-            {params.control:q} \
-            {params.max_count:q}
+            -t {input.signal:q}
         """
 
 
@@ -173,8 +173,8 @@ rule count_fragments:
         exec &> >(tee {log:q})
 
         python workflow/scripts/count_fragments.py \
-            -i {input.signal:q} \
-            -o {output.n_fragments:q} \
             {params.fragments:q} \
-            {params.paired_end:q}
+            {params.paired_end:q} \
+            -i {input.signal:q} \
+            -o {output.n_fragments:q}
         """
