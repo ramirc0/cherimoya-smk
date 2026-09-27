@@ -11,11 +11,11 @@ Each stage is a small script in `workflow/scripts/` that imports it.
 macs3 (no peaks provided) ┐
 signal ── bam2bw ─────────┼─ negatives ─ fit* ─ evaluate* ─ performance + counts
 peaks  ── prep_peaks ─────┘                 │      └─ per-model and run-level QC plots
-                                            └─ attribute† ─ seqlets†
+                                            └─ attribute† ─ seqlets† ─ annotate†
 ```
 
 `*` runs once per CV fold, `†` once per fold in `attribute.folds` (default
-`[0]`). TomTom, modisco and marginalize are not implemented yet.
+`[0]`). modisco and marginalize are not implemented yet.
 
 ## Quick start
 
@@ -78,7 +78,10 @@ Logs and benchmarks use the same layout under `logs/` and `benchmarks/`.
   table with the total parameter count)
 - `<sample>/fold_<k>/` for attributed folds: DeepLIFT/SHAP attributions
   (`attributions.{ohe.npz,attr.npz,idxs.npy}`) and `seqlets.bed` (chrom,
-  start, end, attribution, p-value; sorted by attribution)
+  start, end, attribution, p-value; sorted by attribution),
+  `seqlets_annotated.bed` (each seqlet's nearest TomTom motif in
+  `annotate.motifs` and its -log p-value), and `motif_seqlet_count.tsv`
+  (seqlets per motif)
 - `report/`: `metrics.tsv` with an outlier flag per model, the performance
   distribution, count Pearson vs `n_peaks`/`n_fragments`, and the outlier plot
 - `config.snapshot.json`: the fully resolved config, including `--config`
@@ -115,6 +118,7 @@ pytest            # drift guards against cherimoya defaults, CLI smoke tests
 pytest -m slow    # end-to-end fit + evaluate, needs CHERIMOYA_SMK_SMOKE fixtures and a GPU
 CHERIMOYA_SMK_ATTR=<dir> pytest -m slow tests/test_attribute_parity.py    # vs cherimoya attribute, GPU
 CHERIMOYA_SMK_SEQLETS=<dir> pytest -m slow tests/test_seqlets_parity.py   # vs cherimoya seqlets, CPU
+CHERIMOYA_SMK_ANNOTATE=<dir> pytest -m slow tests/test_annotate_parity.py # vs cherimoya pipeline annotation, CPU
 ```
 
 The parity tests run the official `cherimoya` command and the workflow script

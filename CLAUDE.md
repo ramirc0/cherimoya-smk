@@ -20,10 +20,11 @@ snakemake --profile profiles/local                    # local
 snakemake --profile profiles/slurm                    # SLURM; fit/evaluate -> gpuh200
 snakemake <target> --profile profiles/local --config samples=... run_id=...
 python workflow/scripts/make_folds.py                 # fold JSONs, once per genome
-.conda/<hash>_/bin/python -m pytest                   # 106 pass, 3 skip; the env built from cherimoya.yaml
+.conda/<hash>_/bin/python -m pytest                   # 116 pass, 4 skip; the env built from cherimoya.yaml
 .conda/<hash>_/bin/python -m pytest -m slow           # e2e; needs CHERIMOYA_SMK_SMOKE fixtures + GPU
 CHERIMOYA_SMK_ATTR=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_attribute_parity.py  # vs cherimoya attribute; GPU
 CHERIMOYA_SMK_SEQLETS=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_seqlets_parity.py  # vs cherimoya seqlets; CPU
+CHERIMOYA_SMK_ANNOTATE=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_annotate_parity.py  # vs pipeline ttl step; CPU
 ```
 
 Put the target **before** `--config`; otherwise Snakemake parses it as a config
@@ -36,7 +37,7 @@ exist. Pass `--config samples=config/samples.atac.tsv` for a dry run.
 macs3 (no peaks) ┐
 signal ─ bam2bw ─┼─ negatives ─ fit* ─ evaluate* ─ performance.tsv + counts.tsv + per-model plots
 peaks ─ prep_peaks ┘                 │      └─ gather_metrics ─ metrics.tsv ─ run-level plots
-                                     └─ attribute† ─ attributions.{ohe.npz,attr.npz,idxs.npy} ─ seqlets† ─ seqlets.bed
+                                     └─ attribute† ─ attributions.{ohe.npz,attr.npz,idxs.npy} ─ seqlets† ─ seqlets.bed ─ annotate† ─ seqlets_annotated.bed + motif_seqlet_count.tsv
 ```
 
 `*` fans out per `config["folds"]`, `†` per `config["attribute"]["folds"]`. `bam2bw_control` builds the control track
@@ -44,16 +45,16 @@ for fit/evaluate. `count_fragments` feeds `gather_metrics`. `config_snapshot`
 writes the resolved config to `results/<run_id>/config.snapshot.json`.
 `model_summary` (CPU) loads each checkpoint and writes a torchinfo table with
 the param count. Preprocessing is fold-agnostic. Outputs go under `results/<run_id>/<sample>/[fold_<k>/]`; logs and benchmarks mirror that
-layout. Not yet built: tomtom, modisco, marginalize.
+layout. Not yet built: modisco, marginalize.
 
 ## Where things live
 
 - `workflow/rules/common.smk`: config, sample sheet validation, path helpers,
-  `fit_flags`/`eval_flags`/`attr_flags`/`seqlet_flags`. Single gates: `STRANDED` (from
+  `fit_flags`/`eval_flags`/`attr_flags`/`seqlet_flags`/`annot_flags`. Single gates: `STRANDED` (from
   `preprocess.unstranded`), `COVARIATES` (from `config["qc"]`), `_is_bigwig`
   (entry-point detection by extension).
 - `preprocess.smk` (prep_peaks, macs3, bam2bw, bam2bw_control, count_fragments),
-  `negatives.smk`, `train.smk` (fit, evaluate), `interpret.smk` (attribute, seqlets),
+  `negatives.smk`, `train.smk` (fit, evaluate), `interpret.smk` (attribute, seqlets, annotate),
   `report.smk` (config_snapshot, gather_metrics, plots).
 - `workflow/scripts/_style.py`: shared figure style. `save_figure` writes SVG
   and PNG together. Every `plot_*.py` MUST use it and follow the
@@ -61,7 +62,8 @@ layout. Not yet built: tomtom, modisco, marginalize.
 - `config/config.<assay>.yaml.template`: tracked (atac, dnase, chipseq-tf).
   `config.yaml` and `samples.*.tsv` are gitignored.
 - `resources/` (gitignored): `refs/<g>.{fa,fa.fai,chrom.sizes}`,
-  `folds/<g>/fold_<k>.json` (`{train, valid, test}`), blacklist BED.
+  `folds/<g>/fold_<k>.json` (`{train, valid, test}`), blacklist BED,
+  `motifs/<db>.meme.txt` (symlink to the JASPAR2026 MEME file).
 - `docs/run-paths.dot`: entry-path diagram. Rerender the SVG after editing it.
 - `workflow/envs/cherimoya.yaml`: the one per-rule env, fully pinned (conda
   `name=version=build`, pip `==`, transitive deps included). A new dependency
@@ -82,8 +84,11 @@ layout. Not yet built: tomtom, modisco, marginalize.
   without them.
 - Script defaults MUST match `cherimoya_cli.defaults` at the **pinned** commit
   (in `.conda/`), not a dev checkout. `test_parser_drift.py` enforces this.
-  `evaluate.py --counts_filename` is a local output path and is deliberately
-  absent from the drift `EVAL_KEYS`.
+  `evaluate.py --counts_filename` and `annotate.py --count_filename` are local
+  output paths and are deliberately absent from the drift keys.
+- `annotate` passes `--n_jobs {threads}` (profile `set-threads`), not the
+  official `-1`. TomTom output is byte-identical across thread counts; memory
+  grows about 115 MB per thread.
 
 ## Rule conventions
 
