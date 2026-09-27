@@ -20,6 +20,7 @@ snakemake --profile profiles/local                    # local
 snakemake --profile profiles/slurm                    # SLURM; fit/evaluate -> gpuh200
 snakemake <target> --profile profiles/local --config samples=... run_id=...
 python workflow/scripts/make_folds.py                 # fold JSONs, once per genome
+python workflow/scripts/name_motifs.py <in.meme> <out.meme>  # NAME_ACCESSION IDs for modisco report
 .conda/<hash>_/bin/python -m pytest                   # 119 pass, 4 skip; the env built from cherimoya.yaml
 .conda/<hash>_/bin/python -m pytest -m slow           # e2e; needs CHERIMOYA_SMK_SMOKE fixtures + GPU
 CHERIMOYA_SMK_ATTR=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_attribute_parity.py  # vs cherimoya attribute; GPU
@@ -63,7 +64,8 @@ layout. Not yet built: modisco, marginalize.
   `config.yaml` and `samples.*.tsv` are gitignored.
 - `resources/` (gitignored): `refs/<g>.{fa,fa.fai,chrom.sizes}`,
   `folds/<g>/fold_<k>.json` (`{train, valid, test}`), blacklist BED,
-  `motifs/<db>.meme.txt` (symlink to the JASPAR2026 MEME file).
+  `motifs/`: the JASPAR2026 MEME file (symlink) and its `_named` copy from
+  `name_motifs.py`.
 - `docs/run-paths.dot`: entry-path diagram. Rerender the SVG after editing it.
 - `workflow/envs/cherimoya.yaml`: the one per-rule env, fully pinned (conda
   `name=version=build`, pip `==`, transitive deps included). A new dependency
