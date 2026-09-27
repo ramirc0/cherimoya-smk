@@ -31,13 +31,13 @@ def main():
     pos = numpy.arange(attr.shape[1]) - attr.shape[1] // 2
 
     fig, ax = plt.subplots(figsize=(4.5, 3))
-    ax.plot(pos, numpy.abs(attr).mean(axis=0), lw=1, label="mean |attribution|")
-    ax.plot(pos, attr.mean(axis=0), lw=1, label="mean attribution")
+    ax.plot(pos, numpy.abs(attr).mean(axis=0), lw=1, label="Mean absolute")
+    ax.plot(pos, attr.mean(axis=0), lw=1, label="Mean")
     ax.axhline(0, color="0.6", lw=0.5, zorder=0)
     ax.set_xlabel("Position from peak center (bp)")
     ax.set_ylabel("Attribution")
     ax.set_title(f"{args.sample} (n={attr.shape[0]:,} peaks)".strip())
-    ax.legend(frameon=False, loc="upper left")
+    ax.legend(frameon=False)
     despine(ax)
 
     save_figure(fig, args.output)
