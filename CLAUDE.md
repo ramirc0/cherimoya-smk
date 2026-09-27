@@ -20,7 +20,7 @@ snakemake --profile profiles/local                    # local
 snakemake --profile profiles/slurm                    # SLURM; fit/evaluate -> gpuh200
 snakemake <target> --profile profiles/local --config samples=... run_id=...
 python workflow/scripts/make_folds.py                 # fold JSONs, once per genome
-.conda/<hash>_/bin/python -m pytest                   # 116 pass, 4 skip; the env built from cherimoya.yaml
+.conda/<hash>_/bin/python -m pytest                   # 119 pass, 4 skip; the env built from cherimoya.yaml
 .conda/<hash>_/bin/python -m pytest -m slow           # e2e; needs CHERIMOYA_SMK_SMOKE fixtures + GPU
 CHERIMOYA_SMK_ATTR=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_attribute_parity.py  # vs cherimoya attribute; GPU
 CHERIMOYA_SMK_SEQLETS=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_seqlets_parity.py  # vs cherimoya seqlets; CPU
