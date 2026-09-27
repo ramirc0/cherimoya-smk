@@ -33,7 +33,8 @@ def test_fit_then_evaluate(tmp_path):
         "-neg", str(fx / "negatives.bed"),
         "-sig", str(fx / "signal.bw"),
         "-o", str(prefix),
-        "--max_epochs", "1", "--n_warmup_epochs", "0", "--batch_size", "8",
+        "--max_epochs", "1", "--min_total_steps", "0",
+        "--n_warmup_epochs", "0", "--batch_size", "8",
         "--device", DEVICE,
     ], check=True)
 

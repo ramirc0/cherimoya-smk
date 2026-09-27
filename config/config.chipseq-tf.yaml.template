@@ -71,8 +71,10 @@ fit:
   reverse_complement: true
   summits: false
   max_epochs: 50        # TF ChIP recipe default
+  min_total_steps: 20000  # raises max_epochs to reach this; 0 disables
+  loss_weights: null      # [profile, count] replaces the learned weights
   n_warmup_epochs: 2
-  early_stopping: 5
+  early_stopping: null    # null trains all max_epochs
   muon_lr: 0.025
   muon_wd: 0.03
   adam_lr: 0.001
@@ -83,7 +85,7 @@ fit:
   num_workers: 1
   dtype: float32
   device: cuda
-  random_state: null
+  random_state: 0
   # training/validation chroms come from the per-genome CV fold JSON.
 
 evaluate:
@@ -93,4 +95,6 @@ evaluate:
   reverse_complement_average: false
   dtype: float32
   device: cuda
+  compile: true
+  compile_mode: max-autotune
   # eval chroms come from the per-genome CV fold JSON (the fold's test set).

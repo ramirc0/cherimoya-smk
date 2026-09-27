@@ -41,6 +41,9 @@ def build_parser():
         default=False)
     parser.add_argument("--device", default="cuda")
     parser.add_argument("--dtype", default="float32")
+    parser.add_argument("--compile", action="store_true", default=True)
+    parser.add_argument("--no_compile", dest="compile", action="store_false")
+    parser.add_argument("--compile_mode", default="max-autotune")
     parser.add_argument("-v", "--verbose", action="store_true", default=False)
     return parser
 
@@ -66,7 +69,8 @@ def main():
     signal_files, signal_groups = normalize_signal_groups(signals)
     control_files, _ = normalize_signal_groups(controls)
 
-    model = Cherimoya.load(args.model, device=args.device)
+    model = Cherimoya.load(args.model, device=args.device,
+        compile=args.compile, compile_mode=args.compile_mode)
 
     examples = extract_loci(
         sequences=args.sequences,

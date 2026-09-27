@@ -12,15 +12,16 @@ defaults = pytest.importorskip("cherimoya_cli.defaults")
 FIT_KEYS = [
     "n_filters", "n_layers", "expansion", "residual_scale", "batch_size",
     "in_window", "out_window", "max_jitter", "negative_ratio",
-    "reverse_complement", "summits", "max_epochs", "n_warmup_epochs",
-    "early_stopping", "muon_lr", "muon_wd", "adam_lr", "adam_wd", "lw_lr",
-    "lw_wd", "lw_momentum", "num_workers", "dtype", "device",
-    "training_chroms", "validation_chroms",
+    "reverse_complement", "summits", "max_epochs", "min_total_steps",
+    "loss_weights", "n_warmup_epochs", "early_stopping", "muon_lr",
+    "muon_wd", "adam_lr", "adam_wd", "lw_lr", "lw_wd", "lw_momentum",
+    "num_workers", "dtype", "device",
+    "random_state", "training_chroms", "validation_chroms",
 ]
 
 EVAL_KEYS = [
     "batch_size", "in_window", "out_window", "reverse_complement_average",
-    "device", "dtype", "chroms",
+    "device", "dtype", "compile", "compile_mode", "chroms",
 ]
 
 

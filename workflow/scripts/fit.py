@@ -47,8 +47,14 @@ def build_parser():
     # Optimization
     parser.add_argument("--batch_size", type=int, default=64)
     parser.add_argument("--max_epochs", type=int, default=20)
+    parser.add_argument("--min_total_steps", type=int, default=20000,
+        help="Raise max_epochs until training takes this many steps; 0 "
+             "disables the floor.")
+    parser.add_argument("--loss_weights", nargs=2, type=float, default=None,
+        metavar=("PROFILE", "COUNT"),
+        help="Fixed loss weights replacing the learned Kendall weights.")
     parser.add_argument("--n_warmup_epochs", type=int, default=2)
-    parser.add_argument("--early_stopping", type=int, default=5)
+    parser.add_argument("--early_stopping", type=int, default=None)
     parser.add_argument("--muon_lr", type=float, default=0.025)
     parser.add_argument("--muon_wd", type=float, default=0.03)
     parser.add_argument("--adam_lr", type=float, default=0.001)
@@ -61,7 +67,7 @@ def build_parser():
     parser.add_argument("--num_workers", type=int, default=1)
     parser.add_argument("--dtype", default="float32")
     parser.add_argument("--device", default="cuda")
-    parser.add_argument("--random_state", type=int, default=None)
+    parser.add_argument("--random_state", type=int, default=0)
     parser.add_argument("--training_chroms", nargs="+", default=[
         "chr2", "chr4", "chr5", "chr7", "chr9", "chr10", "chr11", "chr12",
         "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr21",
@@ -77,9 +83,11 @@ def main():
     args = build_parser().parse_args()
 
     import os
+    import random
 
     os.environ["TORCH_CUDNN_V8_API_ENABLED"] = "1"
 
+    import numpy
     import torch
 
     torch.backends.cudnn.benchmark = True
@@ -95,8 +103,14 @@ def main():
 
     from cherimoya import Cherimoya
     from cherimoya.io import PeakGenerator, normalize_signal_groups
+    from cherimoya_cli.commands.fit import _max_epochs_for_min_steps
 
     from tangermeme.io import extract_loci
+
+    random.seed(args.random_state)
+    numpy.random.seed(args.random_state)
+    torch.manual_seed(args.random_state)
+    torch.cuda.manual_seed_all(args.random_state)
 
     # --stranded wraps the flat file lists into one (+, -) group each; else
     # each file is its own unstranded group. The structured spec preserves
@@ -163,10 +177,14 @@ def main():
         trimming=trimming,
         name=args.name,
         verbose=args.verbose,
+        random_state=args.random_state,
     ).to(args.device)
 
+    # The LR schedules below stretch with the raised epoch count.
+    max_epochs = _max_epochs_for_min_steps(
+        args.max_epochs, len(training_data), args.min_total_steps)
     num_warmup_iters = len(training_data) * args.n_warmup_epochs
-    num_decay_iters = len(training_data) * max(1, args.max_epochs - args.n_warmup_epochs)
+    num_decay_iters = len(training_data) * max(1, max_epochs - args.n_warmup_epochs)
 
     # 2D projection weights -> Muon; lw0/lw1 -> SGD; everything else -> AdamW.
     muon_params, adam_params, lw_params = [], [], []
@@ -227,7 +245,8 @@ def main():
         X_valid=valid_sequences,
         X_ctl_valid=valid_controls,
         y_valid=valid_signals,
-        max_epochs=args.max_epochs,
+        max_epochs=max_epochs,
+        loss_weights=args.loss_weights,
         batch_size=args.batch_size,
         early_stopping=args.early_stopping,
         dtype=args.dtype,

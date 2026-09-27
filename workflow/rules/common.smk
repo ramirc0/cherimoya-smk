@@ -237,8 +237,8 @@ def fit_flags(sample, fold):
         "--negative_ratio", f["negative_ratio"],
         "--batch_size", f["batch_size"],
         "--max_epochs", f["max_epochs"],
+        "--min_total_steps", f["min_total_steps"],
         "--n_warmup_epochs", f["n_warmup_epochs"],
-        "--early_stopping", f["early_stopping"],
         "--muon_lr", f["muon_lr"],
         "--muon_wd", f["muon_wd"],
         "--adam_lr", f["adam_lr"],
@@ -249,6 +249,7 @@ def fit_flags(sample, fold):
         "--num_workers", f["num_workers"],
         "--dtype", f["dtype"],
         "--device", f["device"],
+        "--random_state", f["random_state"],
         *_list_flag("training_chroms", _fold(sample, fold)["train"]),
         *_list_flag("validation_chroms", _fold(sample, fold)["valid"]),
     ]
@@ -258,8 +259,10 @@ def fit_flags(sample, fold):
         flags.append("--no_reverse_complement")
     if f["summits"]:
         flags.append("--summits")
-    if f["random_state"] is not None:
-        flags += ["--random_state", f["random_state"]]
+    if f["early_stopping"] is not None:
+        flags += ["--early_stopping", f["early_stopping"]]
+    if f["loss_weights"] is not None:
+        flags += _list_flag("loss_weights", f["loss_weights"])
     if BLACKLIST:
         flags += ["--exclusion_lists", BLACKLIST]
     return [str(x) for x in flags]
@@ -277,12 +280,15 @@ def eval_flags(sample, fold):
         "--out_window", e["out_window"],
         "--dtype", e["dtype"],
         "--device", e["device"],
+        "--compile_mode", e["compile_mode"],
         *_list_flag("chroms", _fold(sample, fold)["test"]),
     ]
     if STRANDED:
         flags.append("--stranded")
     if e["reverse_complement_average"]:
         flags.append("--reverse_complement_average")
+    if not e["compile"]:
+        flags.append("--no_compile")
     if BLACKLIST:
         flags += ["--exclusion_lists", BLACKLIST]
     return [str(x) for x in flags]

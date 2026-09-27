@@ -102,10 +102,6 @@ transitive dependencies included. cherimoya comes from a pinned git commit.
 torch (CUDA), tangermeme, macs3, bam2bw and pytest are pip packages in the same
 env. Any change to the file makes Snakemake build a fresh env under `.conda/`.
 
-Newer cherimoya adds `min_total_steps`, fixed `loss_weights` and fit-time
-seeding. The pinned commit has none of them. Wire them into `fit.py` when the
-pin moves.
-
 ## Tests
 
 Run from the built env under `.conda/`:
