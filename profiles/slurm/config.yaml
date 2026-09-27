@@ -28,6 +28,7 @@ set-threads:
 # to catch stragglers, bump the preset and rerun (only the failed jobs re-run).
 set-resources:
   macs3:
+    constraint: cascadelake   # conda macs3 needs AVX512; broadwell nodes SIGILL
     mem_mb: 16000
     runtime: 240m
   bam2bw:
