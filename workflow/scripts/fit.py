@@ -103,7 +103,6 @@ def main():
 
     from cherimoya import Cherimoya
     from cherimoya.io import PeakGenerator, normalize_signal_groups
-    from cherimoya_cli.commands.fit import _max_epochs_for_min_steps
 
     from tangermeme.io import extract_loci
 
@@ -180,9 +179,8 @@ def main():
         random_state=args.random_state,
     ).to(args.device)
 
-    # The LR schedules below stretch with the raised epoch count.
-    max_epochs = _max_epochs_for_min_steps(
-        args.max_epochs, len(training_data), args.min_total_steps)
+    # Raise max_epochs to reach min_total_steps; the LR schedules below stretch with it.
+    max_epochs = max(args.max_epochs, -(-args.min_total_steps // len(training_data)))
     num_warmup_iters = len(training_data) * args.n_warmup_epochs
     num_decay_iters = len(training_data) * max(1, max_epochs - args.n_warmup_epochs)
 
