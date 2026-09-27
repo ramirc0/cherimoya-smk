@@ -70,7 +70,11 @@ def main():
 
     n = len(samples)
     # Rows are 0.22 in tall until the heatmap reaches 9 in; the rest is labels.
-    fig, ax = plt.subplots(figsize=(2.5 + 0.2 * len(motifs), 2.6 + min(0.22 * n, 9)))
+    # The colorbar gets its own cell so its size does not follow the row count.
+    height = min(0.22 * n, 9)
+    fig, axes = plt.subplot_mosaic([[".", "cbar", "."], ["heat"] * 3],
+        figsize=(2.5 + 0.2 * len(motifs), 3 + height), height_ratios=[0.12, height])
+    ax = axes["heat"]
     mesh = ax.pcolormesh(M, cmap="viridis", norm=PowerNorm(0.5, vmin=0))
     ax.invert_yaxis()
     ax.set_xticks(numpy.arange(len(motifs)) + 0.5, motifs, rotation=90)
@@ -79,8 +83,8 @@ def main():
     else:
         ax.set_yticks([])
         ax.set_ylabel(f"Samples (n={n})")
-    cbar = fig.colorbar(mesh, ax=ax, location="top", shrink=0.3, aspect=15,
-        label="Fraction of seqlets")
+    cbar = fig.colorbar(mesh, cax=axes["cbar"], orientation="horizontal")
+    cbar.ax.set_title("Fraction of seqlets")
     # Evenly spaced under the sqrt norm; linear ticks crowd its top end.
     ticks = M.max() * numpy.linspace(0, 1, 5) ** 2
     cbar.set_ticks(ticks, labels=[f"{t:.2g}" for t in ticks])
