@@ -3,6 +3,7 @@ include: "rules/common.smk"
 include: "rules/preprocess.smk"
 include: "rules/negatives.smk"
 include: "rules/train.smk"
+include: "rules/interpret.smk"
 include: "rules/report.smk"
 
 
@@ -15,6 +16,9 @@ rule all:
          for s in SAMPLES for fold in FOLDS],
         [f"{OUTDIR}/{s}/fold_{fold}/{s}.summary.txt"
          for s in SAMPLES for fold in FOLDS],
+        # interpretation
+        [f"{OUTDIR}/{s}/fold_{fold}/{s}.attributions.attr.npz"
+         for s in SAMPLES for fold in ATTR_FOLDS],
         # run-level QC
         f"{OUTDIR}/report/performance_distribution.svg",
         [f"{OUTDIR}/report/count_pearson_vs_{c}.svg" for c in COVARIATES],

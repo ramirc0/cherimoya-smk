@@ -23,6 +23,7 @@ set-threads:
   negatives: 1
   fit: 4
   evaluate: 4
+  attribute: 4
 
 # Flat presets, no size/attempt scaling. Right-size once from benchmarks/<run_id>/;
 # to catch stragglers, bump the preset and rerun (only the failed jobs re-run).
@@ -52,6 +53,12 @@ set-resources:
     tasks_per_gpu: 0
     mem_mb: 32000
     runtime: 240m
+  attribute:
+    slurm_partition: gpuh200
+    gres: gpu:1
+    tasks_per_gpu: 0
+    mem_mb: 64000
+    runtime: 480m
 
 rerun-incomplete: true
 keep-going: true

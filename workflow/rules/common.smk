@@ -18,6 +18,7 @@ OUTDIR = f"{RESULTS}/{RUN_ID}"        # per-sample outputs, grouped per run
 GENOMES = config["genomes"]
 BLACKLIST = config["references"].get("blacklist") or None
 FOLDS = [str(f) for f in config.get("folds", [0])]   # CV folds to train/evaluate
+ATTR_FOLDS = [str(f) for f in config["attribute"]["folds"]]  # CV folds to attribute
 # Stranded runs emit a (+, -) bigWig pair per signal/control (one group of 2);
 # unstranded runs emit a single track. The single gate for the whole workflow.
 STRANDED = not config["preprocess"]["unstranded"]
@@ -291,4 +292,31 @@ def eval_flags(sample, fold):
         flags.append("--no_compile")
     if BLACKLIST:
         flags += ["--exclusion_lists", BLACKLIST]
+    return [str(x) for x in flags]
+
+
+def attr_flags(sample, fold):
+    """All attribute.py flag tokens from config['attribute'] (use with :q).
+
+    Chroms are the sample's genome CV `fold` train + valid sets, and in_window
+    is fit's, as `cherimoya pipeline` shares them.
+    """
+    a = config["attribute"]
+    flags = [
+        "--algorithm", a["algorithm"],
+        "--output", a["output"],
+        "--group", a["group"],
+        "--attr_window", a["attr_window"],
+        "--n_shuffles", a["n_shuffles"],
+        "--warning_threshold", a["warning_threshold"],
+        "--random_state", a["random_state"],
+        "--batch_size", a["batch_size"],
+        "--in_window", config["fit"]["in_window"],
+        "--dtype", a["dtype"],
+        "--device", a["device"],
+        "--compile_mode", a["compile_mode"],
+        *_list_flag("chroms", _fold(sample, fold)["train"] + _fold(sample, fold)["valid"]),
+    ]
+    if a["compile"]:
+        flags.append("--compile")
     return [str(x) for x in flags]

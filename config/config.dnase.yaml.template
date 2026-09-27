@@ -95,3 +95,19 @@ evaluate:
   compile: true
   compile_mode: max-autotune
   # eval chroms come from the per-genome CV fold JSON (the fold's test set).
+
+attribute:
+  folds: [0]              # CV folds to attribute; `cherimoya pipeline` attributes one model
+  algorithm: deep_lift_shap   # or saturation_mutagenesis
+  output: counts          # counts | profile head
+  group: 0                # signal group of that head
+  attr_window: 400        # saved central slice
+  n_shuffles: 20          # deep_lift_shap references per locus
+  warning_threshold: 0.001
+  random_state: 0
+  batch_size: 64
+  dtype: float32
+  device: cuda
+  compile: false          # saturation_mutagenesis only
+  compile_mode: max-autotune
+  # loci are all peaks on the fold's train + valid chroms; in_window is fit's.
