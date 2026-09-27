@@ -24,6 +24,7 @@ set-threads:
   fit: 4
   evaluate: 4
   attribute: 4
+  annotate: 16
 
 # Flat presets, no size/attempt scaling. Right-size once from benchmarks/<run_id>/;
 # to catch stragglers, bump the preset and rerun (only the failed jobs re-run).
@@ -61,6 +62,9 @@ set-resources:
     runtime: 480m
   seqlets:
     mem_mb: 16000           # dnase (192k loci) OOMs at 4 GB
+    runtime: 60m
+  annotate:
+    mem_mb: 8000
     runtime: 60m
 
 rerun-incomplete: true

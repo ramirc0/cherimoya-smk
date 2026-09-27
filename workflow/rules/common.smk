@@ -337,3 +337,18 @@ def seqlet_flags(sample, fold):
         *_list_flag("chroms", _fold(sample, fold)["train"] + _fold(sample, fold)["valid"]),
     ]
     return [str(x) for x in flags]
+
+
+def annot_flags():
+    """All annotate.py flag tokens from config['annotate'] (use with :q)."""
+    a = config["annotate"]
+    flags = [
+        "--n_score_bins", a["n_score_bins"],
+        "--n_median_bins", a["n_median_bins"],
+        "--n_target_bins", a["n_target_bins"],
+        "--n_cache", a["n_cache"],
+        "--n_nearest", a["n_nearest"],
+    ]
+    if not a["reverse_complement"]:
+        flags.append("--no_reverse_complement")
+    return [str(x) for x in flags]

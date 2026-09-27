@@ -121,3 +121,12 @@ seqlets:                  # recursive_seqlets on attribute's outputs, same folds
   max_seqlet_len: 25
   additional_flanks: 3    # bp added on each side
   n_bins: 1000            # histogram bins for the null distribution
+
+annotate:                 # TomTom nearest motifs per seqlet, same folds
+  motifs: resources/motifs/JASPAR2026_CORE_non-redundant_pfms_meme.txt   # MEME motif database
+  n_score_bins: 100
+  n_median_bins: 1000
+  n_target_bins: 100      # target hashing bins; 0 gives exact p-values
+  n_cache: 250
+  n_nearest: 1            # motifs per seqlet (extra ones add columns)
+  reverse_complement: true

@@ -61,3 +61,35 @@ rule seqlets:
             --idx_filename {input.idxs:q} \
             --output_filename {output.bed:q}
         """
+
+
+# Nearest motifs per seqlet (TomTom) and the seqlet count per best motif.
+rule annotate:
+    input:
+        fasta=lambda wc: fasta_of(wc.sample),
+        bed=rules.seqlets.output.bed,
+        motifs=config["annotate"]["motifs"],
+    output:
+        bed=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.seqlets_annotated.bed",
+        counts=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.motif_seqlet_count.tsv",
+    params:
+        flags=annot_flags(),
+    log:
+        f"{LOGDIR}/annotate/{{sample}}.fold_{{fold}}.log",
+    benchmark:
+        f"{BENCHDIR}/annotate/{{sample}}.fold_{{fold}}.tsv"
+    conda:
+        CONDA_ENV
+    shell:
+        r"""
+        exec &> >(tee {log:q})
+
+        python workflow/scripts/annotate.py \
+            {params.flags:q} \
+            -s {input.fasta:q} \
+            -b {input.bed:q} \
+            -t {input.motifs:q} \
+            --n_jobs {threads} \
+            --output_filename {output.bed:q} \
+            --count_filename {output.counts:q}
+        """
