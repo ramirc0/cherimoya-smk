@@ -5,6 +5,7 @@ import pytest
 import fit
 import evaluate
 import attribute
+import seqlets
 
 defaults = pytest.importorskip("cherimoya_cli.defaults")
 
@@ -32,6 +33,11 @@ ATTR_KEYS = [
     "idx_filename", "dtype", "device", "verbose",
 ]
 
+SEQLET_KEYS = [
+    "threshold", "min_seqlet_len", "max_seqlet_len", "additional_flanks",
+    "chroms", "output_filename",
+]
+
 
 @pytest.mark.parametrize("key", FIT_KEYS)
 def test_fit_defaults_match(key):
@@ -49,6 +55,12 @@ def test_evaluate_defaults_match(key):
 def test_attribute_defaults_match(key):
     parser = attribute.build_parser()
     assert parser.get_default(key) == defaults.default_attribute_parameters[key]
+
+
+@pytest.mark.parametrize("key", SEQLET_KEYS)
+def test_seqlets_defaults_match(key):
+    parser = seqlets.build_parser()
+    assert parser.get_default(key) == defaults.default_seqlet_parameters[key]
 
 
 def test_negatives_defaults():
