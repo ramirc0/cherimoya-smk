@@ -17,12 +17,14 @@ rule all:
         [f"{OUTDIR}/{s}/fold_{fold}/{s}.summary.txt"
          for s in SAMPLES for fold in FOLDS],
         # interpretation
-        [f"{OUTDIR}/{s}/fold_{fold}/{s}.motif_seqlet_count.tsv"
-         for s in SAMPLES for fold in ATTR_FOLDS],
+        [f"{OUTDIR}/{s}/fold_{fold}/{s}.{plot}.svg"
+         for s in SAMPLES for fold in ATTR_FOLDS
+         for plot in ("attribution_profile", "seqlet_lengths", "motif_counts")],
         # run-level QC
         f"{OUTDIR}/report/performance_distribution.svg",
         [f"{OUTDIR}/report/count_pearson_vs_{c}.svg" for c in COVARIATES],
         f"{OUTDIR}/report/outliers.svg",
+        f"{OUTDIR}/report/motif_heatmap.svg",
         f"{OUTDIR}/report/metrics.tsv",
         # provenance
         f"{OUTDIR}/config.snapshot.json",

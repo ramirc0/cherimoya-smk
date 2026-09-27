@@ -11,7 +11,9 @@ SCRIPTS = Path(__file__).resolve().parents[1] / "workflow" / "scripts"
 
 @pytest.mark.parametrize("script", ["negatives.py", "fit.py", "evaluate.py", "model_summary.py",
                                     "attribute.py", "seqlets.py", "annotate.py",
-                                    "name_motifs.py"])
+                                    "name_motifs.py", "plot_attribution_profile.py",
+                                    "plot_seqlet_lengths.py", "plot_motif_counts.py",
+                                    "plot_motif_heatmap.py"])
 def test_help_exits_zero(script):
     result = subprocess.run(
         [sys.executable, str(SCRIPTS / script), "--help"],
@@ -23,7 +25,9 @@ def test_help_exits_zero(script):
 
 @pytest.mark.parametrize("script", ["negatives.py", "fit.py", "evaluate.py", "model_summary.py",
                                     "attribute.py", "seqlets.py", "annotate.py",
-                                    "name_motifs.py"])
+                                    "name_motifs.py", "plot_attribution_profile.py",
+                                    "plot_seqlet_lengths.py", "plot_motif_counts.py",
+                                    "plot_motif_heatmap.py"])
 def test_missing_required_args_exits_two(script):
     result = subprocess.run(
         [sys.executable, str(SCRIPTS / script)],

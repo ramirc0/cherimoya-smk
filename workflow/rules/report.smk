@@ -142,3 +142,28 @@ rule performance_distribution:
             -i {input.performance:q} \
             -o {output.plot:q}
         """
+
+
+# Run-level heatmap of the top motifs across every attributed model.
+rule motif_heatmap:
+    input:
+        counts=[f"{OUTDIR}/{s}/fold_{fold}/{s}.motif_seqlet_count.tsv"
+                for s in SAMPLES for fold in ATTR_FOLDS],
+    output:
+        plot=report(f"{OUTDIR}/report/motif_heatmap.svg",
+                    category="Interpretation", labels={"plot": "top motifs by sample"}),
+        plot_png=f"{OUTDIR}/report/motif_heatmap.png",
+    log:
+        f"{LOGDIR}/motif_heatmap/all.log",
+    benchmark:
+        f"{BENCHDIR}/motif_heatmap/all.tsv"
+    conda:
+        CONDA_ENV
+    shell:
+        r"""
+        exec &> >(tee {log:q})
+
+        python workflow/scripts/plot_motif_heatmap.py \
+            -i {input.counts:q} \
+            -o {output.plot:q}
+        """

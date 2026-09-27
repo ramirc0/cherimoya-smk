@@ -66,6 +66,9 @@ set-resources:
   annotate:
     mem_mb: 8000
     runtime: 60m
+  attribution_profile:
+    mem_mb: 16000           # dnase: two 1.2 GB arrays plus their product
+    runtime: 30m
 
 rerun-incomplete: true
 keep-going: true

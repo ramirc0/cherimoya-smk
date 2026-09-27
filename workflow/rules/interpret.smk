@@ -93,3 +93,87 @@ rule annotate:
             --output_filename {output.bed:q} \
             --count_filename {output.counts:q}
         """
+
+
+# Mean attribution by position across the attributed peaks.
+rule attribution_profile:
+    input:
+        ohe=rules.attribute.output.ohe,
+        attr=rules.attribute.output.attr,
+    output:
+        plot=report(
+            f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.attribution_profile.svg",
+            category="Interpretation",
+            labels={"sample": "{sample}", "fold": "{fold}", "plot": "attribution profile"},
+        ),
+        plot_png=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.attribution_profile.png",
+    log:
+        f"{LOGDIR}/attribution_profile/{{sample}}.fold_{{fold}}.log",
+    benchmark:
+        f"{BENCHDIR}/attribution_profile/{{sample}}.fold_{{fold}}.tsv"
+    conda:
+        CONDA_ENV
+    shell:
+        r"""
+        exec &> >(tee {log:q})
+
+        python workflow/scripts/plot_attribution_profile.py \
+            --ohe_filename {input.ohe:q} \
+            --attr_filename {input.attr:q} \
+            -o {output.plot:q} \
+            --sample {wildcards.sample:q}
+        """
+
+
+rule seqlet_lengths:
+    input:
+        bed=rules.seqlets.output.bed,
+    output:
+        plot=report(
+            f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.seqlet_lengths.svg",
+            category="Interpretation",
+            labels={"sample": "{sample}", "fold": "{fold}", "plot": "seqlet lengths"},
+        ),
+        plot_png=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.seqlet_lengths.png",
+    log:
+        f"{LOGDIR}/seqlet_lengths/{{sample}}.fold_{{fold}}.log",
+    benchmark:
+        f"{BENCHDIR}/seqlet_lengths/{{sample}}.fold_{{fold}}.tsv"
+    conda:
+        CONDA_ENV
+    shell:
+        r"""
+        exec &> >(tee {log:q})
+
+        python workflow/scripts/plot_seqlet_lengths.py \
+            -i {input.bed:q} \
+            -o {output.plot:q} \
+            --sample {wildcards.sample:q}
+        """
+
+
+rule motif_counts:
+    input:
+        counts=rules.annotate.output.counts,
+    output:
+        plot=report(
+            f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.motif_counts.svg",
+            category="Interpretation",
+            labels={"sample": "{sample}", "fold": "{fold}", "plot": "top motifs"},
+        ),
+        plot_png=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.motif_counts.png",
+    log:
+        f"{LOGDIR}/motif_counts/{{sample}}.fold_{{fold}}.log",
+    benchmark:
+        f"{BENCHDIR}/motif_counts/{{sample}}.fold_{{fold}}.tsv"
+    conda:
+        CONDA_ENV
+    shell:
+        r"""
+        exec &> >(tee {log:q})
+
+        python workflow/scripts/plot_motif_counts.py \
+            -i {input.counts:q} \
+            -o {output.plot:q} \
+            --sample {wildcards.sample:q}
+        """
