@@ -320,3 +320,20 @@ def attr_flags(sample, fold):
     if a["compile"]:
         flags.append("--compile")
     return [str(x) for x in flags]
+
+
+def seqlet_flags(sample, fold):
+    """All seqlets.py flag tokens from config['seqlets'] (use with :q).
+
+    Chroms are attribute's, so loci line up with its index mask.
+    """
+    s = config["seqlets"]
+    flags = [
+        "--threshold", s["threshold"],
+        "--min_seqlet_len", s["min_seqlet_len"],
+        "--max_seqlet_len", s["max_seqlet_len"],
+        "--additional_flanks", s["additional_flanks"],
+        "--n_bins", s["n_bins"],
+        *_list_flag("chroms", _fold(sample, fold)["train"] + _fold(sample, fold)["valid"]),
+    ]
+    return [str(x) for x in flags]

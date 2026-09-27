@@ -114,3 +114,10 @@ attribute:
   compile: false          # saturation_mutagenesis only
   compile_mode: max-autotune
   # loci are all peaks on the fold's train + valid chroms; in_window is fit's.
+
+seqlets:                  # recursive_seqlets on attribute's outputs, same folds
+  threshold: 0.01         # p-value cutoff for seqlet cores
+  min_seqlet_len: 4
+  max_seqlet_len: 25
+  additional_flanks: 3    # bp added on each side
+  n_bins: 1000            # histogram bins for the null distribution
