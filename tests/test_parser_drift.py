@@ -4,6 +4,7 @@ import pytest
 
 import fit
 import evaluate
+import attribute
 
 defaults = pytest.importorskip("cherimoya_cli.defaults")
 
@@ -24,6 +25,13 @@ EVAL_KEYS = [
     "device", "dtype", "compile", "compile_mode", "chroms",
 ]
 
+ATTR_KEYS = [
+    "batch_size", "in_window", "chroms", "compile", "compile_mode",
+    "algorithm", "output", "group", "attr_window", "n_shuffles",
+    "warning_threshold", "random_state", "ohe_filename", "attr_filename",
+    "idx_filename", "dtype", "device", "verbose",
+]
+
 
 @pytest.mark.parametrize("key", FIT_KEYS)
 def test_fit_defaults_match(key):
@@ -35,6 +43,12 @@ def test_fit_defaults_match(key):
 def test_evaluate_defaults_match(key):
     parser = evaluate.build_parser()
     assert parser.get_default(key) == defaults.default_evaluate_parameters[key]
+
+
+@pytest.mark.parametrize("key", ATTR_KEYS)
+def test_attribute_defaults_match(key):
+    parser = attribute.build_parser()
+    assert parser.get_default(key) == defaults.default_attribute_parameters[key]
 
 
 def test_negatives_defaults():
