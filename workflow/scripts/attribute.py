@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Attribute a trained Cherimoya model over peaks with `cherimoya attribute`."""
+"""Compute hypothetical attributions of a trained Cherimoya model over peaks."""
 
 import argparse
 
@@ -42,9 +42,75 @@ def build_parser():
 def main():
     args = build_parser().parse_args()
 
-    from cherimoya_cli.commands import attribute
+    import numpy
 
-    attribute.run(argparse.Namespace(parameters=vars(args)))
+    from tangermeme.deep_lift_shap import deep_lift_shap
+    from tangermeme.io import extract_loci
+    from tangermeme.saturation_mutagenesis import saturation_mutagenesis
+
+    from cherimoya import Cherimoya, ControlWrapper, LogCountWrapper, ProfileWrapper
+    from cherimoya.deep_lift_shap import attribution_ops
+
+    # DeepLIFT is never compiled: its backward hooks cause graph breaks.
+    model = Cherimoya.load(args.model, device=args.device,
+        compile=args.compile and args.algorithm == "saturation_mutagenesis",
+        compile_mode=args.compile_mode)
+
+    X, idxs = extract_loci(
+        sequences=args.sequences,
+        loci=args.loci,
+        chroms=args.chroms,
+        in_window=args.in_window,
+        max_jitter=0,
+        ignore=list("QWERYUIOPSDFHJKLZXVBNM"),
+        return_mask=True,
+        verbose=args.verbose,
+    )
+
+    # Drop loci containing N; `idxs` marks the loci kept.
+    no_n = X.sum(dim=(1, 2)) == X.shape[-1]
+    X = X[no_n]
+    idxs[idxs.clone()] = no_n
+
+    head = LogCountWrapper if args.output == "counts" else ProfileWrapper
+    wrapper = head(ControlWrapper(model), group=args.group)
+
+    if args.attr_window > X.shape[-1]:
+        raise ValueError(f"attr_window ({args.attr_window}) is wider than "
+            f"in_window ({X.shape[-1]})")
+    start = X.shape[-1] // 2 - args.attr_window // 2
+    end = start + args.attr_window
+
+    if args.algorithm == "deep_lift_shap":
+        X_attr = deep_lift_shap(
+            wrapper,
+            X,
+            hypothetical=True,
+            n_shuffles=args.n_shuffles,
+            batch_size=args.batch_size,
+            warning_threshold=args.warning_threshold,
+            additional_nonlinear_ops=attribution_ops(),
+            dtype=args.dtype,
+            device=args.device,
+            random_state=args.random_state,
+            verbose=args.verbose,
+        )[:, :, start:end].float()
+    else:
+        X_attr = saturation_mutagenesis(
+            wrapper,
+            X,
+            dtype=args.dtype,
+            device=args.device,
+            batch_size=args.batch_size,
+            verbose=args.verbose,
+            hypothetical=True,
+            start=start,
+            end=end,
+        ).float()
+
+    numpy.savez_compressed(args.ohe_filename, X[:, :, start:end])
+    numpy.savez_compressed(args.attr_filename, X_attr)
+    numpy.save(args.idx_filename, idxs)
 
 
 if __name__ == "__main__":
