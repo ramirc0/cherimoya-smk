@@ -45,14 +45,15 @@ def apply_style():
     mpl.rcParams["ytick.direction"] = "in"
 
 
-def despine(ax, categorical_x=False):
+def despine(ax, categorical_x=False, categorical_y=False):
     """Offset left and bottom spines by 10 pt and trim them to the end ticks.
 
     Each continuous axis is fitted to its data without margins, then widened
     to the nearest ticks enclosing the data, so the trimmed spine never ends
     short of the data. When the locator has no enclosing tick (e.g. dates),
-    the spine runs to the data edge without adding a tick. A categorical x
-    axis has no spine or tick marks; its labels carry the categories.
+    the spine runs to the data edge without adding a tick. A categorical x or
+    y axis (bar, heatmap) has no spine or tick marks; its labels carry the
+    categories.
 
     Data at the limits sits on the axes edge, where matplotlib would clip half
     of each marker and line width. When both axes are fitted to the data, the
@@ -64,8 +65,10 @@ def despine(ax, categorical_x=False):
     fitted = ax.get_autoscalex_on() and ax.get_autoscaley_on()
     ax.margins(0)
     ax.autoscale_view()
-    sns.despine(ax=ax, bottom=categorical_x, offset=10)
-    axes = [(ax.yaxis, ax.get_ylim, ax.set_ylim, "left")]
+    sns.despine(ax=ax, bottom=categorical_x, left=categorical_y, offset=10)
+    axes = []
+    if not categorical_y:
+        axes.append((ax.yaxis, ax.get_ylim, ax.set_ylim, "left"))
     if not categorical_x:
         axes.append((ax.xaxis, ax.get_xlim, ax.set_xlim, "bottom"))
     for axis, get_lim, set_lim, spine in axes:
@@ -84,6 +87,8 @@ def despine(ax, categorical_x=False):
             artist.set_clip_on(False)
     if categorical_x:
         ax.tick_params(axis="x", length=0)
+    if categorical_y:
+        ax.tick_params(axis="y", length=0)
 
 
 def save_figure(fig, path, **kwargs):

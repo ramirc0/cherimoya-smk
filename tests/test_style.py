@@ -84,3 +84,16 @@ def test_despine_keeps_clipping_with_explicit_limits():
     despine(ax)
     assert line.get_clip_on() is True
     plt.close(fig)
+
+
+def test_despine_categorical_y_drops_left_spine():
+    from _style import despine
+    plt = _fig()
+    fig, ax = plt.subplots()
+    ax.barh(["a", "b", "c"], [3.2, 1.0, 7.5])
+    despine(ax, categorical_y=True)
+    assert not ax.spines["left"].get_visible()
+    assert all(t.tick1line.get_markersize() == 0 for t in ax.yaxis.get_major_ticks())
+    assert ax.get_xlim()[1] >= 7.5
+    assert tuple(ax.spines["bottom"].get_bounds()) == ax.get_xlim()
+    plt.close(fig)
