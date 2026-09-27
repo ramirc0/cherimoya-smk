@@ -1,5 +1,11 @@
 """Assert the script defaults still match cherimoya_cli/defaults.py."""
 
+import inspect
+import re
+import subprocess
+import sys
+from pathlib import Path
+
 import pytest
 
 import fit
@@ -7,6 +13,7 @@ import evaluate
 import attribute
 import seqlets
 import annotate
+import modisco_motifs
 
 defaults = pytest.importorskip("cherimoya_cli.defaults")
 
@@ -44,6 +51,36 @@ ANNOT_KEYS = [
     "reverse_complement", "n_jobs", "output_filename",
 ]
 
+MODISCO_KEYS = ["n_seqlets"]
+
+# `modisco motifs` flags the pipeline leaves at the CLI default.
+MODISCO_CLI_KEYS = [
+    "n_leiden", "window", "size", "trim_size", "seqlet_flank_size",
+    "initial_flank_to_add", "final_flank_to_add",
+]
+
+# Extras passed to TFMoDISco; the CLI hard-codes target_seqlet_fdr=0.05.
+MODISCO_LIB_KEYS = ["min_metacluster_size", "n_leiden_iterations", "final_min_cluster_size"]
+
+TEMPLATES = sorted((Path(__file__).resolve().parents[1] / "config").glob("*.yaml.template"))
+
+
+def _template_block(template, name):
+    """Map each key of a flat top-level block in a config template to its value string."""
+    block = re.search(rf"^{name}:.*?\n((?:  .*\n)+)", template.read_text(), re.M).group(1)
+    return dict(re.findall(r"^  (\w+): *([^\s#]+)", block, re.M))
+
+
+def _cli_defaults(*cmd):
+    """Map each `--flag` of a `modisco` subcommand to its help default string."""
+    exe = Path(sys.executable).parent / "modisco"
+    text = subprocess.run([str(exe), *cmd, "--help"], capture_output=True, text=True,
+        check=True).stdout
+    blocks = [" ".join(b.split()) for b in re.split(r"\n(?=\s{2}-)", text)]
+    return {m.group(1): re.findall(r"\(default: ([^)]*)\)", b)[-1]
+            for b in blocks if (m := re.search(r"--(\w+)", b))
+            and "(default:" in b}
+
 
 @pytest.mark.parametrize("key", FIT_KEYS)
 def test_fit_defaults_match(key):
@@ -73,6 +110,46 @@ def test_seqlets_defaults_match(key):
 def test_annotate_defaults_match(key):
     parser = annotate.build_parser()
     assert parser.get_default(key) == defaults.default_annotation_parameters[key]
+
+
+@pytest.mark.parametrize("key", MODISCO_KEYS)
+def test_modisco_defaults_match(key):
+    parser = modisco_motifs.build_parser()
+    expected = defaults.default_pipeline_parameters["modisco_motifs_parameters"][key]
+    assert parser.get_default(key) == expected
+
+
+@pytest.mark.parametrize("key", MODISCO_CLI_KEYS)
+def test_modisco_cli_defaults_match(key):
+    parser = modisco_motifs.build_parser()
+    assert str(parser.get_default(key)) == _cli_defaults("motifs")[key]
+
+
+def test_modisco_library_defaults_match():
+    from modiscolite.tfmodisco import TFMoDISco
+
+    params = inspect.signature(TFMoDISco).parameters
+    parser = modisco_motifs.build_parser()
+    for key in MODISCO_LIB_KEYS:
+        assert parser.get_default(key) == params[key].default, key
+    assert parser.get_default("target_seqlet_fdr") == 0.05
+
+
+@pytest.mark.parametrize("template", TEMPLATES, ids=[t.name for t in TEMPLATES])
+def test_modisco_report_config_matches_cli(template):
+    report = _template_block(template, "modisco_report")
+    cli = _cli_defaults("report")
+    for key in ("n_matches", "n_examples", "trim_threshold", "lite"):
+        assert report[key].lower() == cli[key].lower(), key
+
+
+@pytest.mark.parametrize("template", TEMPLATES, ids=[t.name for t in TEMPLATES])
+def test_modisco_config_matches_script(template):
+    config = _template_block(template, "modisco")
+    parser = modisco_motifs.build_parser()
+    assert len(config) == 12
+    for key, value in config.items():
+        assert str(parser.get_default(key)) == value, key
 
 
 def test_negatives_defaults():

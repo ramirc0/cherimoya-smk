@@ -127,3 +127,23 @@ annotate:                 # TomTom nearest motifs per seqlet, same folds
   n_cache: 250
   n_nearest: 1            # motifs per seqlet (extra ones add columns)
   reverse_complement: true
+
+modisco:                  # TF-MoDISco motifs on attribute's outputs, same folds
+  n_seqlets: 100000       # max seqlets per metacluster
+  n_leiden: 2             # Leiden runs, one seed each
+  window: 400             # central bp of each locus used for discovery
+  size: 20                # seqlet core size
+  trim_size: 30           # pattern trim size
+  seqlet_flank_size: 5
+  initial_flank_to_add: 10
+  final_flank_to_add: 0
+  target_seqlet_fdr: 0.05
+  min_metacluster_size: 100
+  n_leiden_iterations: -1 # -1 runs until stable
+  final_min_cluster_size: 20
+
+modisco_report:           # HTML report; matches patterns to annotate.motifs
+  n_matches: 3            # TomTom matches per pattern
+  n_examples: 10          # seqlet quantiles shown per pattern
+  trim_threshold: 0.3     # logo trim, fraction of max per-position score
+  lite: false             # true uses memelite; matches differ from MEME tomtom
