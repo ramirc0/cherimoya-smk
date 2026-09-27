@@ -10,11 +10,12 @@ Each stage is a small script in `workflow/scripts/` that imports it.
 ```
 macs3 (no peaks provided) ┐
 signal ── bam2bw ─────────┼─ negatives ─ fit* ─ evaluate* ─ performance + counts
-peaks  ── prep_peaks ─────┘                        └─ per-model and run-level QC plots
+peaks  ── prep_peaks ─────┘                 │      └─ per-model and run-level QC plots
+                                            └─ attribute† ─ seqlets†
 ```
 
-`*` runs once per CV fold. Attribution, seqlets, TomTom, modisco and
-marginalize are not implemented.
+`*` runs once per CV fold, `†` once per fold in `attribute.folds` (default
+`[0]`). TomTom, modisco and marginalize are not implemented yet.
 
 ## Quick start
 
@@ -75,6 +76,9 @@ Logs and benchmarks use the same layout under `logs/` and `benchmarks/`.
 - `<sample>/fold_<k>/`: model (`.torch`), `performance.tsv`, `counts.tsv`,
   training curve and count scatter plots, and `summary.txt` (torchinfo layer
   table with the total parameter count)
+- `<sample>/fold_<k>/` for attributed folds: DeepLIFT/SHAP attributions
+  (`attributions.{ohe.npz,attr.npz,idxs.npy}`) and `seqlets.bed` (chrom,
+  start, end, attribution, p-value; sorted by attribution)
 - `report/`: `metrics.tsv` with an outlier flag per model, the performance
   distribution, count Pearson vs `n_peaks`/`n_fragments`, and the outlier plot
 - `config.snapshot.json`: the fully resolved config, including `--config`
@@ -87,12 +91,12 @@ Keep runs apart with `--config run_id=mytag`. Swap sample sheets with
 
 ## SLURM
 
-`profiles/slurm` sends `fit` and `evaluate` to the `gpuh200` partition with one
+`profiles/slurm` sends `fit`, `evaluate` and `attribute` to the `gpuh200` partition with one
 GPU and everything else to CPU partitions. Resources are fixed per rule. If a
 job runs out of memory or time, raise its value in the profile and rerun. Only
 failed jobs re-run. Set your own `slurm_account` before using it.
 
-With no GPU, set `fit.device` and `evaluate.device` to `cpu`.
+With no GPU, set `fit.device`, `evaluate.device` and `attribute.device` to `cpu`.
 
 ## Environment
 
@@ -109,4 +113,9 @@ Run from the built env under `.conda/`:
 ```bash
 pytest            # drift guards against cherimoya defaults, CLI smoke tests
 pytest -m slow    # end-to-end fit + evaluate, needs CHERIMOYA_SMK_SMOKE fixtures and a GPU
+CHERIMOYA_SMK_ATTR=<dir> pytest -m slow tests/test_attribute_parity.py    # vs cherimoya attribute, GPU
+CHERIMOYA_SMK_SEQLETS=<dir> pytest -m slow tests/test_seqlets_parity.py   # vs cherimoya seqlets, CPU
 ```
+
+The parity tests run the official `cherimoya` command and the workflow script
+on the same inputs. Their docstrings list the fixture files.

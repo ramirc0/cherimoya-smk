@@ -20,9 +20,10 @@ snakemake --profile profiles/local                    # local
 snakemake --profile profiles/slurm                    # SLURM; fit/evaluate -> gpuh200
 snakemake <target> --profile profiles/local --config samples=... run_id=...
 python workflow/scripts/make_folds.py                 # fold JSONs, once per genome
-.conda/<hash>_/bin/python -m pytest                   # 97 pass, 2 skip; the env built from cherimoya.yaml
+.conda/<hash>_/bin/python -m pytest                   # 106 pass, 3 skip; the env built from cherimoya.yaml
 .conda/<hash>_/bin/python -m pytest -m slow           # e2e; needs CHERIMOYA_SMK_SMOKE fixtures + GPU
 CHERIMOYA_SMK_ATTR=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_attribute_parity.py  # vs cherimoya attribute; GPU
+CHERIMOYA_SMK_SEQLETS=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_seqlets_parity.py  # vs cherimoya seqlets; CPU
 ```
 
 Put the target **before** `--config`; otherwise Snakemake parses it as a config
@@ -35,7 +36,7 @@ exist. Pass `--config samples=config/samples.atac.tsv` for a dry run.
 macs3 (no peaks) ┐
 signal ─ bam2bw ─┼─ negatives ─ fit* ─ evaluate* ─ performance.tsv + counts.tsv + per-model plots
 peaks ─ prep_peaks ┘                 │      └─ gather_metrics ─ metrics.tsv ─ run-level plots
-                                     └─ attribute† ─ attributions.{ohe.npz,attr.npz,idxs.npy}
+                                     └─ attribute† ─ attributions.{ohe.npz,attr.npz,idxs.npy} ─ seqlets† ─ seqlets.bed
 ```
 
 `*` fans out per `config["folds"]`, `†` per `config["attribute"]["folds"]`. `bam2bw_control` builds the control track
@@ -43,16 +44,16 @@ for fit/evaluate. `count_fragments` feeds `gather_metrics`. `config_snapshot`
 writes the resolved config to `results/<run_id>/config.snapshot.json`.
 `model_summary` (CPU) loads each checkpoint and writes a torchinfo table with
 the param count. Preprocessing is fold-agnostic. Outputs go under `results/<run_id>/<sample>/[fold_<k>/]`; logs and benchmarks mirror that
-layout. Not yet built: seqlets, tomtom, modisco, marginalize.
+layout. Not yet built: tomtom, modisco, marginalize.
 
 ## Where things live
 
 - `workflow/rules/common.smk`: config, sample sheet validation, path helpers,
-  `fit_flags`/`eval_flags`/`attr_flags`. Single gates: `STRANDED` (from
+  `fit_flags`/`eval_flags`/`attr_flags`/`seqlet_flags`. Single gates: `STRANDED` (from
   `preprocess.unstranded`), `COVARIATES` (from `config["qc"]`), `_is_bigwig`
   (entry-point detection by extension).
 - `preprocess.smk` (prep_peaks, macs3, bam2bw, bam2bw_control, count_fragments),
-  `negatives.smk`, `train.smk` (fit, evaluate), `interpret.smk` (attribute),
+  `negatives.smk`, `train.smk` (fit, evaluate), `interpret.smk` (attribute, seqlets),
   `report.smk` (config_snapshot, gather_metrics, plots).
 - `workflow/scripts/_style.py`: shared figure style. `save_figure` writes SVG
   and PNG together. Every `plot_*.py` MUST use it and follow the
