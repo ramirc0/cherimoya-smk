@@ -59,6 +59,9 @@ set-resources:
     tasks_per_gpu: 0
     mem_mb: 64000
     runtime: 480m
+  seqlets:
+    mem_mb: 16000           # dnase (192k loci) OOMs at 4 GB
+    runtime: 60m
 
 rerun-incomplete: true
 keep-going: true
