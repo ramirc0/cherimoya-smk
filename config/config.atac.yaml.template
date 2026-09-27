@@ -35,6 +35,7 @@ preprocess:
   neg_shift: -4
   scale_factor: 1
   callpeaks_q: 0.05     # macs3 genome size (-g) is per-genome (config genomes.<g>.gsize)
+  macs3_extra: []       # extra macs3 callpeak flags
 
 peaks:
   on_missing_contig: filter   # filter | fail — peaks on contigs absent from the FASTA

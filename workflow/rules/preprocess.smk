@@ -40,6 +40,7 @@ rule macs3:
         name=lambda wc: prefix(wc.sample),
         control=lambda wc, input: ["-c", *input.control] if input.control else [],
         max_count=lambda _: ["--max-count", "1"] if config["preprocess"]["fragments"] else [],
+        extra=lambda _: [str(a) for a in config["preprocess"]["macs3_extra"]],
     log:
         f"{LOGDIR}/macs3/{{sample}}.log",
     benchmark:
@@ -53,6 +54,7 @@ rule macs3:
         macs3 callpeak \
             {params.control:q} \
             {params.max_count:q} \
+            {params.extra:q} \
             -f {params.fmt:q} \
             -g {params.gsize:q} \
             -n {params.name:q} \
