@@ -79,4 +79,6 @@ def test_attribute_matches_pipeline(tmp_path):
     attr = numpy.load(tmp_path / "o.attr.npz")["arr_0"]
     ours = numpy.load(tmp_path / "s.attr.npz")["arr_0"]
     print("max |attr diff|:", numpy.abs(ours - attr).max())
-    numpy.testing.assert_allclose(ours, attr, rtol=1e-4, atol=1e-6)
+    # Two official GPU runs differ by up to ~2e-5 (DeepLIFT is not bitwise
+    # reproducible); |attr| reaches ~0.4.
+    numpy.testing.assert_allclose(ours, attr, rtol=0, atol=1e-4)
