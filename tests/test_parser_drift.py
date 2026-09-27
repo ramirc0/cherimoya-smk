@@ -6,6 +6,7 @@ import fit
 import evaluate
 import attribute
 import seqlets
+import annotate
 
 defaults = pytest.importorskip("cherimoya_cli.defaults")
 
@@ -38,6 +39,11 @@ SEQLET_KEYS = [
     "chroms", "output_filename",
 ]
 
+ANNOT_KEYS = [
+    "n_score_bins", "n_median_bins", "n_target_bins", "n_cache",
+    "reverse_complement", "n_jobs", "output_filename",
+]
+
 
 @pytest.mark.parametrize("key", FIT_KEYS)
 def test_fit_defaults_match(key):
@@ -61,6 +67,12 @@ def test_attribute_defaults_match(key):
 def test_seqlets_defaults_match(key):
     parser = seqlets.build_parser()
     assert parser.get_default(key) == defaults.default_seqlet_parameters[key]
+
+
+@pytest.mark.parametrize("key", ANNOT_KEYS)
+def test_annotate_defaults_match(key):
+    parser = annotate.build_parser()
+    assert parser.get_default(key) == defaults.default_annotation_parameters[key]
 
 
 def test_negatives_defaults():
