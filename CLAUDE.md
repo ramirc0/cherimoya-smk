@@ -21,7 +21,7 @@ snakemake --profile profiles/slurm                    # SLURM; fit/evaluate -> g
 snakemake <target> --profile profiles/local --config samples=... run_id=...
 python workflow/scripts/make_folds.py                 # fold JSONs, once per genome
 python workflow/scripts/name_motifs.py <in.meme> <out.meme>  # NAME_ACCESSION IDs for modisco report
-.conda/<hash>_/bin/python -m pytest                   # 119 pass, 4 skip; the env built from cherimoya.yaml
+.conda/<hash>_/bin/python -m pytest                   # 134 pass, 4 skip; the env built from cherimoya.yaml
 .conda/<hash>_/bin/python -m pytest -m slow           # e2e; needs CHERIMOYA_SMK_SMOKE fixtures + GPU
 CHERIMOYA_SMK_ATTR=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_attribute_parity.py  # vs cherimoya attribute; GPU
 CHERIMOYA_SMK_SEQLETS=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_seqlets_parity.py  # vs cherimoya seqlets; CPU
@@ -45,7 +45,10 @@ peaks ─ prep_peaks ┘                 │      └─ gather_metrics ─ metr
 for fit/evaluate. `count_fragments` feeds `gather_metrics`. `config_snapshot`
 writes the resolved config to `results/<run_id>/config.snapshot.json`.
 `model_summary` (CPU) loads each checkpoint and writes a torchinfo table with
-the param count. Preprocessing is fold-agnostic. Outputs go under `results/<run_id>/<sample>/[fold_<k>/]`; logs and benchmarks mirror that
+the param count.
+`attribution_profile`, `seqlet_lengths`, `motif_counts` plot each attributed
+model; `motif_heatmap` plots the run. They are separate rules so a plot change
+never reruns attribute. Preprocessing is fold-agnostic. Outputs go under `results/<run_id>/<sample>/[fold_<k>/]`; logs and benchmarks mirror that
 layout. Not yet built: modisco, marginalize.
 
 ## Where things live
@@ -59,7 +62,8 @@ layout. Not yet built: modisco, marginalize.
   `report.smk` (config_snapshot, gather_metrics, plots).
 - `workflow/scripts/_style.py`: shared figure style. `save_figure` writes SVG
   and PNG together. Every `plot_*.py` MUST use it and follow the
-  `matplotlib-style` skill.
+  `matplotlib-style` skill. `despine(ax, categorical_y=True)` is a local addition
+  for heatmaps and horizontal bars.
 - `config/config.<assay>.yaml.template`: tracked (atac, dnase, chipseq-tf).
   `config.yaml` and `samples.*.tsv` are gitignored.
 - `resources/` (gitignored): `refs/<g>.{fa,fa.fai,chrom.sizes}`,

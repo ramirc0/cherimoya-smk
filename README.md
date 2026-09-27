@@ -80,10 +80,12 @@ Logs and benchmarks use the same layout under `logs/` and `benchmarks/`.
   (`attributions.{ohe.npz,attr.npz,idxs.npy}`) and `seqlets.bed` (chrom,
   start, end, attribution, p-value; sorted by attribution),
   `seqlets_annotated.bed` (each seqlet's nearest TomTom motif in
-  `annotate.motifs` and its -log p-value), and `motif_seqlet_count.tsv`
-  (seqlets per motif)
+  `annotate.motifs` and its -log p-value), `motif_seqlet_count.tsv`
+  (seqlets per motif), and plots of the mean attribution by position, the
+  seqlet lengths, and the top motifs
 - `report/`: `metrics.tsv` with an outlier flag per model, the performance
-  distribution, count Pearson vs `n_peaks`/`n_fragments`, and the outlier plot
+  distribution, count Pearson vs `n_peaks`/`n_fragments`, the outlier plot,
+  and a heatmap of the top motifs by sample
 - `config.snapshot.json`: the fully resolved config, including `--config`
   overrides. Rerun it with `--configfile results/<run_id>/config.snapshot.json`.
 
