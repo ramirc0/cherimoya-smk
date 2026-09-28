@@ -105,10 +105,13 @@ layout.
   grows about 115 MB per thread.
 - `modisco_motifs.py` ports `modisco motifs` onto `modiscolite` (modisco 2.5.2
   owns the installed files, not modisco-lite). Its h5 is byte-identical to the
-  official one and deterministic across runs and CPUs. `modisco_report` shells
-  out to `modisco report` without `-l`, so it needs MEME `tomtom`, as the
-  official run does. Its seqlet example picks depend on AVX512, so the SLURM
-  preset pins it to cascadelake.
+  official one and deterministic across runs and CPUs. `modisco_report` runs
+  `modisco report` without `-l`, so it needs MEME `tomtom`, as the official run
+  does. It goes through `modisco_report.py`, which turns off pandas 3 string
+  inference: otherwise a pattern with fewer TomTom matches than `n_matches`
+  crashes modisco 2.5.2 (the official pipeline too). Output is otherwise
+  identical to `modisco report`. Its seqlet example picks depend on AVX512, so
+  the SLURM preset pins it to cascadelake.
 - `marginalize` inserts motifs into the **peaks**, not the negatives: at the pin,
   `_extract_set` copies the pipeline's `loci` before `_check_set` offers
   `negatives`. Chroms are the fold's train set (`training_chroms` in the
@@ -135,6 +138,8 @@ Follow the [Nextstrain Snakemake style guide][sg]. Keep
 
 - No GPU on the login node. GPU is only via SLURM `gpuh200`. Set
   `fit.device`/`evaluate.device` to `cpu` for a CPU run.
+- Concurrent runs in one workdir need distinct run_ids and staggered starts:
+  simultaneous launches race on `.snakemake/iocache/latest.pkl`.
 - Never add `profiles/default`. Snakemake auto-loads it as a workflow profile
   that outranks `--profile` and strips GPU routing.
 - `tasks_per_gpu: 0` on fit/evaluate suppresses `--ntasks-per-gpu`, which
