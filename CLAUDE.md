@@ -21,12 +21,13 @@ snakemake --profile profiles/slurm                    # SLURM; fit/evaluate -> g
 snakemake <target> --profile profiles/local --config samples=... run_id=...
 python workflow/scripts/make_folds.py                 # fold JSONs, once per genome
 python workflow/scripts/name_motifs.py <in.meme> <out.meme>  # NAME_ACCESSION IDs for modisco report
-.conda/<hash>_/bin/python -m pytest                   # 153 pass, 6 skip; the env built from cherimoya.yaml
+.conda/<hash>_/bin/python -m pytest                   # 172 pass, 8 skip; the env built from cherimoya.yaml
 .conda/<hash>_/bin/python -m pytest -m slow           # e2e; needs CHERIMOYA_SMK_SMOKE fixtures + GPU
 CHERIMOYA_SMK_ATTR=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_attribute_parity.py  # vs cherimoya attribute; GPU
 CHERIMOYA_SMK_SEQLETS=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_seqlets_parity.py  # vs cherimoya seqlets; CPU
 CHERIMOYA_SMK_ANNOTATE=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_annotate_parity.py  # vs pipeline ttl step; CPU
 CHERIMOYA_SMK_MODISCO=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_modisco_parity.py  # vs pipeline modisco; cascadelake, MEME tomtom on PATH
+CHERIMOYA_SMK_MARGINALIZE=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_marginalize_parity.py  # vs pipeline marginalize; GPU
 ```
 
 Put the target **before** `--config`; otherwise Snakemake parses it as a config
@@ -40,7 +41,8 @@ macs3 (no peaks) ┐
 signal ─ bam2bw ─┼─ negatives ─ fit* ─ evaluate* ─ performance.tsv + counts.tsv + per-model plots
 peaks ─ prep_peaks ┘                 │      └─ gather_metrics ─ metrics.tsv ─ run-level plots
                                      └─ attribute† ─ attributions.{ohe.npz,attr.npz,idxs.npy} ─┬─ seqlets† ─ seqlets.bed ─ annotate† ─ seqlets_annotated.bed + motif_seqlet_count.tsv
-                                                                                              └─ modisco_motifs† ─ modisco_results.h5 ─ modisco_report† ─ modisco/report.html
+                                     │                                                        └─ modisco_motifs† ─ modisco_results.h5 ─ modisco_report† ─ modisco/report.html
+                                     └─ marginalize† ─ marginalize/marginalization.html
 ```
 
 `*` fans out per `config["folds"]`, `†` per `config["attribute"]["folds"]`. `bam2bw_control` builds the control track
@@ -51,16 +53,16 @@ the param count.
 `attribution_profile`, `seqlet_lengths`, `motif_counts` plot each attributed
 model; `motif_heatmap` plots the run. They are separate rules so a plot change
 never reruns attribute. Preprocessing is fold-agnostic. Outputs go under `results/<run_id>/<sample>/[fold_<k>/]`; logs and benchmarks mirror that
-layout. Not yet built: marginalize.
+layout.
 
 ## Where things live
 
 - `workflow/rules/common.smk`: config, sample sheet validation, path helpers,
-  `fit_flags`/`eval_flags`/`attr_flags`/`seqlet_flags`/`annot_flags`/`modisco_flags`/`modisco_report_flags`. Single gates: `STRANDED` (from
+  `fit_flags`/`eval_flags`/`attr_flags`/`seqlet_flags`/`annot_flags`/`modisco_flags`/`modisco_report_flags`/`marginalize_flags`. Single gates: `STRANDED` (from
   `preprocess.unstranded`), `COVARIATES` (from `config["qc"]`), `_is_bigwig`
   (entry-point detection by extension).
 - `preprocess.smk` (prep_peaks, macs3, bam2bw, bam2bw_control, count_fragments),
-  `negatives.smk`, `train.smk` (fit, evaluate), `interpret.smk` (attribute, seqlets, annotate, modisco_motifs, modisco_report),
+  `negatives.smk`, `train.smk` (fit, evaluate), `interpret.smk` (attribute, seqlets, annotate, modisco_motifs, modisco_report, marginalize),
   `report.smk` (config_snapshot, gather_metrics, plots).
 - `workflow/scripts/_style.py`: shared figure style. `save_figure` writes SVG
   and PNG together. Every `plot_*.py` MUST use it and follow the
@@ -107,6 +109,12 @@ layout. Not yet built: marginalize.
   out to `modisco report` without `-l`, so it needs MEME `tomtom`, as the
   official run does. Its seqlet example picks depend on AVX512, so the SLURM
   preset pins it to cascadelake.
+- `marginalize` inserts motifs into the **peaks**, not the negatives: at the pin,
+  `_extract_set` copies the pipeline's `loci` before `_check_set` offers
+  `negatives`. Chroms are the fold's train set (`training_chroms` in the
+  pipeline). The report comes from `bpnetlite.marginalize.marginalization_report`.
+  Its PNGs are byte-identical to the official ones on an H200. Motifs sharing a
+  consensus tie on the ranking, so GPU noise can swap their HTML rows.
 
 ## Rule conventions
 

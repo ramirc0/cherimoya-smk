@@ -11,12 +11,13 @@ Each stage is a small script in `workflow/scripts/` that imports it.
 macs3 (no peaks provided) ┐
 signal ── bam2bw ─────────┼─ negatives ─ fit* ─ evaluate* ─ performance + counts
 peaks  ── prep_peaks ─────┘                 │      └─ per-model and run-level QC plots
-                                            └─ attribute† ─┬─ seqlets† ─ annotate†
-                                                           └─ modisco_motifs† ─ modisco_report†
+                                            ├─ attribute† ─┬─ seqlets† ─ annotate†
+                                            │              └─ modisco_motifs† ─ modisco_report†
+                                            └─ marginalize†
 ```
 
 `*` runs once per CV fold, `†` once per fold in `attribute.folds` (default
-`[0]`). marginalize is not implemented yet.
+`[0]`).
 
 ## Quick start
 
@@ -85,7 +86,10 @@ Logs and benchmarks use the same layout under `logs/` and `benchmarks/`.
   (seqlets per motif), and plots of the mean attribution by position, the
   seqlet lengths, and the top motifs. TF-MoDISco patterns
   (`modisco_results.h5`) and their HTML report (`modisco/report.html`), with
-  each pattern's top TomTom matches in `annotate.motifs`
+  each pattern's top TomTom matches in `annotate.motifs`. The marginalization
+  report (`marginalize/marginalization.html`): each `annotate.motifs`
+  consensus inserted at the center of the first 100 training-chrom peaks,
+  ranked by the mean change in predicted counts
 - `report/`: `metrics.tsv` with an outlier flag per model, the performance
   distribution, count Pearson vs `n_peaks`/`n_fragments`, the outlier plot,
   and a heatmap of the top motifs by sample
@@ -99,14 +103,15 @@ Keep runs apart with `--config run_id=mytag`. Swap sample sheets with
 
 ## SLURM
 
-`profiles/slurm` sends `fit`, `evaluate` and `attribute` to the `gpuh200` partition with one
+`profiles/slurm` sends `fit`, `evaluate`, `attribute` and `marginalize` to the `gpuh200` partition with one
 GPU and everything else to CPU partitions. `modisco_motifs` takes 16 cores on
 cascadelake nodes (1 to 5 h). `modisco_report` also runs on cascadelake: without
 AVX512, the seqlet examples it picks differ. Resources are fixed per rule. If a
 job runs out of memory or time, raise its value in the profile and rerun. Only
 failed jobs re-run. Set your own `slurm_account` before using it.
 
-With no GPU, set `fit.device`, `evaluate.device` and `attribute.device` to `cpu`.
+With no GPU, set `fit.device`, `evaluate.device`, `attribute.device` and
+`marginalize.device` to `cpu`.
 
 ## Environment
 
@@ -129,6 +134,7 @@ CHERIMOYA_SMK_ATTR=<dir> pytest -m slow tests/test_attribute_parity.py    # vs c
 CHERIMOYA_SMK_SEQLETS=<dir> pytest -m slow tests/test_seqlets_parity.py   # vs cherimoya seqlets, CPU
 CHERIMOYA_SMK_ANNOTATE=<dir> pytest -m slow tests/test_annotate_parity.py # vs cherimoya pipeline annotation, CPU
 CHERIMOYA_SMK_MODISCO=<dir> pytest -m slow tests/test_modisco_parity.py   # vs cherimoya pipeline modisco, CPU (AVX512), MEME tomtom on PATH
+CHERIMOYA_SMK_MARGINALIZE=<dir> pytest -m slow tests/test_marginalize_parity.py  # vs cherimoya pipeline marginalize, GPU
 ```
 
 The parity tests run the official `cherimoya` command and the workflow script
