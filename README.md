@@ -11,11 +11,12 @@ Each stage is a small script in `workflow/scripts/` that imports it.
 macs3 (no peaks provided) ┐
 signal ── bam2bw ─────────┼─ negatives ─ fit* ─ evaluate* ─ performance + counts
 peaks  ── prep_peaks ─────┘                 │      └─ per-model and run-level QC plots
-                                            └─ attribute† ─ seqlets† ─ annotate†
+                                            └─ attribute† ─┬─ seqlets† ─ annotate†
+                                                           └─ modisco_motifs† ─ modisco_report†
 ```
 
 `*` runs once per CV fold, `†` once per fold in `attribute.folds` (default
-`[0]`). modisco and marginalize are not implemented yet.
+`[0]`). marginalize is not implemented yet.
 
 ## Quick start
 
@@ -82,7 +83,9 @@ Logs and benchmarks use the same layout under `logs/` and `benchmarks/`.
   `seqlets_annotated.bed` (each seqlet's nearest TomTom motif in
   `annotate.motifs` and its -log p-value), `motif_seqlet_count.tsv`
   (seqlets per motif), and plots of the mean attribution by position, the
-  seqlet lengths, and the top motifs
+  seqlet lengths, and the top motifs. TF-MoDISco patterns
+  (`modisco_results.h5`) and their HTML report (`modisco/report.html`), with
+  each pattern's top TomTom matches in `annotate.motifs`
 - `report/`: `metrics.tsv` with an outlier flag per model, the performance
   distribution, count Pearson vs `n_peaks`/`n_fragments`, the outlier plot,
   and a heatmap of the top motifs by sample
@@ -97,7 +100,9 @@ Keep runs apart with `--config run_id=mytag`. Swap sample sheets with
 ## SLURM
 
 `profiles/slurm` sends `fit`, `evaluate` and `attribute` to the `gpuh200` partition with one
-GPU and everything else to CPU partitions. Resources are fixed per rule. If a
+GPU and everything else to CPU partitions. `modisco_motifs` takes 16 cores on
+cascadelake nodes (1 to 5 h). `modisco_report` also runs on cascadelake: without
+AVX512, the seqlet examples it picks differ. Resources are fixed per rule. If a
 job runs out of memory or time, raise its value in the profile and rerun. Only
 failed jobs re-run. Set your own `slurm_account` before using it.
 
@@ -105,11 +110,13 @@ With no GPU, set `fit.device`, `evaluate.device` and `attribute.device` to `cpu`
 
 ## Environment
 
-`workflow/envs/cherimoya.yaml` is the only env definition, and it is fully
+`workflow/envs/cherimoya.yaml` is the main env definition, and it is fully
 pinned. Conda packages carry version and build, pip packages an exact `==`,
 transitive dependencies included. cherimoya comes from a pinned git commit.
 torch (CUDA), tangermeme, macs3, bam2bw and pytest are pip packages in the same
 env. Any change to the file makes Snakemake build a fresh env under `.conda/`.
+`modisco_report` uses `workflow/envs/modisco_report.yaml`, pinned the same way:
+the MEME-suite `tomtom` it calls needs an `icu` that conflicts with the main env.
 
 ## Tests
 
@@ -121,6 +128,7 @@ pytest -m slow    # end-to-end fit + evaluate, needs CHERIMOYA_SMK_SMOKE fixture
 CHERIMOYA_SMK_ATTR=<dir> pytest -m slow tests/test_attribute_parity.py    # vs cherimoya attribute, GPU
 CHERIMOYA_SMK_SEQLETS=<dir> pytest -m slow tests/test_seqlets_parity.py   # vs cherimoya seqlets, CPU
 CHERIMOYA_SMK_ANNOTATE=<dir> pytest -m slow tests/test_annotate_parity.py # vs cherimoya pipeline annotation, CPU
+CHERIMOYA_SMK_MODISCO=<dir> pytest -m slow tests/test_modisco_parity.py   # vs cherimoya pipeline modisco, CPU (AVX512), MEME tomtom on PATH
 ```
 
 The parity tests run the official `cherimoya` command and the workflow script

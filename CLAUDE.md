@@ -21,11 +21,12 @@ snakemake --profile profiles/slurm                    # SLURM; fit/evaluate -> g
 snakemake <target> --profile profiles/local --config samples=... run_id=...
 python workflow/scripts/make_folds.py                 # fold JSONs, once per genome
 python workflow/scripts/name_motifs.py <in.meme> <out.meme>  # NAME_ACCESSION IDs for modisco report
-.conda/<hash>_/bin/python -m pytest                   # 134 pass, 4 skip; the env built from cherimoya.yaml
+.conda/<hash>_/bin/python -m pytest                   # 153 pass, 6 skip; the env built from cherimoya.yaml
 .conda/<hash>_/bin/python -m pytest -m slow           # e2e; needs CHERIMOYA_SMK_SMOKE fixtures + GPU
 CHERIMOYA_SMK_ATTR=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_attribute_parity.py  # vs cherimoya attribute; GPU
 CHERIMOYA_SMK_SEQLETS=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_seqlets_parity.py  # vs cherimoya seqlets; CPU
 CHERIMOYA_SMK_ANNOTATE=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_annotate_parity.py  # vs pipeline ttl step; CPU
+CHERIMOYA_SMK_MODISCO=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_modisco_parity.py  # vs pipeline modisco; cascadelake, MEME tomtom on PATH
 ```
 
 Put the target **before** `--config`; otherwise Snakemake parses it as a config
@@ -38,7 +39,8 @@ exist. Pass `--config samples=config/samples.atac.tsv` for a dry run.
 macs3 (no peaks) ┐
 signal ─ bam2bw ─┼─ negatives ─ fit* ─ evaluate* ─ performance.tsv + counts.tsv + per-model plots
 peaks ─ prep_peaks ┘                 │      └─ gather_metrics ─ metrics.tsv ─ run-level plots
-                                     └─ attribute† ─ attributions.{ohe.npz,attr.npz,idxs.npy} ─ seqlets† ─ seqlets.bed ─ annotate† ─ seqlets_annotated.bed + motif_seqlet_count.tsv
+                                     └─ attribute† ─ attributions.{ohe.npz,attr.npz,idxs.npy} ─┬─ seqlets† ─ seqlets.bed ─ annotate† ─ seqlets_annotated.bed + motif_seqlet_count.tsv
+                                                                                              └─ modisco_motifs† ─ modisco_results.h5 ─ modisco_report† ─ modisco/report.html
 ```
 
 `*` fans out per `config["folds"]`, `†` per `config["attribute"]["folds"]`. `bam2bw_control` builds the control track
@@ -49,16 +51,16 @@ the param count.
 `attribution_profile`, `seqlet_lengths`, `motif_counts` plot each attributed
 model; `motif_heatmap` plots the run. They are separate rules so a plot change
 never reruns attribute. Preprocessing is fold-agnostic. Outputs go under `results/<run_id>/<sample>/[fold_<k>/]`; logs and benchmarks mirror that
-layout. Not yet built: modisco, marginalize.
+layout. Not yet built: marginalize.
 
 ## Where things live
 
 - `workflow/rules/common.smk`: config, sample sheet validation, path helpers,
-  `fit_flags`/`eval_flags`/`attr_flags`/`seqlet_flags`/`annot_flags`. Single gates: `STRANDED` (from
+  `fit_flags`/`eval_flags`/`attr_flags`/`seqlet_flags`/`annot_flags`/`modisco_flags`/`modisco_report_flags`. Single gates: `STRANDED` (from
   `preprocess.unstranded`), `COVARIATES` (from `config["qc"]`), `_is_bigwig`
   (entry-point detection by extension).
 - `preprocess.smk` (prep_peaks, macs3, bam2bw, bam2bw_control, count_fragments),
-  `negatives.smk`, `train.smk` (fit, evaluate), `interpret.smk` (attribute, seqlets, annotate),
+  `negatives.smk`, `train.smk` (fit, evaluate), `interpret.smk` (attribute, seqlets, annotate, modisco_motifs, modisco_report),
   `report.smk` (config_snapshot, gather_metrics, plots).
 - `workflow/scripts/_style.py`: shared figure style. `save_figure` writes SVG
   and PNG together. Every `plot_*.py` MUST use it and follow the
@@ -71,10 +73,14 @@ layout. Not yet built: modisco, marginalize.
   `motifs/`: the JASPAR2026 MEME file (symlink) and its `_named` copy from
   `name_motifs.py`.
 - `docs/run-paths.dot`: entry-path diagram. Rerender the SVG after editing it.
-- `workflow/envs/cherimoya.yaml`: the one per-rule env, fully pinned (conda
+- `workflow/envs/cherimoya.yaml`: the main per-rule env, fully pinned (conda
   `name=version=build`, pip `==`, transitive deps included). A new dependency
   MUST go in with its exact version and any new transitive pins. There are no
-  lock files.
+  lock files. Editing it rebuilds the env and reruns every rule (software-env
+  trigger).
+- `workflow/envs/modisco_report.yaml`: `modisco_report` only. It adds MEME
+  `tomtom` 5.5.9, whose `icu<76` conflicts with the main env. Its pip pins
+  MUST match `cherimoya.yaml`.
 
 ## Behavior to preserve
 
@@ -95,6 +101,12 @@ layout. Not yet built: modisco, marginalize.
 - `annotate` passes `--n_jobs {threads}` (profile `set-threads`), not the
   official `-1`. TomTom output is byte-identical across thread counts; memory
   grows about 115 MB per thread.
+- `modisco_motifs.py` ports `modisco motifs` onto `modiscolite` (modisco 2.5.2
+  owns the installed files, not modisco-lite). Its h5 is byte-identical to the
+  official one and deterministic across runs and CPUs. `modisco_report` shells
+  out to `modisco report` without `-l`, so it needs MEME `tomtom`, as the
+  official run does. Its seqlet example picks depend on AVX512, so the SLURM
+  preset pins it to cascadelake.
 
 ## Rule conventions
 
