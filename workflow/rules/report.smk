@@ -144,11 +144,11 @@ rule performance_distribution:
         """
 
 
-# Run-level heatmap of the top motifs across every attributed model.
+# Run-level heatmap of the top motifs across every model.
 rule motif_heatmap:
     input:
         counts=[f"{OUTDIR}/{s}/fold_{fold}/{s}.motif_seqlet_count.tsv"
-                for s in SAMPLES for fold in ATTR_FOLDS],
+                for s in SAMPLES for fold in FOLDS],
     output:
         plot=report(f"{OUTDIR}/report/motif_heatmap.svg",
                     category="Interpretation", labels={"plot": "top motifs by sample"}),

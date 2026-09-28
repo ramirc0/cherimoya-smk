@@ -17,8 +17,9 @@ OUTDIR = f"{RESULTS}/{RUN_ID}"        # per-sample outputs, grouped per run
 # the sample sheet's `genome` column (multi-species data).
 GENOMES = config["genomes"]
 BLACKLIST = config["references"].get("blacklist") or None
-FOLDS = [str(f) for f in config.get("folds", [0])]   # CV folds to train/evaluate
-ATTR_FOLDS = [str(f) for f in config["attribute"]["folds"]]  # CV folds to attribute
+FOLDS = [str(f) for f in config["folds"]]   # CV folds; every per-fold rule fans out over them
+if "folds" in config["attribute"]:
+    raise WorkflowError("attribute.folds was removed; interpretation runs on every fold in `folds`.")
 # Stranded runs emit a (+, -) bigWig pair per signal/control (one group of 2);
 # unstranded runs emit a single track. The single gate for the whole workflow.
 STRANDED = not config["preprocess"]["unstranded"]

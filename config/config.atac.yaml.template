@@ -10,7 +10,8 @@ run_id: default          # logs go under logs/<run_id>/; override per run to kee
 references:
   blacklist: resources/ENCFF356LFX.slop1057.bed   # optional BED of regions to exclude (fit + evaluate)
 
-# CV folds to train + evaluate. Fold JSONs (train/valid/test chrom splits) live in
+# CV folds. Every per-fold step (fit through marginalize) runs once per fold.
+# Fold JSONs (train/valid/test chrom splits) live in
 # resources/folds/<genome>/fold_<k>.json; generate them once per genome with
 # `python workflow/scripts/make_folds.py` (reads each genome's chrom.sizes).
 folds: [0]               # e.g. [0, 1, 2, 3, 4] for the full 5-fold CV
@@ -96,7 +97,6 @@ evaluate:
   # eval chroms come from the per-genome CV fold JSON (the fold's test set).
 
 attribute:
-  folds: [0]              # CV folds to attribute; `cherimoya pipeline` attributes one model
   algorithm: deep_lift_shap   # or saturation_mutagenesis
   output: counts          # counts | profile head
   group: 0                # signal group of that head
@@ -111,14 +111,14 @@ attribute:
   compile_mode: max-autotune
   # loci are all peaks on the fold's train + valid chroms; in_window is fit's.
 
-seqlets:                  # recursive_seqlets on attribute's outputs, same folds
+seqlets:                  # recursive_seqlets on attribute's outputs
   threshold: 0.01         # p-value cutoff for seqlet cores
   min_seqlet_len: 4
   max_seqlet_len: 25
   additional_flanks: 3    # bp added on each side
   n_bins: 1000            # histogram bins for the null distribution
 
-annotate:                 # TomTom nearest motifs per seqlet, same folds
+annotate:                 # TomTom nearest motifs per seqlet
   motifs: resources/motifs/JASPAR2026_CORE_non-redundant_pfms_meme.txt   # MEME motif database
   n_score_bins: 100
   n_median_bins: 1000
@@ -127,7 +127,7 @@ annotate:                 # TomTom nearest motifs per seqlet, same folds
   n_nearest: 1            # motifs per seqlet (extra ones add columns)
   reverse_complement: true
 
-modisco:                  # TF-MoDISco motifs on attribute's outputs, same folds
+modisco:                  # TF-MoDISco motifs on attribute's outputs
   n_seqlets: 100000       # max seqlets per metacluster
   n_leiden: 2             # Leiden runs, one seed each
   window: 400             # central bp of each locus used for discovery
@@ -147,7 +147,7 @@ modisco_report:           # HTML report; matches patterns to annotate.motifs
   trim_threshold: 0.3     # logo trim, fraction of max per-position score
   lite: false             # true uses memelite; matches differ from MEME tomtom
 
-marginalize:              # motif insertion report per attributed fold's model
+marginalize:              # motif insertion report per fold's model
   n_loci: 100             # peaks used, in file order unless shuffle
   shuffle: false
   random_state: 0         # seed of shuffle

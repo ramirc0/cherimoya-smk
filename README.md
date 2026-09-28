@@ -11,13 +11,12 @@ Each stage is a small script in `workflow/scripts/` that imports it.
 macs3 (no peaks provided) ┐
 signal ── bam2bw ─────────┼─ negatives ─ fit* ─ evaluate* ─ performance + counts
 peaks  ── prep_peaks ─────┘                 │      └─ per-model and run-level QC plots
-                                            ├─ attribute† ─┬─ seqlets† ─ annotate†
-                                            │              └─ modisco_motifs† ─ modisco_report†
-                                            └─ marginalize†
+                                            ├─ attribute* ─┬─ seqlets* ─ annotate*
+                                            │              └─ modisco_motifs* ─ modisco_report*
+                                            └─ marginalize*
 ```
 
-`*` runs once per CV fold, `†` once per fold in `attribute.folds` (default
-`[0]`).
+`*` runs once per CV fold in `folds`.
 
 ## Quick start
 
@@ -78,7 +77,7 @@ Logs and benchmarks use the same layout under `logs/` and `benchmarks/`.
 - `<sample>/fold_<k>/`: model (`.torch`), `performance.tsv`, `counts.tsv`,
   training curve and count scatter plots, and `summary.txt` (torchinfo layer
   table with the total parameter count)
-- `<sample>/fold_<k>/` for attributed folds: DeepLIFT/SHAP attributions
+- `<sample>/fold_<k>/` also: DeepLIFT/SHAP attributions
   (`attributions.{ohe.npz,attr.npz,idxs.npy}`) and `seqlets.bed` (chrom,
   start, end, attribution, p-value; sorted by attribution),
   `seqlets_annotated.bed` (each seqlet's nearest TomTom motif in

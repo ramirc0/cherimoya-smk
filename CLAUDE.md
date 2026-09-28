@@ -40,17 +40,17 @@ exist. Pass `--config samples=config/samples.atac.tsv` for a dry run.
 macs3 (no peaks) ┐
 signal ─ bam2bw ─┼─ negatives ─ fit* ─ evaluate* ─ performance.tsv + counts.tsv + per-model plots
 peaks ─ prep_peaks ┘                 │      └─ gather_metrics ─ metrics.tsv ─ run-level plots
-                                     └─ attribute† ─ attributions.{ohe.npz,attr.npz,idxs.npy} ─┬─ seqlets† ─ seqlets.bed ─ annotate† ─ seqlets_annotated.bed + motif_seqlet_count.tsv
-                                     │                                                        └─ modisco_motifs† ─ modisco_results.h5 ─ modisco_report† ─ modisco/report.html
-                                     └─ marginalize† ─ marginalize/marginalization.html
+                                     └─ attribute* ─ attributions.{ohe.npz,attr.npz,idxs.npy} ─┬─ seqlets* ─ seqlets.bed ─ annotate* ─ seqlets_annotated.bed + motif_seqlet_count.tsv
+                                     │                                                        └─ modisco_motifs* ─ modisco_results.h5 ─ modisco_report* ─ modisco/report.html
+                                     └─ marginalize* ─ marginalize/marginalization.html
 ```
 
-`*` fans out per `config["folds"]`, `†` per `config["attribute"]["folds"]`. `bam2bw_control` builds the control track
+`*` fans out per `config["folds"]`. `bam2bw_control` builds the control track
 for fit/evaluate. `count_fragments` feeds `gather_metrics`. `config_snapshot`
 writes the resolved config to `results/<run_id>/config.snapshot.json`.
 `model_summary` (CPU) loads each checkpoint and writes a torchinfo table with
 the param count.
-`attribution_profile`, `seqlet_lengths`, `motif_counts` plot each attributed
+`attribution_profile`, `seqlet_lengths`, `motif_counts` plot each
 model; `motif_heatmap` plots the run. They are separate rules so a plot change
 never reruns attribute. Preprocessing is fold-agnostic. Outputs go under `results/<run_id>/<sample>/[fold_<k>/]`; logs and benchmarks mirror that
 layout.
