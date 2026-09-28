@@ -385,3 +385,30 @@ def modisco_report_flags():
     if r["lite"]:
         flags.append("--lite")
     return [str(x) for x in flags]
+
+
+def marginalize_flags(sample, fold):
+    """All marginalize.py flag tokens from config['marginalize'] (use with :q).
+
+    Chroms are the sample's genome CV `fold` train set and in_window is fit's,
+    as `cherimoya pipeline` leaves marginalize at its training_chroms default.
+    """
+    m = config["marginalize"]
+    flags = [
+        "--n_loci", m["n_loci"],
+        "--random_state", m["random_state"],
+        "--batch_size", m["batch_size"],
+        "--in_window", config["fit"]["in_window"],
+        "--device", m["device"],
+        "--compile_mode", m["compile_mode"],
+        *_list_flag("chroms", _fold(sample, fold)["train"]),
+    ]
+    if m["shuffle"]:
+        flags.append("--shuffle")
+    if m["attributions"]:
+        flags.append("--attributions")
+    if not m["minimal"]:
+        flags.append("--no_minimal")
+    if not m["compile"]:
+        flags.append("--no_compile")
+    return [str(x) for x in flags]

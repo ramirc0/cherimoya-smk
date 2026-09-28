@@ -152,6 +152,39 @@ rule modisco_report:
         """
 
 
+# HTML report of each annotate.motifs consensus's effect when inserted into peaks.
+rule marginalize:
+    input:
+        fasta=lambda wc: fasta_of(wc.sample),
+        peaks=peaks_for,
+        model=rules.attribute.input.model,
+        fold=lambda wc: fold_json(wc.sample, wc.fold),
+        motifs=config["annotate"]["motifs"],
+    output:
+        report=directory(f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.marginalize"),
+    params:
+        flags=lambda wc: marginalize_flags(wc.sample, wc.fold),
+    log:
+        f"{LOGDIR}/marginalize/{{sample}}.fold_{{fold}}.log",
+    benchmark:
+        f"{BENCHDIR}/marginalize/{{sample}}.fold_{{fold}}.tsv"
+    conda:
+        CONDA_ENV
+    shell:
+        r"""
+        exec &> >(tee {log:q})
+
+        python workflow/scripts/marginalize.py \
+            {params.flags:q} \
+            -s {input.fasta:q} \
+            -l {input.peaks:q} \
+            -m {input.model:q} \
+            -t {input.motifs:q} \
+            -o {output.report:q} \
+            --verbose
+        """
+
+
 # Mean attribution by position across the attributed peaks.
 rule attribution_profile:
     input:

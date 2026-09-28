@@ -24,6 +24,7 @@ set-threads:
   fit: 4
   evaluate: 4
   attribute: 4
+  marginalize: 4
   annotate: 16
   modisco_motifs: 16
 
@@ -78,6 +79,12 @@ set-resources:
     constraint: cascadelake # seqlet example picks differ without AVX512
     mem_mb: 4000            # 0.5 GB, 15 min
     runtime: 60m
+  marginalize:
+    slurm_partition: gpuh200
+    gres: gpu:1
+    tasks_per_gpu: 0
+    mem_mb: 32000
+    runtime: 240m
 
 rerun-incomplete: true
 keep-going: true
