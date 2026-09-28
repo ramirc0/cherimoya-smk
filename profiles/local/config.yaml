@@ -20,6 +20,7 @@ set-threads:
   fit: 8
   evaluate: 8
   annotate: 8
+  modisco_motifs: 8
 
 set-resources:                 # mem tuned from the MOHD benchmark run
   macs3:     {mem_mb: 8000}    # estimate (un-benched)

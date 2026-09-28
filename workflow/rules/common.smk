@@ -352,3 +352,36 @@ def annot_flags():
     if not a["reverse_complement"]:
         flags.append("--no_reverse_complement")
     return [str(x) for x in flags]
+
+
+def modisco_flags():
+    """All modisco_motifs.py flag tokens from config['modisco'] (use with :q)."""
+    m = config["modisco"]
+    flags = [
+        "--n_seqlets", m["n_seqlets"],
+        "--n_leiden", m["n_leiden"],
+        "--window", m["window"],
+        "--size", m["size"],
+        "--trim_size", m["trim_size"],
+        "--seqlet_flank_size", m["seqlet_flank_size"],
+        "--initial_flank_to_add", m["initial_flank_to_add"],
+        "--final_flank_to_add", m["final_flank_to_add"],
+        "--target_seqlet_fdr", m["target_seqlet_fdr"],
+        "--min_metacluster_size", m["min_metacluster_size"],
+        "--n_leiden_iterations", m["n_leiden_iterations"],
+        "--final_min_cluster_size", m["final_min_cluster_size"],
+    ]
+    return [str(x) for x in flags]
+
+
+def modisco_report_flags():
+    """All `modisco report` flag tokens from config['modisco_report'] (use with :q)."""
+    r = config["modisco_report"]
+    flags = [
+        "--n_matches", r["n_matches"],
+        "--n_examples", r["n_examples"],
+        "--trim_threshold", r["trim_threshold"],
+    ]
+    if r["lite"]:
+        flags.append("--lite")
+    return [str(x) for x in flags]

@@ -25,6 +25,7 @@ set-threads:
   evaluate: 4
   attribute: 4
   annotate: 16
+  modisco_motifs: 16
 
 # Flat presets, no size/attempt scaling. Right-size once from benchmarks/<run_id>/;
 # to catch stragglers, bump the preset and rerun (only the failed jobs re-run).
@@ -69,6 +70,14 @@ set-resources:
   attribution_profile:
     mem_mb: 8000            # dnase peaks at 3 GB
     runtime: 30m
+  modisco_motifs:
+    constraint: cascadelake # 16 cores: atac 1h15, ctcf 4h35 at 11 GB
+    mem_mb: 32000
+    runtime: 720m
+  modisco_report:
+    constraint: cascadelake # seqlet example picks differ without AVX512
+    mem_mb: 4000            # 0.5 GB, 15 min
+    runtime: 60m
 
 rerun-incomplete: true
 keep-going: true

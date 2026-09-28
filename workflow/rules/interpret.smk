@@ -95,6 +95,63 @@ rule annotate:
         """
 
 
+# TF-MoDISco patterns from one fold's attributions.
+rule modisco_motifs:
+    input:
+        ohe=rules.attribute.output.ohe,
+        attr=rules.attribute.output.attr,
+    output:
+        h5=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.modisco_results.h5",
+    params:
+        flags=lambda wc: modisco_flags(),
+    log:
+        f"{LOGDIR}/modisco_motifs/{{sample}}.fold_{{fold}}.log",
+    benchmark:
+        f"{BENCHDIR}/modisco_motifs/{{sample}}.fold_{{fold}}.tsv"
+    conda:
+        CONDA_ENV
+    shell:
+        r"""
+        exec &> >(tee {log:q})
+
+        python workflow/scripts/modisco_motifs.py \
+            {params.flags:q} \
+            -s {input.ohe:q} \
+            -a {input.attr:q} \
+            -o {output.h5:q} \
+            --verbose
+        """
+
+
+# HTML report of the patterns with their TomTom matches in annotate.motifs.
+# Own env: the MEME-suite tomtom binary cannot share cherimoya.yaml's pins.
+rule modisco_report:
+    input:
+        h5=rules.modisco_motifs.output.h5,
+        motifs=config["annotate"]["motifs"],
+    output:
+        report=directory(f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.modisco"),
+    params:
+        flags=lambda wc: modisco_report_flags(),
+    log:
+        f"{LOGDIR}/modisco_report/{{sample}}.fold_{{fold}}.log",
+    benchmark:
+        f"{BENCHDIR}/modisco_report/{{sample}}.fold_{{fold}}.tsv"
+    conda:
+        "../envs/modisco_report.yaml"
+    shell:
+        r"""
+        exec &> >(tee {log:q})
+
+        modisco report \
+            {params.flags:q} \
+            -i {input.h5:q} \
+            -o {output.report:q} \
+            -s ./ \
+            -m {input.motifs:q}
+        """
+
+
 # Mean attribution by position across the attributed peaks.
 rule attribution_profile:
     input:
