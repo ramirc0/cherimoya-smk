@@ -143,7 +143,7 @@ rule modisco_report:
         r"""
         exec &> >(tee {log:q})
 
-        modisco report \
+        python workflow/scripts/modisco_report.py report \
             {params.flags:q} \
             -i {input.h5:q} \
             -o {output.report:q} \
