@@ -147,3 +147,15 @@ modisco_report:           # HTML report; matches patterns to annotate.motifs
   n_examples: 10          # seqlet quantiles shown per pattern
   trim_threshold: 0.3     # logo trim, fraction of max per-position score
   lite: false             # true uses memelite; matches differ from MEME tomtom
+
+marginalize:              # motif insertion report per attributed fold's model
+  n_loci: 100             # peaks used, in file order unless shuffle
+  shuffle: false
+  random_state: 0         # seed of shuffle
+  attributions: false     # also DeepLIFT/SHAP before and after (slow)
+  minimal: true           # false also plots the outputs before and after
+  batch_size: 512
+  device: cuda
+  compile: true
+  compile_mode: max-autotune
+  # loci are the peaks on the fold's train chroms; motifs are annotate's; in_window is fit's.

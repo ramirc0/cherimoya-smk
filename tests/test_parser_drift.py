@@ -14,6 +14,7 @@ import attribute
 import seqlets
 import annotate
 import modisco_motifs
+import marginalize
 
 defaults = pytest.importorskip("cherimoya_cli.defaults")
 
@@ -61,6 +62,12 @@ MODISCO_CLI_KEYS = [
 
 # Extras passed to TFMoDISco; the CLI hard-codes target_seqlet_fdr=0.05.
 MODISCO_LIB_KEYS = ["min_metacluster_size", "n_leiden_iterations", "final_min_cluster_size"]
+
+MARGINALIZE_KEYS = [
+    "batch_size", "in_window", "chroms", "n_loci", "shuffle", "random_state",
+    "attributions", "minimal", "compile", "compile_mode", "output_filename",
+    "device", "verbose",
+]
 
 TEMPLATES = sorted((Path(__file__).resolve().parents[1] / "config").glob("*.yaml.template"))
 
@@ -150,6 +157,21 @@ def test_modisco_config_matches_script(template):
     assert len(config) == 12
     for key, value in config.items():
         assert str(parser.get_default(key)) == value, key
+
+
+@pytest.mark.parametrize("key", MARGINALIZE_KEYS)
+def test_marginalize_defaults_match(key):
+    parser = marginalize.build_parser()
+    assert parser.get_default(key) == defaults.default_marginalize_parameters[key]
+
+
+@pytest.mark.parametrize("template", TEMPLATES, ids=[t.name for t in TEMPLATES])
+def test_marginalize_config_matches_script(template):
+    config = _template_block(template, "marginalize")
+    parser = marginalize.build_parser()
+    assert len(config) == 9
+    for key, value in config.items():
+        assert str(parser.get_default(key)).lower() == value, key
 
 
 def test_negatives_defaults():
