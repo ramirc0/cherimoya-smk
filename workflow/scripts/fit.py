@@ -83,33 +83,19 @@ def main():
     args = build_parser().parse_args()
 
     import os
-    import random
 
     os.environ["TORCH_CUDNN_V8_API_ENABLED"] = "1"
 
-    import numpy
+    import lightning
     import torch
-
-    torch.backends.cudnn.benchmark = True
-    torch.set_float32_matmul_precision("high")
-
-    from torch.optim import Muon
-    from torch.optim.lr_scheduler import (
-        LinearLR,
-        CosineAnnealingLR,
-        ConstantLR,
-        SequentialLR,
-    )
 
     from cherimoya import Cherimoya
     from cherimoya.io import PeakGenerator, normalize_signal_groups
+    from cherimoya.training import fit
 
     from tangermeme.io import extract_loci
 
-    random.seed(args.random_state)
-    numpy.random.seed(args.random_state)
-    torch.manual_seed(args.random_state)
-    torch.cuda.manual_seed_all(args.random_state)
+    lightning.seed_everything(args.random_state, verbose=False)
 
     # --stranded wraps the flat file lists into one (+, -) group each; else
     # each file is its own unstranded group. The structured spec preserves
@@ -135,18 +121,16 @@ def main():
         summits=args.summits,
         exclusion_lists=args.exclusion_lists,
         random_state=args.random_state,
-        batch_size=args.batch_size,
-        num_workers=args.num_workers,
         verbose=args.verbose,
         signal_groups=signal_groups,
         control_groups=control_groups,
-    )
+    ).dataset
 
-    valid_data = extract_loci(
+    valid_data, negative_data = (extract_loci(
         sequences=args.sequences,
         signals=signal_files,
         in_signals=control_files,
-        loci=args.loci,
+        loci=loci,
         chroms=args.validation_chroms,
         in_window=args.in_window,
         out_window=args.out_window,
@@ -154,7 +138,13 @@ def main():
         exclusion_lists=args.exclusion_lists,
         ignore=list("QWERYUIOPSDFHJKLZXVBNM"),
         verbose=args.verbose,
-    )
+    ) for loci in (args.loci, args.negatives))
+
+    # The validation negatives, labeled 0, feed the measures that separate
+    # peaks from negatives. The other measures use the peaks alone.
+    valid_labels = torch.cat([torch.ones(len(valid_data[0])),
+        torch.zeros(len(negative_data[0]))])
+    valid_data = [torch.cat(pair) for pair in zip(valid_data, negative_data)]
 
     if control_files is not None:
         valid_sequences, valid_signals, valid_controls = valid_data
@@ -177,78 +167,39 @@ def main():
         name=args.name,
         verbose=args.verbose,
         random_state=args.random_state,
-    ).to(args.device)
-
-    # Raise max_epochs to reach min_total_steps; the LR schedules below stretch with it.
-    max_epochs = max(args.max_epochs, -(-args.min_total_steps // len(training_data)))
-    num_warmup_iters = len(training_data) * args.n_warmup_epochs
-    num_decay_iters = len(training_data) * max(1, max_epochs - args.n_warmup_epochs)
-
-    # 2D projection weights -> Muon; lw0/lw1 -> SGD; everything else -> AdamW.
-    muon_params, adam_params, lw_params = [], [], []
-    for name, p in model.named_parameters():
-        if name in ("lw0", "lw1"):
-            lw_params.append(p)
-        elif (
-            p.ndim == 2
-            and "weight" in name
-            and name != "linear.weight"
-            and "conv_weight" not in name
-        ):
-            muon_params.append(p)
-        else:
-            adam_params.append(p)
-
-    muon_optimizer = Muon(muon_params, lr=args.muon_lr, weight_decay=args.muon_wd)
-    muon_scheduler = SequentialLR(
-        muon_optimizer,
-        schedulers=[
-            LinearLR(muon_optimizer, start_factor=0.01, total_iters=num_warmup_iters),
-            CosineAnnealingLR(muon_optimizer, T_max=num_decay_iters, eta_min=1e-5),
-        ],
-        milestones=[num_warmup_iters],
     )
 
-    adam_optimizer = torch.optim.AdamW(adam_params, lr=args.adam_lr, weight_decay=args.adam_wd)
-    adam_scheduler = SequentialLR(
-        adam_optimizer,
-        schedulers=[
-            LinearLR(adam_optimizer, start_factor=0.01, total_iters=num_warmup_iters),
-            CosineAnnealingLR(adam_optimizer, T_max=num_decay_iters, eta_min=1e-5),
-        ],
-        milestones=[num_warmup_iters],
-    )
+    # Raise max_epochs to reach min_total_steps; the LR schedules stretch with it.
+    # A trailing partial batch counts as a step, as upstream counts it.
+    steps_per_epoch = -(-len(training_data) // args.batch_size)
+    max_epochs = args.max_epochs
+    if steps_per_epoch > 0 and steps_per_epoch * max_epochs < args.min_total_steps:
+        max_epochs = -(-args.min_total_steps // steps_per_epoch)
 
-    # lw weights hold a flat rate after warmup (no cosine decay).
-    lw_optimizer = torch.optim.SGD(
-        lw_params, lr=args.lw_lr, weight_decay=args.lw_wd, momentum=args.lw_momentum
-    )
-    lw_scheduler = SequentialLR(
-        lw_optimizer,
-        schedulers=[
-            LinearLR(lw_optimizer, start_factor=0.01, total_iters=num_warmup_iters),
-            ConstantLR(lw_optimizer, factor=1.0, total_iters=1),
-        ],
-        milestones=[num_warmup_iters],
-    )
-
-    model.fit(
+    fit(
+        model,
         training_data,
-        muon_optimizer,
-        adam_optimizer,
-        lw_optimizer,
-        muon_scheduler,
-        adam_scheduler,
-        lw_scheduler,
-        X_valid=valid_sequences,
+        valid_sequences,
+        valid_signals,
         X_ctl_valid=valid_controls,
-        y_valid=valid_signals,
+        labels_valid=valid_labels,
         max_epochs=max_epochs,
-        loss_weights=args.loss_weights,
-        batch_size=args.batch_size,
         early_stopping=args.early_stopping,
         dtype=args.dtype,
-        device=args.device,
+        accelerator={"cuda": "gpu"}.get(args.device, args.device),
+        verbose=args.verbose,
+        batch_size=args.batch_size,
+        num_workers=args.num_workers,
+        n_warmup_steps=steps_per_epoch * args.n_warmup_epochs,
+        n_decay_steps=steps_per_epoch * max(1, max_epochs - args.n_warmup_epochs),
+        muon_lr=args.muon_lr,
+        muon_wd=args.muon_wd,
+        adam_lr=args.adam_lr,
+        adam_wd=args.adam_wd,
+        lw_lr=args.lw_lr,
+        lw_wd=args.lw_wd,
+        lw_momentum=args.lw_momentum,
+        loss_weights=args.loss_weights,
     )
 
 
