@@ -95,6 +95,14 @@ def test_fit_defaults_match(key):
     assert parser.get_default(key) == defaults.default_fit_parameters[key]
 
 
+def test_fit_library_defaults_match():
+    from cherimoya.training import fit as library_fit
+
+    params = inspect.signature(library_fit).parameters
+    for key in ("devices", "progress_bar"):
+        assert params[key].default == defaults.default_fit_parameters[key], key
+
+
 @pytest.mark.parametrize("key", EVAL_KEYS)
 def test_evaluate_defaults_match(key):
     parser = evaluate.build_parser()
