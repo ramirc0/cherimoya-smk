@@ -16,8 +16,6 @@ from pathlib import Path
 
 import pytest
 
-import evaluate
-
 SCRIPTS = Path(__file__).resolve().parents[1] / "workflow" / "scripts"
 FIXTURES = os.environ.get("CHERIMOYA_SMK_FIT")
 
@@ -167,6 +165,7 @@ def test_evaluate_matches_cli(fx, official, tmp_path):
         sys.executable, str(SCRIPTS / "evaluate.py"),
         "-s", str(fx / "genome.fa"),
         "-l", str(fx / "peaks.narrowPeak"),
+        "-neg", str(fx / "negatives.bed"),
         "-sig", *signals,
         "--exclusion_lists", str(fx / "blacklist.bed"),
         "-m", f"{theirs}.torch",
@@ -182,12 +181,7 @@ def test_evaluate_matches_cli(fx, official, tmp_path):
         cmd.append("--stranded")
     subprocess.run(cmd, check=True, env=ENV)
 
-    def columns(path):
-        header, *rows = [line.split("\t")
-            for line in Path(path).read_text().splitlines()]
-        return {name: [row[header.index(name)] for row in rows]
-            for name in evaluate.MEASURE_NAMES}
-
-    o = columns(f"{theirs}.performance.tsv")
-    assert all(o.values())
-    assert columns(tmp_path / "s.performance.tsv") == o
+    o = Path(f"{theirs}.performance.tsv").read_bytes()
+    for row in o.decode().splitlines()[1:]:
+        assert "nan" not in row.split("\t")[-5:]
+    assert (tmp_path / "s.performance.tsv").read_bytes() == o

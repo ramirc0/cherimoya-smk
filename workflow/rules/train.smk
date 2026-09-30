@@ -42,6 +42,7 @@ rule evaluate:
     input:
         fasta=lambda wc: fasta_of(wc.sample),
         peaks=peaks_for,
+        negatives=f"{OUTDIR}/{{sample}}/{{sample}}.negatives.bed",
         signal=lambda wc: signal_bw(wc.sample),
         control=lambda wc: control_bw(wc.sample),
         model=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.torch",
@@ -84,6 +85,7 @@ rule evaluate:
             -m {input.model:q} \
             -o {output.performance:q} \
             --counts_filename {output.counts:q} \
+            -neg {input.negatives:q} \
             {params.flags:q}
 
         python workflow/scripts/plot_epochs.py \

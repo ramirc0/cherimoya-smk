@@ -13,12 +13,24 @@ MEASURE_NAMES = [
     "count_mse",
 ]
 
+# Over peaks plus negatives, and nan without negatives.
+NEGATIVE_MEASURE_NAMES = [
+    "all_count_pearson",
+    "all_count_spearman",
+    "all_count_mse",
+    "auroc",
+    "auprc",
+]
+
 
 def build_parser():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-s", "--sequences", required=True, help="Genome FASTA.")
     parser.add_argument("-l", "--loci", required=True,
         help="Peak file (narrowPeak/BED) to evaluate on.")
+    parser.add_argument("-neg", "--negatives", default=None,
+        help="Optional negatives BED, appended after the peaks for the "
+             "peaks-vs-negatives measures.")
     parser.add_argument("-sig", "--signals", nargs="+", required=True,
         help="Signal bigWig(s) matching the model's signal groups.")
     parser.add_argument("-c", "--controls", nargs="+", default=None,
@@ -53,6 +65,7 @@ def main():
 
     import torch
 
+    from sklearn.metrics import average_precision_score, roc_auc_score
     from tangermeme.io import extract_loci
     from tangermeme.predict import predict
 
@@ -72,19 +85,27 @@ def main():
     model = Cherimoya.load(args.model, device=args.device,
         compile=args.compile, compile_mode=args.compile_mode)
 
-    examples = extract_loci(
-        sequences=args.sequences,
-        signals=signal_files,
-        in_signals=control_files,
-        loci=args.loci,
-        chroms=args.chroms,
-        in_window=args.in_window,
-        out_window=args.out_window,
-        exclusion_lists=args.exclusion_lists,
-        max_jitter=0,
-        ignore=list("QWERYUIOPSDFHJKLZXVBNM"),
-        verbose=args.verbose,
-    )
+    def _extract(loci):
+        return extract_loci(
+            sequences=args.sequences,
+            signals=signal_files,
+            in_signals=control_files,
+            loci=loci,
+            chroms=args.chroms,
+            in_window=args.in_window,
+            out_window=args.out_window,
+            exclusion_lists=args.exclusion_lists,
+            max_jitter=0,
+            ignore=list("QWERYUIOPSDFHJKLZXVBNM"),
+            verbose=args.verbose,
+        )
+
+    # The negatives follow the peaks, which are the first n_peaks rows.
+    examples = _extract(args.loci)
+    n_peaks = len(examples[0])
+    if args.negatives is not None:
+        examples = [torch.cat(pair)
+            for pair in zip(examples, _extract(args.negatives))]
 
     if control_files is None:
         X, y = examples
@@ -118,9 +139,16 @@ def main():
     if model_signal_groups is None:
         model_signal_groups = signal_groups
 
-    measures = calculate_performance_measures(
-        y_hat_logits, y, y_hat_logcounts, signal_groups=model_signal_groups
-    )
+    measures = calculate_performance_measures(y_hat_logits[:n_peaks],
+        y[:n_peaks], y_hat_logcounts[:n_peaks],
+        signal_groups=model_signal_groups)
+
+    labels = (torch.arange(len(y)) < n_peaks).numpy()
+    has_negatives = len(y) > n_peaks
+    if has_negatives:
+        all_measures = calculate_performance_measures(y_hat_logits, y,
+            y_hat_logcounts, signal_groups=model_signal_groups,
+            measures=["count_pearson", "count_spearman", "count_mse"])
 
     # One row per signal group: average profile metrics over the group's
     # channel slice; count metrics are already per-group.
@@ -135,20 +163,31 @@ def main():
                 row.append(value[:, offset:offset + g].mean().item())
             else:
                 row.append(value[i].item() if value.ndim >= 1 else value.item())
+
+        if has_negatives:
+            for name in ["count_pearson", "count_spearman", "count_mse"]:
+                value = all_measures[name]
+                row.append(value[i].item() if value.ndim >= 1 else value.item())
+            scores = y_hat_logcounts[:, i].float().numpy()
+            row.append(roc_auc_score(labels, scores))
+            row.append(average_precision_score(labels, scores))
+        else:
+            row.extend([float("nan")] * len(NEGATIVE_MEASURE_NAMES))
         rows.append(row)
         offset += g
 
     def _format_rows():
-        yield "\t".join(MEASURE_NAMES)
+        yield "\t".join(MEASURE_NAMES + NEGATIVE_MEASURE_NAMES)
         for row in rows:
             yield "\t".join(str(v) for v in row)
 
     with open(args.performance_filename, "w") as outfile:
         outfile.write("\n".join(_format_rows()))
 
-    # Per-region observed vs predicted log-counts, the points behind count_pearson.
+    # Per-peak observed vs predicted log-counts, the points behind count_pearson.
     if args.counts_filename:
         counts = y_hat_logcounts if y_hat_logcounts.ndim > 1 else y_hat_logcounts[:, None]
+        counts, y = counts[:n_peaks], y[:n_peaks]
         lines = ["group\tobs_logcount\tpred_logcount"]
         offset = 0
         for i, g in enumerate(groups):

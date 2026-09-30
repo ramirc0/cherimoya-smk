@@ -45,6 +45,7 @@ def test_fit_then_evaluate(tmp_path):
         sys.executable, str(SCRIPTS / "evaluate.py"),
         "-s", str(fx / "genome.fa"),
         "-l", str(fx / "peaks.narrowPeak"),
+        "-neg", str(fx / "negatives.bed"),
         "-sig", str(fx / "signal.bw"),
         "-m", str(prefix.with_suffix(".torch")),
         "-o", str(perf),
@@ -52,4 +53,4 @@ def test_fit_then_evaluate(tmp_path):
     ], check=True)
 
     header = perf.read_text().splitlines()[0].split("\t")
-    assert len(header) == 7
+    assert len(header) == 12
