@@ -21,8 +21,9 @@ snakemake --profile profiles/slurm                    # SLURM; fit/evaluate -> g
 snakemake <target> --profile profiles/local --config samples=... run_id=...
 python workflow/scripts/make_folds.py                 # fold JSONs, once per genome
 python workflow/scripts/name_motifs.py <in.meme> <out.meme>  # NAME_ACCESSION IDs for modisco report
-.conda/<hash>_/bin/python -m pytest                   # 172 pass, 8 skip; the env built from cherimoya.yaml
+.conda/<hash>_/bin/python -m pytest                   # 177 pass, 12 skip; the env built from cherimoya.yaml
 .conda/<hash>_/bin/python -m pytest -m slow           # e2e; needs CHERIMOYA_SMK_SMOKE fixtures + GPU
+CHERIMOYA_SMK_FIT=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_fit_parity.py  # vs cherimoya fit + evaluate; CPU
 CHERIMOYA_SMK_ATTR=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_attribute_parity.py  # vs cherimoya attribute; GPU
 CHERIMOYA_SMK_SEQLETS=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_seqlets_parity.py  # vs cherimoya seqlets; CPU
 CHERIMOYA_SMK_ANNOTATE=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_annotate_parity.py  # vs pipeline ttl step; CPU
@@ -100,6 +101,11 @@ layout.
   (in `.conda/`), not a dev checkout. `test_parser_drift.py` enforces this.
   `evaluate.py --counts_filename` and `annotate.py --count_filename` are local
   output paths and are deliberately absent from the drift keys.
+- fit.py calls `cherimoya.training.fit` (Lightning). Its validation set is the
+  peaks plus every negative on `validation_chroms`. evaluate adds the fold's
+  test-chrom negatives. Checkpoint selection stays peaks-only count Pearson.
+  `evaluate.py --negatives`, like `--counts_filename`, is absent from the
+  drift keys.
 - `annotate` passes `--n_jobs {threads}` (profile `set-threads`), not the
   official `-1`. TomTom output is byte-identical across thread counts; memory
   grows about 115 MB per thread.
@@ -146,6 +152,8 @@ Follow the [Nextstrain Snakemake style guide][sg]. Keep
   conflicts with `--cpus-per-task` on this cluster.
 - SLURM resources are flat presets. To fix stragglers, raise the preset and
   rerun. Snakemake 9 has no `--stats`.
+- Never add `--signal` to fit's SLURM preset. On SIGUSR1, Lightning writes
+  `hpc_ckpt_*` into the fold dir, and the next fit resumes from it and crashes.
 - The SLURM executor plugin lives in the launcher env, not the per-rule env.
 - `scratch/` (gitignored) may hold `HANDOFF*.md` notes. `_archive/` holds
   shelved worktrees. Neither exists in a fresh clone.

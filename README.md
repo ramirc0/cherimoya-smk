@@ -76,7 +76,9 @@ Logs and benchmarks use the same layout under `logs/` and `benchmarks/`.
 
 - `<sample>/fold_<k>/`: model (`.torch`), `performance.tsv`, `counts.tsv`,
   training curve and count scatter plots, and `summary.txt` (torchinfo layer
-  table with the total parameter count)
+  table with the total parameter count). `performance.tsv` also has
+  `all_count_*` over peaks plus negatives, and `auroc` and `auprc` of peaks vs
+  negatives. The negatives are those on the fold's test chroms.
 - `<sample>/fold_<k>/` also: DeepLIFT/SHAP attributions
   (`attributions.{ohe.npz,attr.npz,idxs.npy}`) and `seqlets.bed` (chrom,
   start, end, attribution, p-value; sorted by attribution),
@@ -129,6 +131,7 @@ Run from the built env under `.conda/`:
 ```bash
 pytest            # drift guards against cherimoya defaults, CLI smoke tests
 pytest -m slow    # end-to-end fit + evaluate, needs CHERIMOYA_SMK_SMOKE fixtures and a GPU
+CHERIMOYA_SMK_FIT=<dir> pytest -m slow tests/test_fit_parity.py  # vs cherimoya fit + evaluate, CPU
 CHERIMOYA_SMK_ATTR=<dir> pytest -m slow tests/test_attribute_parity.py    # vs cherimoya attribute, GPU
 CHERIMOYA_SMK_SEQLETS=<dir> pytest -m slow tests/test_seqlets_parity.py   # vs cherimoya seqlets, CPU
 CHERIMOYA_SMK_ANNOTATE=<dir> pytest -m slow tests/test_annotate_parity.py # vs cherimoya pipeline annotation, CPU
