@@ -11,6 +11,10 @@ METRICS = [
     "Validation Profile Pearson",
     "Validation Count Pearson",
     "Validation Count MSE",
+    "Validation Count Pearson (Peaks+Negatives)",
+    "Validation Count MSE (Peaks+Negatives)",
+    "Validation AUROC",
+    "Validation AUPRC",
 ]
 
 
