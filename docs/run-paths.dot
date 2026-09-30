@@ -68,6 +68,7 @@ digraph run_paths {
     bw -> fit;
     peaks -> fit;
     neg -> fit;
+    neg -> evaluate;
     fit -> evaluate -> perf;
     perf -> gather -> qc;
 
