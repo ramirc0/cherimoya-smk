@@ -8,7 +8,7 @@ conda_env: workflow/envs/cherimoya.yaml
 run_id: default          # logs go under logs/<run_id>/; override per run to keep runs separate
 
 references:
-  blacklist: resources/ENCFF356LFX.slop1057.bed   # optional BED of regions to exclude (fit + evaluate)
+  blacklist: resources/ENCFF356LFX.slop1057.bed   # optional BED of regions to exclude (fit, evaluate, attribute, marginalize)
 
 # CV folds. Every per-fold step (fit through marginalize) runs once per fold.
 # Fold JSONs (train/valid/test chrom splits) live in
