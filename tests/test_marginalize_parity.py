@@ -2,8 +2,8 @@
 
 Skipped unless CHERIMOYA_SMK_MARGINALIZE points at a dir with genome.fa(.fai),
 peaks.narrowPeak, negatives.bed, blacklist.bed, model.torch (a trained
-checkpoint), fold.json (its CV fold), motifs.meme, and marginalize/ (the
-workflow's report). The report test needs a GPU for device=cuda.
+checkpoint), fold.json (its CV fold) and motifs.meme. The report test needs
+a GPU for device=cuda.
 """
 
 import copy
@@ -99,15 +99,18 @@ def test_report_inputs_match_pipeline(tmp_path, monkeypatch):
 
 def test_report_matches_pipeline(tmp_path):
     fx = Path(FIXTURES)
+    official, ours = tmp_path / "o", tmp_path / "s"
+    # Inductor autotunes some kernels by timing, so fresh compiles can pick
+    # different block sizes and move counts PNGs by a few pixels. One shared
+    # cache makes both runs use the kernels the official run compiled.
+    env = {**os.environ, "TORCHINDUCTOR_CACHE_DIR": str(tmp_path / "inductor")}
     cli = Path(sys.executable).parent / "cherimoya"
     subprocess.run([str(cli), "marginalize", "-p",
-        str(_official_json(fx, tmp_path / "o"))], check=True)
+        str(_official_json(fx, official))], check=True, env=env)
+    subprocess.run([sys.executable, *_ours_argv(fx, ours)], check=True, env=env)
 
-    official = tmp_path / "o"
-    ours = fx / "marginalize"
     names = sorted(p.name for p in official.iterdir())
-    # Snakemake marks each directory() output with a timestamp file.
-    assert sorted(p.name for p in ours.iterdir() if p.name != ".snakemake_timestamp") == names
+    assert sorted(p.name for p in ours.iterdir()) == names
     for name in names:
         if name.endswith(".png"):
             assert (ours / name).read_bytes() == (official / name).read_bytes(), name

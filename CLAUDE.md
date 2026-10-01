@@ -123,6 +123,8 @@ layout.
   are the fold's train set (`training_chroms` in the pipeline). The report
   comes from `bpnetlite.marginalize.marginalization_report`. Motifs sharing a
   consensus tie on the ranking, so GPU noise can swap their HTML rows.
+  The report is byte-identical when both runs share compiled kernels. Fresh
+  compiles can differ, because inductor autotunes by timing.
 
 ## Rule conventions
 
