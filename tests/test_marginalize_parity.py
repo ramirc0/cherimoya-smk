@@ -1,9 +1,9 @@
 """Parity of marginalize.py with the marginalize step of `cherimoya pipeline`.
 
 Skipped unless CHERIMOYA_SMK_MARGINALIZE points at a dir with genome.fa(.fai),
-peaks.narrowPeak, model.torch (a trained checkpoint), fold.json (its CV fold),
-motifs.meme, and marginalize/ (the workflow's report). The report test needs a
-GPU for device=cuda.
+peaks.narrowPeak, negatives.bed, blacklist.bed, model.torch (a trained
+checkpoint), fold.json (its CV fold), motifs.meme, and marginalize/ (the
+workflow's report). The report test needs a GPU for device=cuda.
 """
 
 import copy
@@ -29,22 +29,23 @@ DEVICE = os.environ.get("CHERIMOYA_SMK_SMOKE_DEVICE", "cuda")
 
 
 def _official_json(fx, out):
-    # The JSON `cherimoya pipeline` writes for step 5. Its loci stay the
-    # peaks: `_extract_set` copies them before `_check_set` offers negatives.
+    # The JSON `cherimoya pipeline` writes for step 5. Motifs go into the
+    # negatives, with the blacklist excluded.
     from cherimoya_cli.defaults import (
         default_marginalize_parameters, default_pipeline_parameters)
     from cherimoya_cli.utils import _check_set, _extract_set
 
     parameters = copy.deepcopy(default_pipeline_parameters)
     parameters.update(sequences=str(fx / "genome.fa"),
-        loci=[str(fx / "peaks.narrowPeak")], negatives=["unused.negatives.bed"],
-        model=str(fx / "model.torch"), motifs=str(fx / "motifs.meme"), device=DEVICE)
+        loci=[str(fx / "peaks.narrowPeak")], negatives=[str(fx / "negatives.bed")],
+        exclusion_lists=[str(fx / "blacklist.bed")], model=str(fx / "model.torch"),
+        motifs=str(fx / "motifs.meme"), device=DEVICE)
     marginalize_parameters = _extract_set(
         parameters, default_marginalize_parameters, "marginalize_parameters")
-    _check_set(marginalize_parameters, "loci", parameters["negatives"])
+    marginalize_parameters["loci"] = (
+        parameters["marginalize_parameters"]["loci"] or parameters["negatives"])
     _check_set(marginalize_parameters, "output_filename", str(out) + "/")
     _check_set(marginalize_parameters, "motifs", parameters["motifs"])
-    _check_set(marginalize_parameters, "negatives", parameters["negatives"])
 
     name = out.parent / "marginalize.json"
     name.write_text(json.dumps(marginalize_parameters, sort_keys=True, indent=4))
@@ -56,7 +57,8 @@ def _ours_argv(fx, out):
     fold = json.loads((fx / "fold.json").read_text())
     return [str(SCRIPTS / "marginalize.py"),
         "-s", str(fx / "genome.fa"),
-        "-l", str(fx / "peaks.narrowPeak"),
+        "-l", str(fx / "negatives.bed"),
+        "-e", str(fx / "blacklist.bed"),
         "-m", str(fx / "model.torch"),
         "-t", str(fx / "motifs.meme"),
         "-o", str(out),

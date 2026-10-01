@@ -417,4 +417,6 @@ def marginalize_flags(sample, fold):
         flags.append("--no_minimal")
     if not m["compile"]:
         flags.append("--no_compile")
+    if BLACKLIST:
+        flags += ["--exclusion_lists", BLACKLIST]
     return [str(x) for x in flags]

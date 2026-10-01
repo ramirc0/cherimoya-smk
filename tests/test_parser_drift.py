@@ -66,7 +66,7 @@ MODISCO_LIB_KEYS = ["min_metacluster_size", "n_leiden_iterations", "final_min_cl
 MARGINALIZE_KEYS = [
     "batch_size", "in_window", "chroms", "n_loci", "shuffle", "random_state",
     "attributions", "minimal", "compile", "compile_mode", "output_filename",
-    "device", "verbose",
+    "device", "verbose", "exclusion_lists",
 ]
 
 TEMPLATES = sorted((Path(__file__).resolve().parents[1] / "config").glob("*.yaml.template"))

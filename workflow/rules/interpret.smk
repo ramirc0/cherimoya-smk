@@ -153,11 +153,12 @@ rule modisco_report:
         """
 
 
-# HTML report of each annotate.motifs consensus's effect when inserted into peaks.
+# HTML report of each annotate.motifs consensus's effect when inserted into negatives.
 rule marginalize:
     input:
         fasta=lambda wc: fasta_of(wc.sample),
-        peaks=peaks_for,
+        negatives=f"{OUTDIR}/{{sample}}/{{sample}}.negatives.bed",
+        blacklist=blacklist_input,
         model=rules.attribute.input.model,
         fold=lambda wc: fold_json(wc.sample, wc.fold),
         motifs=config["annotate"]["motifs"],
@@ -178,7 +179,7 @@ rule marginalize:
         python workflow/scripts/marginalize.py \
             {params.flags:q} \
             -s {input.fasta:q} \
-            -l {input.peaks:q} \
+            -l {input.negatives:q} \
             -m {input.model:q} \
             -t {input.motifs:q} \
             -o {output.report:q} \

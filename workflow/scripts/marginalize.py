@@ -13,6 +13,8 @@ def build_parser():
     parser.add_argument("-m", "--model", required=True,
         help="Trained model checkpoint (<name>.torch).")
     parser.add_argument("-t", "--motifs", required=True, help="MEME motif file.")
+    parser.add_argument("-e", "--exclusion_lists", nargs="+", default=None,
+        help="Optional BED files of regions to exclude.")
     parser.add_argument("-o", "--output_filename", default="marginalize/",
         help="Report directory.")
     parser.add_argument("--chroms", nargs="+", default=[
@@ -60,6 +62,7 @@ def main():
         chroms=args.chroms,
         in_window=args.in_window,
         max_jitter=0,
+        exclusion_lists=args.exclusion_lists,
         ignore=list("QWERYUIOPSDFHJKLZXVBNM"),
         n_loci=None if args.shuffle else args.n_loci,
         verbose=args.verbose,

@@ -118,11 +118,10 @@ layout.
   crashes modisco 2.5.2 (the official pipeline too). Output is otherwise
   identical to `modisco report`. Its seqlet example picks depend on AVX512, so
   the SLURM preset pins it to cascadelake.
-- `marginalize` inserts motifs into the **peaks**, not the negatives: at the pin,
-  `_extract_set` copies the pipeline's `loci` before `_check_set` offers
-  `negatives`. Chroms are the fold's train set (`training_chroms` in the
-  pipeline). The report comes from `bpnetlite.marginalize.marginalization_report`.
-  Its PNGs are byte-identical to the official ones on an H200. Motifs sharing a
+- `marginalize` inserts motifs into the **negatives**, minus the blacklist, as
+  the pipeline does at the pin (its `loci` fall back to `negatives`). Chroms
+  are the fold's train set (`training_chroms` in the pipeline). The report
+  comes from `bpnetlite.marginalize.marginalization_report`. Motifs sharing a
   consensus tie on the ranking, so GPU noise can swap their HTML rows.
 
 ## Rule conventions

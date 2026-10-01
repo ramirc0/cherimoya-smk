@@ -89,7 +89,7 @@ Logs and benchmarks use the same layout under `logs/` and `benchmarks/`.
   (`modisco_results.h5`) and their HTML report (`modisco/report.html`), with
   each pattern's top TomTom matches in `annotate.motifs`. The marginalization
   report (`marginalize/marginalization.html`): each `annotate.motifs`
-  consensus inserted at the center of the first 100 training-chrom peaks,
+  consensus inserted at the center of the first 100 training-chrom negatives,
   ranked by the mean change in predicted counts
 - `report/`: `metrics.tsv` with an outlier flag per model, the performance
   distribution, count Pearson vs `n_peaks`/`n_fragments`, the outlier plot,
