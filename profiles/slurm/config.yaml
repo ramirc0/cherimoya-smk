@@ -83,7 +83,7 @@ set-resources:
     slurm_partition: gpuh200
     gres: gpu:1
     tasks_per_gpu: 0
-    mem_mb: 16000           # 2633 motifs x 100 peaks: 6 min at 5 GB
+    mem_mb: 16000           # 926 motifs x 100 negatives: 3 min at 5 GB
     runtime: 60m
 
 rerun-incomplete: true
