@@ -2,7 +2,8 @@
 
 Skipped unless CHERIMOYA_SMK_ATTR points at a dir with genome.fa(.fai),
 peaks.narrowPeak, model.torch (a trained checkpoint), and fold.json (its CV
-fold). Needs a GPU for device=cuda.
+fold). An optional blacklist.bed excludes loci on both sides. Needs a GPU for
+device=cuda.
 """
 
 import copy
@@ -36,6 +37,8 @@ def _official(fx, out):
     parameters.update(sequences=str(fx / "genome.fa"),
         loci=[str(fx / "peaks.narrowPeak")], model=str(fx / "model.torch"),
         device=DEVICE)
+    if (fx / "blacklist.bed").exists():
+        parameters["exclusion_lists"] = [str(fx / "blacklist.bed")]
     attribute_parameters = _extract_set(
         parameters, default_attribute_parameters, "attribute_parameters")
     _check_set(attribute_parameters, "ohe_filename", str(out / "o.ohe.npz"))
@@ -51,6 +54,7 @@ def _official(fx, out):
 def _ours(fx, out):
     # attribute.py as the rule calls it: chroms are the fold's train + valid.
     fold = json.loads((fx / "fold.json").read_text())
+    exclusion = ["-e", str(fx / "blacklist.bed")] if (fx / "blacklist.bed").exists() else []
     subprocess.run([
         sys.executable, str(SCRIPTS / "attribute.py"),
         "-s", str(fx / "genome.fa"),
@@ -61,6 +65,7 @@ def _ours(fx, out):
         "--ohe_filename", str(out / "s.ohe.npz"),
         "--attr_filename", str(out / "s.attr.npz"),
         "--idx_filename", str(out / "s.idxs.npy"),
+        *exclusion,
     ], check=True)
 
 

@@ -39,7 +39,7 @@ ATTR_KEYS = [
     "batch_size", "in_window", "chroms", "compile", "compile_mode",
     "algorithm", "output", "group", "attr_window", "n_shuffles",
     "warning_threshold", "random_state", "ohe_filename", "attr_filename",
-    "idx_filename", "dtype", "device", "verbose",
+    "idx_filename", "dtype", "device", "verbose", "exclusion_lists",
 ]
 
 SEQLET_KEYS = [

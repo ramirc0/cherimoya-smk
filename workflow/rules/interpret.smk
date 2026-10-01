@@ -5,6 +5,7 @@ rule attribute:
         peaks=peaks_for,
         model=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.torch",
         fold=lambda wc: fold_json(wc.sample, wc.fold),
+        blacklist=blacklist_input,
     output:
         ohe=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.attributions.ohe.npz",
         attr=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.attributions.attr.npz",

@@ -323,6 +323,8 @@ def attr_flags(sample, fold):
     ]
     if a["compile"]:
         flags.append("--compile")
+    if BLACKLIST:
+        flags += ["--exclusion_lists", BLACKLIST]
     return [str(x) for x in flags]
 
 

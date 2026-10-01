@@ -11,6 +11,8 @@ def build_parser():
         help="Peak file (narrowPeak/BED) to attribute.")
     parser.add_argument("-m", "--model", required=True,
         help="Trained model checkpoint (<name>.torch).")
+    parser.add_argument("-e", "--exclusion_lists", nargs="+", default=None,
+        help="Optional BED files of regions to exclude.")
     parser.add_argument("--ohe_filename", default="attributions.ohe.npz")
     parser.add_argument("--attr_filename", default="attributions.attr.npz")
     parser.add_argument("--idx_filename", default="attributions.idx.npy")
@@ -62,6 +64,7 @@ def main():
         chroms=args.chroms,
         in_window=args.in_window,
         max_jitter=0,
+        exclusion_lists=args.exclusion_lists,
         ignore=list("QWERYUIOPSDFHJKLZXVBNM"),
         return_mask=True,
         verbose=args.verbose,
