@@ -71,7 +71,7 @@ fit:
   negative_ratio: 0.25
   reverse_complement: true
   summits: false
-  max_epochs: 50        # TF ChIP recipe default
+  max_epochs: 20
   min_total_steps: 20000  # raises max_epochs to reach this; 0 disables
   loss_weights: null      # [profile, count] replaces the learned weights
   n_warmup_epochs: 2
