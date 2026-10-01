@@ -81,6 +81,11 @@ layout.
   MUST go in with its exact version and any new transitive pins. There are no
   lock files. Editing it rebuilds the env and reruns every rule (software-env
   trigger).
+- `workflow/envs/cherimoya-sm70.yaml`: the main env for V100 (`sm_70`) GPUs,
+  with `profiles/slurm-v100`. torch comes from the CUDA 12.6 index. It is an
+  exact `mamba env export` of a built env, not hand-written: rebuild it the
+  same way. Selected with `--config conda_env=...`, since a CLI `--config`
+  replaces a profile's `config:`.
 - `workflow/envs/modisco_report.yaml`: `modisco_report` only. It adds MEME
   `tomtom` 5.5.9, whose `icu<76` conflicts with the main env. Its pip pins
   MUST match `cherimoya.yaml`.

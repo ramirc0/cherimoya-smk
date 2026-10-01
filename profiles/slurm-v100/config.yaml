@@ -1,0 +1,99 @@
+# profiles/slurm with every GPU rule on the V100 `gpu` partition instead of gpuh200.
+# V100s are sm_70, which the main env's CUDA 13 torch cannot run. Select the
+# sm_70 env too: --config conda_env=workflow/envs/cherimoya-sm70.yaml
+executor: slurm
+software-deployment-method:
+  - conda
+conda-prefix: .conda
+
+jobs: 40
+max-jobs-per-second: 5
+
+slurm-efficiency-report: true
+slurm-efficiency-report-path: logs/efficiency
+slurm-efficiency-threshold: 0.8
+
+default-resources:
+  slurm_account: ramirezc
+  slurm_partition: 12hours
+  runtime: 60m
+  mem_mb: 4000
+  slurm_extra: "--exclude=z1056,z1062"
+
+set-threads:
+  macs3: 1
+  bam2bw: 2
+  negatives: 1
+  fit: 4
+  evaluate: 4
+  attribute: 4
+  marginalize: 4
+  annotate: 16
+  modisco_motifs: 16
+
+# Flat presets, no size/attempt scaling. Right-size once from benchmarks/<run_id>/;
+# to catch stragglers, bump the preset and rerun (only the failed jobs re-run).
+set-resources:
+  macs3:
+    constraint: cascadelake   # conda macs3 needs AVX512; broadwell nodes SIGILL
+    mem_mb: 16000
+    runtime: 240m
+  bam2bw:
+    mem_mb: 32000
+    runtime: 240m
+  negatives:
+    mem_mb: 8000
+    runtime: 60m
+  count_fragments:
+    mem_mb: 4000
+    runtime: 240m
+  fit:
+    slurm_partition: gpu
+    gres: gpu:1
+    tasks_per_gpu: 0        # suppress --ntasks-per-gpu (conflicts with cpus-per-task for pytorch)
+    mem_mb: 48000
+    runtime: 1440m
+  evaluate:
+    slurm_partition: gpu
+    gres: gpu:1
+    tasks_per_gpu: 0
+    mem_mb: 32000
+    runtime: 240m
+  attribute:
+    slurm_partition: gpu
+    gres: gpu:1
+    tasks_per_gpu: 0
+    mem_mb: 64000
+    runtime: 480m
+  seqlets:
+    mem_mb: 16000           # dnase (192k loci) OOMs at 4 GB
+    runtime: 60m
+  annotate:
+    mem_mb: 8000
+    runtime: 60m
+  attribution_profile:
+    mem_mb: 8000            # dnase peaks at 3 GB
+    runtime: 30m
+  modisco_motifs:
+    constraint: cascadelake # 16 cores: atac 1h15, ctcf 4h35 at 11 GB
+    mem_mb: 32000
+    runtime: 720m
+  modisco_report:
+    constraint: cascadelake # seqlet example picks differ without AVX512
+    mem_mb: 4000            # 0.5 GB, 15 min
+    runtime: 60m
+  marginalize:
+    slurm_partition: gpu
+    gres: gpu:1
+    tasks_per_gpu: 0
+    mem_mb: 16000           # 926 motifs x 100 negatives: 3 min at 5 GB
+    runtime: 60m
+
+rerun-incomplete: true
+keep-going: true
+show-failed-logs: true
+benchmark-extended: true
+retries: 1
+slurm-requeue: false
+printshellcmds: true
+latency-wait: 60

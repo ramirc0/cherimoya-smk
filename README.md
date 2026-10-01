@@ -111,6 +111,11 @@ AVX512, the seqlet examples it picks differ. Resources are fixed per rule. If a
 job runs out of memory or time, raise its value in the profile and rerun. Only
 failed jobs re-run. Set your own `slurm_account` before using it.
 
+`profiles/slurm-v100` is the same profile on the V100 `gpu` partition. V100s
+are `sm_70`, which the main env's CUDA 13 torch cannot run, so pair it with the
+CUDA 12.6 env: `--config conda_env=workflow/envs/cherimoya-sm70.yaml`. A cold
+compile makes the first jobs slower than on an H200.
+
 With no GPU, set `fit.device`, `evaluate.device`, `attribute.device` and
 `marginalize.device` to `cpu`.
 
