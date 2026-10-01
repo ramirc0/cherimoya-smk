@@ -179,7 +179,7 @@ def test_marginalize_defaults_match(key):
 def test_marginalize_config_matches_script(template):
     config = _template_block(template, "marginalize")
     parser = marginalize.build_parser()
-    assert len(config) == 9
+    assert len(config) == 8
     # The templates skip CUDA graphs on purpose; the script keeps the CLI default.
     assert config.pop("compile_mode") == "max-autotune-no-cudagraphs"
     for key, value in config.items():

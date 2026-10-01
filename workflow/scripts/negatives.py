@@ -24,6 +24,8 @@ def build_parser():
         help="Input window size. Default 2114.")
     parser.add_argument("-x", "--out_window", type=int, default=1000,
         help="Output window size. Default 1000.")
+    parser.add_argument("-r", "--random_state", type=int, default=243746692,
+        help="Seed for drawing the negatives. Default 243746692.")
     parser.add_argument("-v", "--verbose", action="store_true")
     parser.add_argument("--on_missing_contig", choices=("filter", "fail"),
         default="filter",
@@ -89,6 +91,7 @@ def main():
         in_window=args.in_window,
         out_window=args.out_window,
         chroms=present,
+        random_state=args.random_state,
         verbose=args.verbose,
         n_jobs=1,
     )

@@ -11,6 +11,7 @@ rule negatives:
         beta=lambda _: config["negatives"]["beta"],
         in_window=lambda _: config["negatives"]["in_window"],
         out_window=lambda _: config["negatives"]["out_window"],
+        random_state=lambda _: config["random_state"],
         on_missing_contig=lambda _: config["peaks"]["on_missing_contig"],
     log:
         f"{LOGDIR}/negatives/{{sample}}.log",
@@ -31,5 +32,6 @@ rule negatives:
             -a {params.beta:q} \
             -w {params.in_window:q} \
             -x {params.out_window:q} \
+            -r {params.random_state:q} \
             --on_missing_contig {params.on_missing_contig:q}
         """

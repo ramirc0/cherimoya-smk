@@ -22,7 +22,7 @@ snakemake <target> --profile profiles/local --config samples=... run_id=...
 python workflow/scripts/make_folds.py                 # fold JSONs, once per genome
 python workflow/scripts/name_motifs.py <in.meme> <out.meme>  # NAME_ACCESSION IDs for modisco report
 PY=workflow/envs/.pixi/envs/cherimoya/bin/python      # rule env; `pixi install --all` in workflow/envs/ builds it
-$PY -m pytest                                         # 187 pass, 13 skip
+$PY -m pytest                                         # 190 pass, 13 skip
 $PY -m pytest -m slow                                 # e2e; needs CHERIMOYA_SMK_SMOKE fixtures + GPU
 CHERIMOYA_SMK_FIT=<dir> $PY -m pytest -m slow tests/test_fit_parity.py  # vs cherimoya fit + evaluate; CPU
 CHERIMOYA_SMK_ATTR=<dir> $PY -m pytest -m slow tests/test_attribute_parity.py  # vs cherimoya attribute; GPU; atol 1e-4 counts, 2e-4 profile (official noise)
@@ -111,6 +111,9 @@ layout.
   (in `workflow/envs/.pixi/`), not a dev checkout. `test_parser_drift.py` enforces this.
   `evaluate.py --counts_filename` and `annotate.py --count_filename` are local
   output paths and are deliberately absent from the drift keys.
+- Config `random_state` (243746692) seeds negatives, fit, attribute and
+  marginalize. fit/attribute/marginalize scripts keep the CLI default 0;
+  negatives.py defaults to 243746692 (the CLI leaves it unseeded).
 - fit.py calls `cherimoya.training.fit` (Lightning). Its validation set is the
   peaks plus every negative on `validation_chroms`. evaluate adds the fold's
   test-chrom negatives. Checkpoint selection stays peaks-only count Pearson.

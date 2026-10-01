@@ -252,7 +252,7 @@ def fit_flags(sample, fold):
         "--dtype", f["dtype"],
         "--device", f["device"],
         "--compile_mode", f["compile_mode"],
-        "--random_state", f["random_state"],
+        "--random_state", config["random_state"],
         *_list_flag("training_chroms", _fold(sample, fold)["train"]),
         *_list_flag("validation_chroms", _fold(sample, fold)["valid"]),
     ]
@@ -316,7 +316,7 @@ def attr_flags(sample, fold):
         "--attr_window", a["attr_window"],
         "--n_shuffles", a["n_shuffles"],
         "--warning_threshold", a["warning_threshold"],
-        "--random_state", a["random_state"],
+        "--random_state", config["random_state"],
         "--batch_size", a["batch_size"],
         "--in_window", config["fit"]["in_window"],
         "--dtype", a["dtype"],
@@ -405,7 +405,7 @@ def marginalize_flags(sample, fold):
     m = config["marginalize"]
     flags = [
         "--n_loci", m["n_loci"],
-        "--random_state", m["random_state"],
+        "--random_state", config["random_state"],
         "--batch_size", m["batch_size"],
         "--in_window", config["fit"]["in_window"],
         "--device", m["device"],

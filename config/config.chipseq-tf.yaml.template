@@ -9,6 +9,7 @@
 samples: config/samples.tsv
 outdir: results
 pixi_env: cherimoya
+random_state: 243746692  # seeds negatives, fit, attribute and marginalize
 run_id: default          # logs go under logs/<run_id>/; override per run to keep runs separate
 
 references:
@@ -88,7 +89,6 @@ fit:
   device: cuda
   compile: true
   compile_mode: max-autotune
-  random_state: 0
   # training/validation chroms come from the per-genome CV fold JSON.
 
 evaluate:
@@ -107,7 +107,6 @@ attribute:
   attr_window: 400        # saved central slice
   n_shuffles: 20          # deep_lift_shap references per locus
   warning_threshold: 0.001
-  random_state: 0
   batch_size: 64
   dtype: float32
   device: cuda
@@ -154,7 +153,6 @@ modisco_report:           # HTML report; matches patterns to annotate.motifs
 marginalize:              # motif insertion report per fold's model
   n_loci: 100             # negatives used, in file order unless shuffle
   shuffle: false
-  random_state: 0         # seed of shuffle
   attributions: false     # also DeepLIFT/SHAP before and after (slow)
   minimal: true           # false also plots the outputs before and after
   batch_size: 512
