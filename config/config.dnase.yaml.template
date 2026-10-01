@@ -5,7 +5,7 @@
 # (ATAC is the same but paired-end with the Tn5 +4/-4 shift -> config.atac.yaml.template.)
 samples: config/samples.tsv
 outdir: results
-conda_env: workflow/envs/cherimoya.yaml
+pixi_env: cherimoya
 run_id: default          # logs go under logs/<run_id>/; override per run to keep runs separate
 
 references:

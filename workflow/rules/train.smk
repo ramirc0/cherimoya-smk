@@ -20,8 +20,8 @@ rule fit:
         f"{LOGDIR}/fit/{{sample}}.fold_{{fold}}.log",
     benchmark:
         f"{BENCHDIR}/fit/{{sample}}.fold_{{fold}}.tsv"
-    conda:
-        CONDA_ENV
+    software:
+        SOFTWARE_ENV
     shell:
         r"""
         exec &> >(tee {log:q})
@@ -71,8 +71,8 @@ rule evaluate:
         f"{LOGDIR}/evaluate/{{sample}}.fold_{{fold}}.log",
     benchmark:
         f"{BENCHDIR}/evaluate/{{sample}}.fold_{{fold}}.tsv"
-    conda:
-        CONDA_ENV
+    software:
+        SOFTWARE_ENV
     shell:
         r"""
         exec &> >(tee {log:q})
@@ -112,8 +112,8 @@ rule model_summary:
         f"{LOGDIR}/model_summary/{{sample}}.fold_{{fold}}.log",
     benchmark:
         f"{BENCHDIR}/model_summary/{{sample}}.fold_{{fold}}.tsv"
-    conda:
-        CONDA_ENV
+    software:
+        SOFTWARE_ENV
     shell:
         r"""
         exec &> >(tee {log:q})

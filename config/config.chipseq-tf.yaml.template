@@ -8,7 +8,7 @@
 # signal_groups=[2] and n_control_tracks=2 (the cherimoya TF ChIP recipe).
 samples: config/samples.tsv
 outdir: results
-conda_env: workflow/envs/cherimoya.yaml
+pixi_env: cherimoya
 run_id: default          # logs go under logs/<run_id>/; override per run to keep runs separate
 
 references:

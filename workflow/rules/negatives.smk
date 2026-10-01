@@ -16,8 +16,8 @@ rule negatives:
         f"{LOGDIR}/negatives/{{sample}}.log",
     benchmark:
         f"{BENCHDIR}/negatives/{{sample}}.tsv"
-    conda:
-        CONDA_ENV
+    software:
+        SOFTWARE_ENV
     shell:
         r"""
         exec &> >(tee {log:q})

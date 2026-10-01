@@ -1,10 +1,9 @@
 # profiles/slurm with every GPU rule on the V100 `gpu` partition instead of gpuh200.
 # V100s are sm_70, which the main env's CUDA 13 torch cannot run. Select the
-# sm_70 env too: --config conda_env=workflow/envs/cherimoya-sm70.yaml
+# sm_70 env too: --config pixi_env=cherimoya-sm70
 executor: slurm
 software-deployment-method:
-  - conda
-conda-prefix: .conda
+  - pixi
 
 jobs: 40
 max-jobs-per-second: 5

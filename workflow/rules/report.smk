@@ -16,8 +16,8 @@ rule config_snapshot:
         f"{LOGDIR}/config_snapshot/all.log",
     benchmark:
         f"{BENCHDIR}/config_snapshot/all.tsv"
-    conda:
-        CONDA_ENV
+    software:
+        SOFTWARE_ENV
     shell:
         r"""
         exec &> >(tee {log:q})
@@ -44,8 +44,8 @@ rule gather_metrics:
         f"{LOGDIR}/gather_metrics/all.log",
     benchmark:
         f"{BENCHDIR}/gather_metrics/all.tsv"
-    conda:
-        CONDA_ENV
+    software:
+        SOFTWARE_ENV
     shell:
         r"""
         exec &> >(tee {log:q})
@@ -76,8 +76,8 @@ rule perf_vs_covariate:
         f"{LOGDIR}/perf_vs_covariate/{{covariate}}.log",
     benchmark:
         f"{BENCHDIR}/perf_vs_covariate/{{covariate}}.tsv"
-    conda:
-        CONDA_ENV
+    software:
+        SOFTWARE_ENV
     shell:
         r"""
         exec &> >(tee {log:q})
@@ -103,8 +103,8 @@ rule outliers:
         f"{LOGDIR}/outliers/all.log",
     benchmark:
         f"{BENCHDIR}/outliers/all.tsv"
-    conda:
-        CONDA_ENV
+    software:
+        SOFTWARE_ENV
     shell:
         r"""
         exec &> >(tee {log:q})
@@ -132,8 +132,8 @@ rule performance_distribution:
         f"{LOGDIR}/performance_distribution/all.log",
     benchmark:
         f"{BENCHDIR}/performance_distribution/all.tsv"
-    conda:
-        CONDA_ENV
+    software:
+        SOFTWARE_ENV
     shell:
         r"""
         exec &> >(tee {log:q})
@@ -157,8 +157,8 @@ rule motif_heatmap:
         f"{LOGDIR}/motif_heatmap/all.log",
     benchmark:
         f"{BENCHDIR}/motif_heatmap/all.tsv"
-    conda:
-        CONDA_ENV
+    software:
+        SOFTWARE_ENV
     shell:
         r"""
         exec &> >(tee {log:q})

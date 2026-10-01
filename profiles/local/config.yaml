@@ -1,7 +1,6 @@
 # Local execution. Set fit.device/evaluate.device to cpu for a CPU-only box.
 software-deployment-method:
-  - conda
-conda-prefix: .conda
+  - pixi
 
 cores: 16
 printshellcmds: true

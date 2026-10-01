@@ -16,8 +16,8 @@ rule attribute:
         f"{LOGDIR}/attribute/{{sample}}.fold_{{fold}}.log",
     benchmark:
         f"{BENCHDIR}/attribute/{{sample}}.fold_{{fold}}.tsv"
-    conda:
-        CONDA_ENV
+    software:
+        SOFTWARE_ENV
     shell:
         r"""
         exec &> >(tee {log:q})
@@ -48,8 +48,8 @@ rule seqlets:
         f"{LOGDIR}/seqlets/{{sample}}.fold_{{fold}}.log",
     benchmark:
         f"{BENCHDIR}/seqlets/{{sample}}.fold_{{fold}}.tsv"
-    conda:
-        CONDA_ENV
+    software:
+        SOFTWARE_ENV
     shell:
         r"""
         exec &> >(tee {log:q})
@@ -79,8 +79,8 @@ rule annotate:
         f"{LOGDIR}/annotate/{{sample}}.fold_{{fold}}.log",
     benchmark:
         f"{BENCHDIR}/annotate/{{sample}}.fold_{{fold}}.tsv"
-    conda:
-        CONDA_ENV
+    software:
+        SOFTWARE_ENV
     shell:
         r"""
         exec &> >(tee {log:q})
@@ -109,8 +109,8 @@ rule modisco_motifs:
         f"{LOGDIR}/modisco_motifs/{{sample}}.fold_{{fold}}.log",
     benchmark:
         f"{BENCHDIR}/modisco_motifs/{{sample}}.fold_{{fold}}.tsv"
-    conda:
-        CONDA_ENV
+    software:
+        SOFTWARE_ENV
     shell:
         r"""
         exec &> >(tee {log:q})
@@ -138,8 +138,8 @@ rule modisco_report:
         f"{LOGDIR}/modisco_report/{{sample}}.fold_{{fold}}.log",
     benchmark:
         f"{BENCHDIR}/modisco_report/{{sample}}.fold_{{fold}}.tsv"
-    conda:
-        "../envs/modisco_report.yaml"
+    software:
+        pixi(workspace="../envs", env="modisco-report", locked=True)
     shell:
         r"""
         exec &> >(tee {log:q})
@@ -170,8 +170,8 @@ rule marginalize:
         f"{LOGDIR}/marginalize/{{sample}}.fold_{{fold}}.log",
     benchmark:
         f"{BENCHDIR}/marginalize/{{sample}}.fold_{{fold}}.tsv"
-    conda:
-        CONDA_ENV
+    software:
+        SOFTWARE_ENV
     shell:
         r"""
         exec &> >(tee {log:q})
@@ -203,8 +203,8 @@ rule attribution_profile:
         f"{LOGDIR}/attribution_profile/{{sample}}.fold_{{fold}}.log",
     benchmark:
         f"{BENCHDIR}/attribution_profile/{{sample}}.fold_{{fold}}.tsv"
-    conda:
-        CONDA_ENV
+    software:
+        SOFTWARE_ENV
     shell:
         r"""
         exec &> >(tee {log:q})
@@ -231,8 +231,8 @@ rule seqlet_lengths:
         f"{LOGDIR}/seqlet_lengths/{{sample}}.fold_{{fold}}.log",
     benchmark:
         f"{BENCHDIR}/seqlet_lengths/{{sample}}.fold_{{fold}}.tsv"
-    conda:
-        CONDA_ENV
+    software:
+        SOFTWARE_ENV
     shell:
         r"""
         exec &> >(tee {log:q})
@@ -258,8 +258,8 @@ rule motif_counts:
         f"{LOGDIR}/motif_counts/{{sample}}.fold_{{fold}}.log",
     benchmark:
         f"{BENCHDIR}/motif_counts/{{sample}}.fold_{{fold}}.tsv"
-    conda:
-        CONDA_ENV
+    software:
+        SOFTWARE_ENV
     shell:
         r"""
         exec &> >(tee {log:q})

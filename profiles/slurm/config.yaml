@@ -1,7 +1,6 @@
 executor: slurm
 software-deployment-method:
-  - conda
-conda-prefix: .conda
+  - pixi
 
 jobs: 40
 max-jobs-per-second: 5

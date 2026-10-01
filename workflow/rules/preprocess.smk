@@ -12,8 +12,8 @@ rule prep_peaks:
         f"{LOGDIR}/prep_peaks/{{sample}}.log",
     benchmark:
         f"{BENCHDIR}/prep_peaks/{{sample}}.tsv"
-    conda:
-        CONDA_ENV
+    software:
+        SOFTWARE_ENV
     shell:
         r"""
         exec &> >(tee {log:q})
@@ -45,8 +45,8 @@ rule macs3:
         f"{LOGDIR}/macs3/{{sample}}.log",
     benchmark:
         f"{BENCHDIR}/macs3/{{sample}}.tsv"
-    conda:
-        CONDA_ENV
+    software:
+        SOFTWARE_ENV
     shell:
         r"""
         exec &> >(tee {log:q})
@@ -99,8 +99,8 @@ rule bam2bw:
         f"{LOGDIR}/bam2bw/{{sample}}.log",
     benchmark:
         f"{BENCHDIR}/bam2bw/{{sample}}.tsv"
-    conda:
-        CONDA_ENV
+    software:
+        SOFTWARE_ENV
     shell:
         r"""
         exec &> >(tee {log:q})
@@ -138,8 +138,8 @@ rule bam2bw_control:
         f"{LOGDIR}/bam2bw_control/{{sample}}.log",
     benchmark:
         f"{BENCHDIR}/bam2bw_control/{{sample}}.tsv"
-    conda:
-        CONDA_ENV
+    software:
+        SOFTWARE_ENV
     shell:
         r"""
         exec &> >(tee {log:q})
@@ -168,8 +168,8 @@ rule count_fragments:
         f"{LOGDIR}/count_fragments/{{sample}}.log",
     benchmark:
         f"{BENCHDIR}/count_fragments/{{sample}}.tsv"
-    conda:
-        CONDA_ENV
+    software:
+        SOFTWARE_ENV
     shell:
         r"""
         exec &> >(tee {log:q})

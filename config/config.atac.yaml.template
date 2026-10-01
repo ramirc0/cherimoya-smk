@@ -4,7 +4,7 @@
 # Sample sheet: sample_id, signal (BAM/fragments/bigWig), genome, [peaks]. No control.
 samples: config/samples.tsv
 outdir: results
-conda_env: workflow/envs/cherimoya.yaml
+pixi_env: cherimoya
 run_id: default          # logs go under logs/<run_id>/; override per run to keep runs separate
 
 references:
