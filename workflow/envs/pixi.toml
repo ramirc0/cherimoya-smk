@@ -1,3 +1,6 @@
+# Rule envs, imported from the old conda env files with `pixi import`.
+# pixi.lock holds the exact solve. cherimoya-sm70 is the V100 (sm_70) build.
+# modisco-report adds MEME tomtom, whose icu<76 conflicts with cherimoya.
 [workspace]
 name = "cherimoya-smk-envs"
 channels = ["conda-forge"]
@@ -385,6 +388,7 @@ sympy = "==1.14.0"
 tangermeme = "==1.5.0"
 texttable = "==1.7.0"
 threadpoolctl = "==3.6.0"
+# The PyPI CUDA 13 build has no sm_70 kernels.
 torch = { version = "==2.14.0+cu126", index = "https://download.pytorch.org/whl/cu126" }
 torchmetrics = "==1.9.0"
 tqdm = "==4.70.0"
