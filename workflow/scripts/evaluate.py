@@ -51,6 +51,8 @@ def build_parser():
     parser.add_argument("--out_window", type=int, default=1000)
     parser.add_argument("--reverse_complement_average", action="store_true",
         default=False)
+    parser.add_argument("--summits", action="store_true", default=False,
+        help="Center the peaks on their summits, as fit --summits does.")
     parser.add_argument("--device", default="cuda")
     parser.add_argument("--dtype", default="float32")
     parser.add_argument("--compile", action="store_true", default=True)
@@ -66,11 +68,11 @@ def main():
     import torch
 
     from sklearn.metrics import average_precision_score, roc_auc_score
-    from tangermeme.io import extract_loci
+    from tangermeme.io import _interleave_loci, extract_loci
     from tangermeme.predict import predict
 
     from cherimoya import Cherimoya, ControlWrapper
-    from cherimoya.io import normalize_signal_groups
+    from cherimoya.io import channel_permutation_from_groups, normalize_signal_groups
     from cherimoya.performance import calculate_performance_measures
 
     # --stranded wraps the flat file lists into one (+, -) group each; the
@@ -80,12 +82,18 @@ def main():
     controls = None if args.controls is None else (
         [args.controls] if args.stranded else args.controls)
     signal_files, signal_groups = normalize_signal_groups(signals)
-    control_files, _ = normalize_signal_groups(controls)
+    control_files, control_groups = normalize_signal_groups(controls)
 
     model = Cherimoya.load(args.model, device=args.device,
         compile=args.compile, compile_mode=args.compile_mode)
 
-    def _extract(loci):
+    # `extract_loci` raises when no locus falls on --chroms.
+    if len(_interleave_loci(args.loci, args.chroms)) == 0:
+        print("No loci on chromosomes {}, so {} was not written.".format(
+            args.chroms, args.performance_filename))
+        return
+
+    def _extract(loci, summits):
         return extract_loci(
             sequences=args.sequences,
             signals=signal_files,
@@ -95,17 +103,20 @@ def main():
             in_window=args.in_window,
             out_window=args.out_window,
             exclusion_lists=args.exclusion_lists,
+            summits=summits,
             max_jitter=0,
             ignore=list("QWERYUIOPSDFHJKLZXVBNM"),
             verbose=args.verbose,
         )
 
     # The negatives follow the peaks, which are the first n_peaks rows.
-    examples = _extract(args.loci)
+    # Negatives have no summit column.
+    examples = _extract(args.loci, args.summits)
     n_peaks = len(examples[0])
-    if args.negatives is not None:
+    if args.negatives is not None and len(
+            _interleave_loci(args.negatives, args.chroms)) > 0:
         examples = [torch.cat(pair)
-            for pair in zip(examples, _extract(args.negatives))]
+            for pair in zip(examples, _extract(args.negatives, False))]
 
     if control_files is None:
         X, y = examples
@@ -121,23 +132,29 @@ def main():
         device=args.device, dtype=args.dtype, verbose=args.verbose,
     )
 
+    # Prefer the checkpoint's own count-head layout.
+    model_signal_groups = getattr(model, "signal_groups", None)
+    if model_signal_groups is None:
+        model_signal_groups = signal_groups
+
     if args.reverse_complement_average:
+        # The reverse complement swaps the strands within each group but
+        # keeps the groups in order.
         X_rc = torch.flip(X, dims=(-1, -2))
-        X_ctl_rc = None if X_ctl is None else (torch.flip(X_ctl[0], dims=(-1, -2)),)
+        X_ctl_rc = None
+        if X_ctl is not None:
+            control_perm = channel_permutation_from_groups(control_groups)
+            X_ctl_rc = (X_ctl[0][:, control_perm].flip(-1),)
 
         y_hat_logits_rc, y_hat_logcounts_rc = predict(
             model, X_rc, args=X_ctl_rc, batch_size=args.batch_size,
             device=args.device, dtype=args.dtype, verbose=args.verbose,
         )
 
-        y_hat_logits_rc = torch.flip(y_hat_logits_rc, dims=(-1, -2))
+        signal_perm = channel_permutation_from_groups(model_signal_groups)
+        y_hat_logits_rc = y_hat_logits_rc[:, signal_perm].flip(-1)
         y_hat_logits = (y_hat_logits + y_hat_logits_rc) / 2
         y_hat_logcounts = (y_hat_logcounts + y_hat_logcounts_rc) / 2
-
-    # Prefer the checkpoint's own count-head layout.
-    model_signal_groups = getattr(model, "signal_groups", None)
-    if model_signal_groups is None:
-        model_signal_groups = signal_groups
 
     measures = calculate_performance_measures(y_hat_logits[:n_peaks],
         y[:n_peaks], y_hat_logcounts[:n_peaks],

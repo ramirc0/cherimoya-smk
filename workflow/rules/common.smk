@@ -273,7 +273,8 @@ def fit_flags(sample, fold):
 def eval_flags(sample, fold):
     """All evaluate.py flag tokens from config['evaluate'] (use with :q).
 
-    Eval chroms are the sample's genome CV `fold` test set.
+    Eval chroms are the sample's genome CV `fold` test set. Summits follow
+    fit's, as the CLI's evaluate inherits them.
     """
     e = config["evaluate"]
     flags = [
@@ -289,6 +290,8 @@ def eval_flags(sample, fold):
         flags.append("--stranded")
     if e["reverse_complement_average"]:
         flags.append("--reverse_complement_average")
+    if config["fit"]["summits"]:
+        flags.append("--summits")
     if not e["compile"]:
         flags.append("--no_compile")
     if BLACKLIST:

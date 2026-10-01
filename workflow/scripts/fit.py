@@ -67,6 +67,9 @@ def build_parser():
     parser.add_argument("--num_workers", type=int, default=1)
     parser.add_argument("--dtype", default="float32")
     parser.add_argument("--device", default="cuda")
+    parser.add_argument("--compile", action="store_true", default=True)
+    parser.add_argument("--no_compile", dest="compile", action="store_false")
+    parser.add_argument("--compile_mode", default="max-autotune")
     parser.add_argument("--random_state", type=int, default=0)
     parser.add_argument("--training_chroms", nargs="+", default=[
         "chr2", "chr4", "chr5", "chr7", "chr9", "chr10", "chr11", "chr12",
@@ -93,7 +96,7 @@ def main():
     from cherimoya.io import PeakGenerator, normalize_signal_groups
     from cherimoya.training import fit
 
-    from tangermeme.io import extract_loci
+    from tangermeme.io import _interleave_loci, extract_loci
 
     lightning.seed_everything(args.random_state, verbose=False)
 
@@ -126,25 +129,34 @@ def main():
         control_groups=control_groups,
     ).dataset
 
-    valid_data, negative_data = (extract_loci(
-        sequences=args.sequences,
-        signals=signal_files,
-        in_signals=control_files,
-        loci=loci,
-        chroms=args.validation_chroms,
-        in_window=args.in_window,
-        out_window=args.out_window,
-        max_jitter=0,
-        exclusion_lists=args.exclusion_lists,
-        ignore=list("QWERYUIOPSDFHJKLZXVBNM"),
-        verbose=args.verbose,
-    ) for loci in (args.loci, args.negatives))
+    def _extract_valid(loci, summits):
+        return extract_loci(
+            sequences=args.sequences,
+            signals=signal_files,
+            in_signals=control_files,
+            loci=loci,
+            chroms=args.validation_chroms,
+            in_window=args.in_window,
+            out_window=args.out_window,
+            max_jitter=0,
+            summits=summits,
+            exclusion_lists=args.exclusion_lists,
+            ignore=list("QWERYUIOPSDFHJKLZXVBNM"),
+            verbose=args.verbose,
+        )
+
+    # Peaks are extracted as in training; negatives have no summit column.
+    valid_data = _extract_valid(args.loci, args.summits)
 
     # The validation negatives, labeled 0, feed the measures that separate
     # peaks from negatives. The other measures use the peaks alone.
-    valid_labels = torch.cat([torch.ones(len(valid_data[0])),
-        torch.zeros(len(negative_data[0]))])
-    valid_data = [torch.cat(pair) for pair in zip(valid_data, negative_data)]
+    # `extract_loci` raises when no negative falls on the validation chroms.
+    valid_labels = None
+    if len(_interleave_loci(args.negatives, args.validation_chroms)) > 0:
+        negative_data = _extract_valid(args.negatives, False)
+        valid_labels = torch.cat([torch.ones(len(valid_data[0])),
+            torch.zeros(len(negative_data[0]))])
+        valid_data = [torch.cat(pair) for pair in zip(valid_data, negative_data)]
 
     if control_files is not None:
         valid_sequences, valid_signals, valid_controls = valid_data
@@ -166,6 +178,8 @@ def main():
         trimming=trimming,
         name=args.name,
         verbose=args.verbose,
+        compile=args.compile,
+        compile_mode=args.compile_mode,
         random_state=args.random_state,
     )
 

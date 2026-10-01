@@ -45,7 +45,7 @@ dependencies:
       - attrs==26.1.0
       - bam2bw==0.4.1
       - bpnet-lite==1.0.0
-      - "cherimoya @ git+https://github.com/jmschrei/cherimoya.git@4863b00b690bc04840895b21f8abaa282758dd6e"
+      - "cherimoya @ git+https://github.com/jmschrei/cherimoya.git@c0e9637797e7d957b9609b75c9dc692b438ae653"
       - contourpy==1.3.3
       - cuda-bindings==13.3.1
       - cuda-pathfinder==1.6.0

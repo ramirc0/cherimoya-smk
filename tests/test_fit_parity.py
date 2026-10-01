@@ -45,6 +45,8 @@ def _official(fx, out, loss_weights):
     fold = json.loads((fx / "fold.json").read_text())
     signals, controls, stranded = _tracks(fx)
     parameters = copy.deepcopy(default_fit_parameters)
+    # The fixture has no peaks on the test chroms, so the official fit
+    # writes only o.validation.performance.tsv.
     parameters.update(sequences=str(fx / "genome.fa"),
         loci=str(fx / "peaks.narrowPeak"),
         negatives=str(fx / "negatives.bed"),
@@ -52,6 +54,7 @@ def _official(fx, out, loss_weights):
         controls=[controls] if stranded else controls,
         exclusion_lists=[str(fx / "blacklist.bed")],
         training_chroms=fold["train"], validation_chroms=fold["valid"],
+        test_chroms=fold["test"],
         device="cpu", max_epochs=2, min_total_steps=0, n_warmup_epochs=1,
         batch_size=16, random_state=0, loss_weights=loss_weights,
         name=str(out / "o"))
@@ -181,7 +184,7 @@ def test_evaluate_matches_cli(fx, official, tmp_path):
         cmd.append("--stranded")
     subprocess.run(cmd, check=True, env=ENV)
 
-    o = Path(f"{theirs}.performance.tsv").read_bytes()
+    o = Path(f"{theirs}.validation.performance.tsv").read_bytes()
     for row in o.decode().splitlines()[1:]:
         assert "nan" not in row.split("\t")[-5:]
     assert (tmp_path / "s.performance.tsv").read_bytes() == o

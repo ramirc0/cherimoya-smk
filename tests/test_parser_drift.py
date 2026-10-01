@@ -32,7 +32,7 @@ FIT_KEYS = [
 
 EVAL_KEYS = [
     "batch_size", "in_window", "out_window", "reverse_complement_average",
-    "device", "dtype", "compile", "compile_mode", "chroms",
+    "summits", "device", "dtype", "compile", "compile_mode", "chroms",
 ]
 
 ATTR_KEYS = [
