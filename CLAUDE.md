@@ -174,10 +174,11 @@ Follow the [Nextstrain Snakemake style guide][sg]. Keep
 - Never add `--signal` to fit's SLURM preset. On SIGUSR1, Lightning writes
   `hpc_ckpt_*` into the fold dir, and the next fit resumes from it and crashes.
 - The SLURM executor plugin lives in the launcher env, not the per-rule env.
-- Keep `software-deployment-cache` in `shared-fs-usage`. Without it, every
-  SLURM job re-downloads each env's packages into `.snakemake/software/cache/`.
-  The first run in a workdir fills it once: 6.4 GB for all three envs, slow,
-  since the plugin streams 1 KB chunks. pixi itself never reads it.
+- Snakemake copies every env package to `~/.cache/snakemake/software/`
+  (profile `software-deployment-cache-prefix`); pixi never reads that copy.
+  The first fill is 6.4 GB and slow: the plugin streams 1 KB chunks. Keep
+  `software-deployment-cache` in `shared-fs-usage`, or every SLURM job
+  downloads its own copy.
 - Snakemake compares a symlink's own mtime. Recreating the links in
   `resources/` makes every downstream output look outdated.
 - `scratch/` (gitignored) may hold `HANDOFF*.md` notes. `_archive/` holds

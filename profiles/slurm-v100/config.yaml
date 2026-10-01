@@ -4,6 +4,9 @@
 executor: slurm
 software-deployment-method:
   - pixi
+# Snakemake copies every env package here; pixi installs from its own cache.
+# One copy per user instead of one per workdir.
+software-deployment-cache-prefix: ~/.cache/snakemake/software
 
 jobs: 40
 max-jobs-per-second: 5
@@ -65,6 +68,7 @@ set-resources:
     mem_mb: 64000
     runtime: 480m
   seqlets:
+    constraint: cascadelake # tied rows sort differently without AVX512
     mem_mb: 16000           # dnase (192k loci) OOMs at 4 GB
     runtime: 60m
   annotate:
