@@ -28,11 +28,13 @@ FIT_KEYS = [
     "muon_wd", "adam_lr", "adam_wd", "lw_lr", "lw_wd", "lw_momentum",
     "num_workers", "dtype", "device", "compile", "compile_mode",
     "random_state", "training_chroms", "validation_chroms",
+    "exclusion_lists", "verbose",
 ]
 
 EVAL_KEYS = [
     "batch_size", "in_window", "out_window", "reverse_complement_average",
     "summits", "device", "dtype", "compile", "compile_mode", "chroms",
+    "exclusion_lists", "verbose",
 ]
 
 ATTR_KEYS = [
