@@ -106,6 +106,10 @@ layout.
   test-chrom negatives. Checkpoint selection stays peaks-only count Pearson.
   `evaluate.py --negatives`, like `--counts_filename`, is absent from the
   drift keys.
+- The templates set `compile_mode: max-autotune-no-cudagraphs` for evaluate
+  and marginalize. CUDA graph capture under `max-autotune` crashed
+  intermittently, and the outputs are bitwise identical without it. The
+  scripts keep the CLI default.
 - `annotate` passes `--n_jobs {threads}` (profile `set-threads`), not the
   official `-1`. TomTom output is byte-identical across thread counts; memory
   grows about 115 MB per thread.

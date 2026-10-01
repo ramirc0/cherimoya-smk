@@ -96,7 +96,7 @@ evaluate:
   dtype: float32
   device: cuda
   compile: true
-  compile_mode: max-autotune
+  compile_mode: max-autotune-no-cudagraphs  # CUDA graph capture crashed intermittently; same outputs
   # eval chroms come from the per-genome CV fold JSON (the fold's test set).
 
 attribute:
@@ -159,5 +159,5 @@ marginalize:              # motif insertion report per fold's model
   batch_size: 512
   device: cuda
   compile: true
-  compile_mode: max-autotune
+  compile_mode: max-autotune-no-cudagraphs  # CUDA graph capture crashed intermittently; same outputs
   # loci are the negatives on the fold's train chroms; motifs are annotate's; in_window is fit's.
