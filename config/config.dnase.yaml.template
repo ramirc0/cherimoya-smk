@@ -90,14 +90,12 @@ fit:
 
 evaluate:
   batch_size: 512
-  in_window: 2114
-  out_window: 1000
   reverse_complement_average: false
   dtype: float32
   device: cuda
   compile: true
   compile_mode: max-autotune-no-cudagraphs  # CUDA graph capture crashed intermittently; same outputs
-  # eval chroms come from the per-genome CV fold JSON (the fold's test set).
+  # eval chroms come from the per-genome CV fold JSON (the fold's test set); windows are fit's.
 
 attribute:
   algorithm: deep_lift_shap   # or saturation_mutagenesis

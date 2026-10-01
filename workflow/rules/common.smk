@@ -276,14 +276,14 @@ def fit_flags(sample, fold):
 def eval_flags(sample, fold):
     """All evaluate.py flag tokens from config['evaluate'] (use with :q).
 
-    Eval chroms are the sample's genome CV `fold` test set. Summits follow
-    fit's, as the CLI's evaluate inherits them.
+    Eval chroms are the sample's genome CV `fold` test set. Windows and
+    summits are fit's, as the CLI's evaluate inherits them.
     """
     e = config["evaluate"]
     flags = [
         "--batch_size", e["batch_size"],
-        "--in_window", e["in_window"],
-        "--out_window", e["out_window"],
+        "--in_window", config["fit"]["in_window"],
+        "--out_window", config["fit"]["out_window"],
         "--dtype", e["dtype"],
         "--device", e["device"],
         "--compile_mode", e["compile_mode"],
