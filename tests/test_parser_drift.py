@@ -26,7 +26,7 @@ FIT_KEYS = [
     "reverse_complement", "summits", "max_epochs", "min_total_steps",
     "loss_weights", "n_warmup_epochs", "early_stopping", "muon_lr",
     "muon_wd", "adam_lr", "adam_wd", "lw_lr", "lw_wd", "lw_momentum",
-    "num_workers", "dtype", "device",
+    "num_workers", "dtype", "device", "compile", "compile_mode",
     "random_state", "training_chroms", "validation_chroms",
 ]
 

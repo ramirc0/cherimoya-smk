@@ -251,6 +251,7 @@ def fit_flags(sample, fold):
         "--num_workers", f["num_workers"],
         "--dtype", f["dtype"],
         "--device", f["device"],
+        "--compile_mode", f["compile_mode"],
         "--random_state", f["random_state"],
         *_list_flag("training_chroms", _fold(sample, fold)["train"]),
         *_list_flag("validation_chroms", _fold(sample, fold)["valid"]),
@@ -261,6 +262,8 @@ def fit_flags(sample, fold):
         flags.append("--no_reverse_complement")
     if f["summits"]:
         flags.append("--summits")
+    if not f["compile"]:
+        flags.append("--no_compile")
     if f["early_stopping"] is not None:
         flags += ["--early_stopping", f["early_stopping"]]
     if f["loss_weights"] is not None:

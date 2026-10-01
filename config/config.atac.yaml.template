@@ -82,6 +82,8 @@ fit:
   num_workers: 1
   dtype: float32
   device: cuda
+  compile: true
+  compile_mode: max-autotune
   random_state: 0
   # training/validation chroms come from the per-genome CV fold JSON.
 
