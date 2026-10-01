@@ -151,7 +151,7 @@ modisco_report:           # HTML report; matches patterns to annotate.motifs
   lite: false             # true uses memelite; matches differ from MEME tomtom
 
 marginalize:              # motif insertion report per fold's model
-  n_loci: 100             # peaks used, in file order unless shuffle
+  n_loci: 100             # negatives used, in file order unless shuffle
   shuffle: false
   random_state: 0         # seed of shuffle
   attributions: false     # also DeepLIFT/SHAP before and after (slow)
@@ -160,4 +160,4 @@ marginalize:              # motif insertion report per fold's model
   device: cuda
   compile: true
   compile_mode: max-autotune
-  # loci are the peaks on the fold's train chroms; motifs are annotate's; in_window is fit's.
+  # loci are the negatives on the fold's train chroms; motifs are annotate's; in_window is fit's.
