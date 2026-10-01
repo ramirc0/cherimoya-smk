@@ -114,6 +114,8 @@ layout.
 - Config `random_state` (243746692) seeds negatives, fit, attribute and
   marginalize. fit/attribute/marginalize scripts keep the CLI default 0;
   negatives.py defaults to 243746692 (the CLI leaves it unseeded).
+  When comparing against upstream `cherimoya`, give both sides the same
+  seed (`--config random_state=0`, or 243746692 upstream).
 - fit.py calls `cherimoya.training.fit` (Lightning). Its validation set is the
   peaks plus every negative on `validation_chroms`. evaluate adds the fold's
   test-chrom negatives. Checkpoint selection stays peaks-only count Pearson.
