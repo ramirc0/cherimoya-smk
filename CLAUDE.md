@@ -14,21 +14,22 @@ docs are in `README.md`; this file covers what an agent needs to edit safely.
 ## Commands
 
 ```bash
-conda activate snakemake                              # launcher env (has the SLURM plugin)
+pixi shell                                            # launcher env: Snakemake main, pixi + SLURM plugins
 snakemake -n -p --profile profiles/local              # dry run; builds the full DAG
 snakemake --profile profiles/local                    # local
 snakemake --profile profiles/slurm                    # SLURM; fit/evaluate -> gpuh200
 snakemake <target> --profile profiles/local --config samples=... run_id=...
 python workflow/scripts/make_folds.py                 # fold JSONs, once per genome
 python workflow/scripts/name_motifs.py <in.meme> <out.meme>  # NAME_ACCESSION IDs for modisco report
-.conda/<hash>_/bin/python -m pytest                   # 186 pass, 13 skip; the env built from cherimoya.yaml
-.conda/<hash>_/bin/python -m pytest -m slow           # e2e; needs CHERIMOYA_SMK_SMOKE fixtures + GPU
-CHERIMOYA_SMK_FIT=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_fit_parity.py  # vs cherimoya fit + evaluate; CPU
-CHERIMOYA_SMK_ATTR=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_attribute_parity.py  # vs cherimoya attribute; GPU; atol 1e-4 counts, 2e-4 profile (official noise)
-CHERIMOYA_SMK_SEQLETS=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_seqlets_parity.py  # vs cherimoya seqlets; CPU
-CHERIMOYA_SMK_ANNOTATE=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_annotate_parity.py  # vs pipeline ttl step; CPU
-CHERIMOYA_SMK_MODISCO=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_modisco_parity.py  # vs pipeline modisco; cascadelake, MEME tomtom on PATH
-CHERIMOYA_SMK_MARGINALIZE=<dir> .conda/<hash>_/bin/python -m pytest -m slow tests/test_marginalize_parity.py  # vs pipeline marginalize; GPU
+PY=workflow/envs/.pixi/envs/cherimoya/bin/python      # rule env; `pixi install --all` in workflow/envs/ builds it
+$PY -m pytest                                         # 186 pass, 13 skip
+$PY -m pytest -m slow                                 # e2e; needs CHERIMOYA_SMK_SMOKE fixtures + GPU
+CHERIMOYA_SMK_FIT=<dir> $PY -m pytest -m slow tests/test_fit_parity.py  # vs cherimoya fit + evaluate; CPU
+CHERIMOYA_SMK_ATTR=<dir> $PY -m pytest -m slow tests/test_attribute_parity.py  # vs cherimoya attribute; GPU; atol 1e-4 counts, 2e-4 profile (official noise)
+CHERIMOYA_SMK_SEQLETS=<dir> $PY -m pytest -m slow tests/test_seqlets_parity.py  # vs cherimoya seqlets; CPU
+CHERIMOYA_SMK_ANNOTATE=<dir> $PY -m pytest -m slow tests/test_annotate_parity.py  # vs pipeline ttl step; CPU
+CHERIMOYA_SMK_MODISCO=<dir> $PY -m pytest -m slow tests/test_modisco_parity.py  # vs pipeline modisco; cascadelake, MEME tomtom on PATH
+CHERIMOYA_SMK_MARGINALIZE=<dir> $PY -m pytest -m slow tests/test_marginalize_parity.py  # vs pipeline marginalize; GPU
 ```
 
 Put the target **before** `--config`; otherwise Snakemake parses it as a config
@@ -76,19 +77,21 @@ layout.
   `motifs/`: the JASPAR2026 MEME file (symlink) and its `_named` copy from
   `name_motifs.py`.
 - `docs/run-paths.dot`: entry-path diagram. Rerender the SVG after editing it.
-- `workflow/envs/cherimoya.yaml`: the main per-rule env, fully pinned (conda
-  `name=version=build`, pip `==`, transitive deps included). A new dependency
-  MUST go in with its exact version and any new transitive pins. There are no
-  lock files. Editing it rebuilds the env and reruns every rule (software-env
-  trigger).
-- `workflow/envs/cherimoya-sm70.yaml`: the main env for V100 (`sm_70`) GPUs,
-  with `profiles/slurm-v100`. torch comes from the CUDA 12.6 index. It is an
-  exact `mamba env export` of a built env, not hand-written: rebuild it the
-  same way. Selected with `--config conda_env=...`, since a CLI `--config`
-  replaces a profile's `config:`.
-- `workflow/envs/modisco_report.yaml`: `modisco_report` only. It adds MEME
-  `tomtom` 5.5.9, whose `icu<76` conflicts with the main env. Its pip pins
-  MUST match `cherimoya.yaml`.
+- `pixi.toml` (root): the launcher. Snakemake and the pixi plugin are git
+  pins: the plugin needs Snakemake's unreleased software-deployment API.
+- `workflow/envs/pixi.toml` + `pixi.lock`: the rule envs, one workspace.
+  Pins are exact (imported from the old conda files) and `pixi.lock` holds
+  the solve. Add a dependency with `pixi add`, never by hand-writing
+  transitive pins. Any edit to either file reruns every rule (the plugin
+  hashes both whole files plus the workspace's absolute path).
+  - `cherimoya`: the main env, selected by config `pixi_env`.
+  - `cherimoya-sm70`: for V100 (`sm_70`) GPUs with `profiles/slurm-v100`.
+    torch comes from the CUDA 12.6 index. Selected with
+    `--config pixi_env=cherimoya-sm70`, since a CLI `--config` replaces a
+    profile's `config:`.
+  - `modisco-report`: `modisco_report` only. It adds MEME `tomtom` 5.5.9,
+    whose `icu<76` conflicts with the main env. Its PyPI pins MUST match
+    `cherimoya`.
 
 ## Behavior to preserve
 
@@ -103,7 +106,7 @@ layout.
 - Fold JSONs are read in `params` lambdas at DAG-build time, so even `-n` fails
   without them.
 - Script defaults MUST match `cherimoya_cli.defaults` at the **pinned** commit
-  (in `.conda/`), not a dev checkout. `test_parser_drift.py` enforces this.
+  (in `workflow/envs/.pixi/`), not a dev checkout. `test_parser_drift.py` enforces this.
   `evaluate.py --counts_filename` and `annotate.py --count_filename` are local
   output paths and are deliberately absent from the drift keys.
 - fit.py calls `cherimoya.training.fit` (Lightning). Its validation set is the
@@ -146,7 +149,8 @@ Follow the [Nextstrain Snakemake style guide][sg]. Keep
   space-joined flag strings.
 - Config reaches `shell` only through `params:` lambdas. Use `config[key]` for
   required keys, never bare `config.get(key)`.
-- Every rule has `log:`, `benchmark:`, `conda:`. No `run:` blocks, no `message:`.
+- Every rule has `log:`, `benchmark:`, `software:` (`SOFTWARE_ENV`, or a
+  `pixi(...)` with `locked=True`). No `run:` blocks, no `message:`.
 
 [sg]: https://docs.nextstrain.org/en/latest/reference/snakemake-style-guide.html
 
@@ -165,5 +169,11 @@ Follow the [Nextstrain Snakemake style guide][sg]. Keep
 - Never add `--signal` to fit's SLURM preset. On SIGUSR1, Lightning writes
   `hpc_ckpt_*` into the fold dir, and the next fit resumes from it and crashes.
 - The SLURM executor plugin lives in the launcher env, not the per-rule env.
+- Keep `software-deployment-cache` in `shared-fs-usage`. Without it, every
+  SLURM job re-downloads each env's packages into `.snakemake/software/cache/`.
+  The first run in a workdir fills it once: 6.4 GB for all three envs, slow,
+  since the plugin streams 1 KB chunks. pixi itself never reads it.
+- Snakemake compares a symlink's own mtime. Recreating the links in
+  `resources/` makes every downstream output look outdated.
 - `scratch/` (gitignored) may hold `HANDOFF*.md` notes. `_archive/` holds
   shelved worktrees. Neither exists in a fresh clone.

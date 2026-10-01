@@ -22,15 +22,17 @@ peaks  ── prep_peaks ─────┘                 │      └─ per-
 
 ```bash
 cp config/config.atac.yaml.template config/config.yaml   # or .dnase / .chipseq-tf
+pixi shell                                               # launcher env
 python workflow/scripts/make_folds.py                    # once per genome
 snakemake -n -p --profile profiles/local                 # dry run
 snakemake --profile profiles/local                       # run locally
 snakemake --profile profiles/slurm                       # run on SLURM
 ```
 
-Launch from an env that has Snakemake and, for SLURM,
-`snakemake-executor-plugin-slurm`. Snakemake builds the per-rule conda env
-under `.conda/` on first run.
+The launcher env (`pixi.toml` at the root) has Snakemake, the pixi
+software-deployment plugin and the SLURM executor plugins. Rule envs live in a
+second pixi workspace, `workflow/envs/`. pixi must be on `PATH`. Each job
+activates its env from `workflow/envs/.pixi/envs/` and installs it on first use.
 
 ## Inputs
 
@@ -113,7 +115,7 @@ failed jobs re-run. Set your own `slurm_account` before using it.
 
 `profiles/slurm-v100` is the same profile on the V100 `gpu` partition. V100s
 are `sm_70`, which the main env's CUDA 13 torch cannot run, so pair it with the
-CUDA 12.6 env: `--config conda_env=workflow/envs/cherimoya-sm70.yaml`. A cold
+CUDA 12.6 env: `--config pixi_env=cherimoya-sm70`. A cold
 compile makes the first jobs slower than on an H200.
 
 With no GPU, set `fit.device`, `evaluate.device`, `attribute.device` and
@@ -121,17 +123,18 @@ With no GPU, set `fit.device`, `evaluate.device`, `attribute.device` and
 
 ## Environment
 
-`workflow/envs/cherimoya.yaml` is the main env definition, and it is fully
-pinned. Conda packages carry version and build, pip packages an exact `==`,
-transitive dependencies included. cherimoya comes from a pinned git commit.
-torch (CUDA), tangermeme, macs3, bam2bw and pytest are pip packages in the same
-env. Any change to the file makes Snakemake build a fresh env under `.conda/`.
-`modisco_report` uses `workflow/envs/modisco_report.yaml`, pinned the same way:
-the MEME-suite `tomtom` it calls needs an `icu` that conflicts with the main env.
+`workflow/envs/pixi.toml` defines three rule envs, and `pixi.lock` pins
+every conda and PyPI package. `cherimoya` is the main env. cherimoya comes from
+a pinned git commit. torch (CUDA), tangermeme, macs3, bam2bw and pytest are
+PyPI packages in the same env. `cherimoya-sm70` is the same env with torch from
+the CUDA 12.6 index. `modisco_report` uses `modisco-report`: the MEME-suite
+`tomtom` it calls needs an `icu` that conflicts with the main env. Rules run
+with `locked=True`, so a manifest edit needs `pixi lock` in `workflow/envs/`.
+Any change to the manifest or lock reruns every rule (software-env trigger).
 
 ## Tests
 
-Run from the built env under `.conda/`:
+Run from the `cherimoya` env (`pixi shell -e cherimoya` in `workflow/envs/`):
 
 ```bash
 pytest            # drift guards against cherimoya defaults, CLI smoke tests
