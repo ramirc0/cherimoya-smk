@@ -181,6 +181,9 @@ Follow the [Nextstrain Snakemake style guide][sg]. Keep
   The first fill is 6.4 GB and slow: the plugin streams 1 KB chunks. Keep
   `software-deployment-cache` in `shared-fs-usage`, or every SLURM job
   downloads its own copy.
+- Outputs recorded by Snakemake 9 (metadata format 6) never rerun on params,
+  code or software-env changes under Snakemake main. Force them, e.g.
+  `--forcerun negatives` keeps the deterministic preprocessing.
 - Snakemake compares a symlink's own mtime. Recreating the links in
   `resources/` makes every downstream output look outdated.
 - `scratch/` (gitignored) may hold `HANDOFF*.md` notes. `_archive/` holds
