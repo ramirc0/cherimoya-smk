@@ -195,3 +195,11 @@ def test_negatives_defaults():
     assert parser.get_default("beta") == 0.5
     assert parser.get_default("in_window") == 2114
     assert parser.get_default("out_window") == 1000
+
+
+@pytest.mark.parametrize("template", TEMPLATES, ids=[t.name for t in TEMPLATES])
+def test_templates_skip_cuda_graphs(template):
+    # CUDA graph capture crashes intermittently on V100 and H200.
+    for block in ("fit", "evaluate", "attribute", "marginalize"):
+        mode = _template_block(template, block)["compile_mode"]
+        assert mode == "max-autotune-no-cudagraphs", block

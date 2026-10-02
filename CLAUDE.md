@@ -22,7 +22,7 @@ snakemake <target> --profile profiles/local --config samples=... run_id=...
 python workflow/scripts/make_folds.py                 # fold JSONs, once per genome
 python workflow/scripts/name_motifs.py <in.meme> <out.meme>  # NAME_ACCESSION IDs for modisco report
 PY=workflow/envs/.pixi/envs/cherimoya/bin/python      # rule env; `pixi install --all` in workflow/envs/ builds it
-$PY -m pytest                                         # 190 pass, 13 skip
+$PY -m pytest                                         # 193 pass, 13 skip
 $PY -m pytest -m slow                                 # e2e; needs CHERIMOYA_SMK_SMOKE fixtures + GPU
 CHERIMOYA_SMK_FIT=<dir> $PY -m pytest -m slow tests/test_fit_parity.py  # vs cherimoya fit + evaluate; CPU
 CHERIMOYA_SMK_ATTR=<dir> $PY -m pytest -m slow tests/test_attribute_parity.py  # vs cherimoya attribute; GPU; atol 1e-4 counts, 2e-4 profile (official noise)
@@ -121,10 +121,12 @@ layout.
   test-chrom negatives. Checkpoint selection stays peaks-only count Pearson.
   `evaluate.py --negatives`, like `--counts_filename`, is absent from the
   drift keys.
-- The templates set `compile_mode: max-autotune-no-cudagraphs` for evaluate
-  and marginalize. CUDA graph capture under `max-autotune` crashed
-  intermittently, and the outputs are bitwise identical without it. The
-  scripts keep the CLI default.
+- The templates set `compile_mode: max-autotune-no-cudagraphs` for fit,
+  evaluate, attribute and marginalize. CUDA graph capture under
+  `max-autotune` crashed intermittently (V100 and H200). Without it,
+  evaluate and marginalize are bitwise identical, fit metrics and
+  attributions stay within run-to-run noise, and fit is at most 1% slower.
+  The scripts keep the CLI default.
 - `annotate` passes `--n_jobs {threads}` (profile `set-threads`), not the
   official `-1`. TomTom output is byte-identical across thread counts; memory
   grows about 115 MB per thread.
