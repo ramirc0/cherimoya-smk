@@ -7,28 +7,57 @@ include: "rules/interpret.smk"
 include: "rules/report.smk"
 
 
+def per_fold(*suffixes):
+    """Per-model outputs `<fold_prefix>.<suffix>` for every sample and fold."""
+    return [f"{fold_prefix(s, fold)}.{x}"
+            for s in SAMPLES for fold in FOLDS for x in suffixes]
+
+
+# Stage targets are cumulative: each one runs the pipeline up to that stage.
+PREPROCESS = [
+    f"{OUTDIR}/config.snapshot.json",
+    *[path for s in SAMPLES
+      for path in (*signal_bw(s), *control_bw(s), f"{prefix(s)}.negatives.bed")],
+]
+TRAIN = PREPROCESS + per_fold("epochs.svg", "count_scatter.svg", "summary.txt") + [
+    f"{OUTDIR}/report/metrics.tsv",
+    f"{OUTDIR}/report/performance_distribution.svg",
+    *[f"{OUTDIR}/report/count_pearson_vs_{c}.svg" for c in COVARIATES],
+    f"{OUTDIR}/report/outliers.svg",
+]
+ATTRIBUTIONS = TRAIN + per_fold("attribution_profile.svg")
+MOTIFS = ATTRIBUTIONS + per_fold("seqlet_lengths.svg", "motif_counts.svg") + [
+    f"{OUTDIR}/report/motif_heatmap.svg",
+]
+MODISCO = MOTIFS + per_fold("modisco")
+ALL = MODISCO + per_fold("marginalize")
+
+
 rule all:
     input:
-        # per-model QC
-        [f"{OUTDIR}/{s}/fold_{fold}/{s}.epochs.svg"
-         for s in SAMPLES for fold in FOLDS],
-        [f"{OUTDIR}/{s}/fold_{fold}/{s}.count_scatter.svg"
-         for s in SAMPLES for fold in FOLDS],
-        [f"{OUTDIR}/{s}/fold_{fold}/{s}.summary.txt"
-         for s in SAMPLES for fold in FOLDS],
-        # interpretation
-        [f"{OUTDIR}/{s}/fold_{fold}/{s}.{plot}.svg"
-         for s in SAMPLES for fold in FOLDS
-         for plot in ("attribution_profile", "seqlet_lengths", "motif_counts")],
-        [f"{OUTDIR}/{s}/fold_{fold}/{s}.modisco"
-         for s in SAMPLES for fold in FOLDS],
-        [f"{OUTDIR}/{s}/fold_{fold}/{s}.marginalize"
-         for s in SAMPLES for fold in FOLDS],
-        # run-level QC
-        f"{OUTDIR}/report/performance_distribution.svg",
-        [f"{OUTDIR}/report/count_pearson_vs_{c}.svg" for c in COVARIATES],
-        f"{OUTDIR}/report/outliers.svg",
-        f"{OUTDIR}/report/motif_heatmap.svg",
-        f"{OUTDIR}/report/metrics.tsv",
-        # provenance
-        f"{OUTDIR}/config.snapshot.json",
+        ALL,
+
+
+rule preprocess:
+    input:
+        PREPROCESS,
+
+
+rule train:
+    input:
+        TRAIN,
+
+
+rule attributions:
+    input:
+        ATTRIBUTIONS,
+
+
+rule motifs:
+    input:
+        MOTIFS,
+
+
+rule modisco:
+    input:
+        MODISCO,
