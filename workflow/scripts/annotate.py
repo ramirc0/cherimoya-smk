@@ -5,6 +5,13 @@ import argparse
 
 
 def build_parser():
+    """Build the annotate.py command-line parser.
+
+    Returns
+    -------
+    argparse.ArgumentParser
+        Parser for the annotate.py flags.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-s", "--sequences", required=True, help="Genome FASTA.")
     parser.add_argument("-b", "--seqlet_filename", required=True,
@@ -27,6 +34,7 @@ def build_parser():
 
 
 def main():
+    """Annotate the seqlets and count them per motif."""
     args = build_parser().parse_args()
 
     import math

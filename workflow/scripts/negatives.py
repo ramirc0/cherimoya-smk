@@ -5,6 +5,13 @@ import argparse
 
 
 def build_parser():
+    """Build the negatives.py command-line parser.
+
+    Returns
+    -------
+    argparse.ArgumentParser
+        Parser for the negatives.py flags.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-i", "--peaks", required=True,
         help="A peak file (narrowPeak/BED) to draw GC-matched negatives against.")
@@ -42,6 +49,26 @@ def resolve_present_chroms(peaks_path, fasta_path, policy):
     filters them out under ``policy="filter"`` (warning to stderr) or errors
     under ``policy="fail"``. It always errors if no peaks remain, since that
     signals the wrong reference genome rather than a stray contig.
+
+    Parameters
+    ----------
+    peaks_path : str
+        Peak file, BED or narrowPeak.
+    fasta_path : str
+        Genome FASTA.
+    policy : {"filter", "fail"}
+        What to do with peaks on contigs absent from the FASTA.
+
+    Returns
+    -------
+    list of str
+        Peak contigs present in the FASTA, sorted.
+
+    Raises
+    ------
+    SystemExit
+        Under ``policy="fail"`` when a contig is missing, or when no peaks
+        remain.
     """
     import sys
 
@@ -75,6 +102,7 @@ def resolve_present_chroms(peaks_path, fasta_path, policy):
 
 
 def main():
+    """Write GC-matched negatives for one peak file."""
     args = build_parser().parse_args()
 
     from tangermeme.match import extract_matching_loci

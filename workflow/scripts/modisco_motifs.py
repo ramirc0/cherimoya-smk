@@ -5,6 +5,13 @@ import argparse
 
 
 def build_parser():
+    """Build the modisco_motifs.py command-line parser.
+
+    Returns
+    -------
+    argparse.ArgumentParser
+        Parser for the modisco_motifs.py flags.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-s", "--sequences", required=True,
         help="One-hot sequences (.npz) from attribute.py.")
@@ -37,6 +44,7 @@ def build_parser():
 
 
 def main():
+    """Run TF-MoDISco and write its results to h5."""
     args = build_parser().parse_args()
 
     import numpy

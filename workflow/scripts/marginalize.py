@@ -6,6 +6,13 @@ import os
 
 
 def build_parser():
+    """Build the marginalize.py command-line parser.
+
+    Returns
+    -------
+    argparse.ArgumentParser
+        Parser for the marginalize.py flags.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-s", "--sequences", required=True, help="Genome FASTA.")
     parser.add_argument("-l", "--loci", required=True,
@@ -41,6 +48,7 @@ def build_parser():
 
 
 def main():
+    """Write the marginalization report of one model."""
     args = build_parser().parse_args()
 
     import numpy

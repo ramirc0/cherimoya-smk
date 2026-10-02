@@ -59,6 +59,15 @@ def despine(ax, categorical_x=False, categorical_y=False):
     of each marker and line width. When both axes are fitted to the data, the
     plotted artists are unclipped so they draw whole into the spine offset.
     Explicit limits set by the caller keep clipping on.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        Axes to despine.
+    categorical_x : bool, default False
+        Treat the x axis as categorical.
+    categorical_y : bool, default False
+        Treat the y axis as categorical.
     """
     import seaborn as sns
 
@@ -96,7 +105,21 @@ def save_figure(fig, path, **kwargs):
 
     `path` may end in `.svg`/`.png` (that extension is dropped) or carry none;
     the format extension is appended, so a dotted stem like `x.epochs` keeps its
-    dots (`x.epochs.svg`, `x.epochs.png`). Returns the paths written.
+    dots (`x.epochs.svg`, `x.epochs.png`).
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        Figure to save.
+    path : str or pathlib.Path
+        Output path, with or without a `.svg` or `.png` extension.
+    **kwargs
+        Passed to `Figure.savefig`.
+
+    Returns
+    -------
+    list of pathlib.Path
+        The SVG and PNG paths written.
     """
     p = Path(path)
     base = p.with_suffix("") if p.suffix.lower() in (".svg", ".png") else p

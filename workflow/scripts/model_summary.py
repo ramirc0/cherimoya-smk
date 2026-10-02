@@ -5,6 +5,13 @@ import argparse
 
 
 def build_parser():
+    """Build the model_summary.py command-line parser.
+
+    Returns
+    -------
+    argparse.ArgumentParser
+        Parser for the model_summary.py flags.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-m", "--model", required=True,
         help="Checkpoint written by fit (<name>.torch).")
@@ -18,6 +25,7 @@ def build_parser():
 
 
 def main():
+    """Write the layer summary of one checkpoint."""
     args = build_parser().parse_args()
 
     import torch

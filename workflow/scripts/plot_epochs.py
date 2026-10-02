@@ -19,6 +19,13 @@ METRICS = [
 
 
 def build_parser():
+    """Build the plot_epochs.py command-line parser.
+
+    Returns
+    -------
+    argparse.ArgumentParser
+        Parser for the plot_epochs.py flags.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-i", "--history", required=True,
         help="Training log TSV (<sample>.log) from the fit step.")
@@ -28,6 +35,7 @@ def build_parser():
 
 
 def main():
+    """Plot one model's metrics over epochs."""
     args = build_parser().parse_args()
 
     from _style import apply_style, despine, save_figure

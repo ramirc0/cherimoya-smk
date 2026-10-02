@@ -10,6 +10,13 @@ import argparse
 
 
 def build_parser():
+    """Build the count_fragments.py command-line parser.
+
+    Returns
+    -------
+    argparse.ArgumentParser
+        Parser for the count_fragments.py flags.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-i", "--signal", required=True,
         help="Signal file: a BAM or a (bgzipped) fragments file.")
@@ -23,7 +30,19 @@ def build_parser():
 
 
 def count(args):
-    """Fragment count for the signal, per its type."""
+    """Count the fragments of the signal, per its type.
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Parsed flags `signal`, `fragments` and `paired_end`.
+
+    Returns
+    -------
+    int
+        Non-comment lines of a fragments file. For a BAM, the read1 records
+        under `paired_end`, else all reads.
+    """
     if args.fragments:
         import gzip
 
@@ -37,6 +56,7 @@ def count(args):
 
 
 def main():
+    """Count the signal's fragments and write the count."""
     args = build_parser().parse_args()
     n = count(args)
     with open(args.output, "w") as fh:

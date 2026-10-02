@@ -5,6 +5,13 @@ import argparse
 
 
 def build_parser():
+    """Build the attribute.py command-line parser.
+
+    Returns
+    -------
+    argparse.ArgumentParser
+        Parser for the attribute.py flags.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-s", "--sequences", required=True, help="Genome FASTA.")
     parser.add_argument("-l", "--loci", required=True,
@@ -42,6 +49,7 @@ def build_parser():
 
 
 def main():
+    """Compute and save the attributions of one model."""
     args = build_parser().parse_args()
 
     import numpy

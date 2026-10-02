@@ -10,6 +10,13 @@ import argparse
 
 
 def build_parser():
+    """Build the plot_motif_heatmap.py command-line parser.
+
+    Returns
+    -------
+    argparse.ArgumentParser
+        Parser for the plot_motif_heatmap.py flags.
+    """
     parser = argparse.ArgumentParser(description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("-i", "--counts", nargs="+", required=True,
@@ -22,7 +29,18 @@ def build_parser():
 
 
 def _order(M):
-    """Row order of `M` from average-linkage clustering (identity below 3 rows)."""
+    """Order the rows of `M` by average-linkage clustering.
+
+    Parameters
+    ----------
+    M : numpy.ndarray
+        Matrix whose rows are ordered.
+
+    Returns
+    -------
+    numpy.ndarray
+        Row indices in leaf order. The identity order below 3 rows.
+    """
     import numpy
     from scipy.cluster.hierarchy import leaves_list, linkage
 
@@ -32,6 +50,7 @@ def _order(M):
 
 
 def main():
+    """Plot the top motifs across models as a heatmap."""
     args = build_parser().parse_args()
 
     from _style import apply_style, despine, save_figure

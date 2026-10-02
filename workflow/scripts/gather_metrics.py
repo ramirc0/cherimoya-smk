@@ -16,6 +16,13 @@ from pathlib import Path
 
 
 def build_parser():
+    """Build the gather_metrics.py command-line parser.
+
+    Returns
+    -------
+    argparse.ArgumentParser
+        Parser for the gather_metrics.py flags.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-i", "--performance", nargs="+", required=True,
         help="Per-model performance TSVs (<sample>.performance.tsv).")
@@ -35,7 +42,20 @@ def build_parser():
 
 
 def _peak_count(results_dir, sample):
-    """Lines in the sample's peak file (macs3 or provided), else NaN."""
+    """Count the lines of a sample's peak file, macs3 or provided.
+
+    Parameters
+    ----------
+    results_dir : str
+        The run's results directory.
+    sample : str
+        Sample ID.
+
+    Returns
+    -------
+    int or float
+        Number of peaks, or NaN when neither peak file exists.
+    """
     for name in (f"{sample}_peaks.narrowPeak", f"{sample}.peaks.narrowPeak"):
         path = Path(results_dir) / sample / name
         if path.exists():
@@ -45,7 +65,20 @@ def _peak_count(results_dir, sample):
 
 
 def _fragment_count(results_dir, sample):
-    """Fragment count from count_fragments (<sample>.n_fragments.txt), else NaN."""
+    """Read a sample's fragment count from its count_fragments output.
+
+    Parameters
+    ----------
+    results_dir : str
+        The run's results directory.
+    sample : str
+        Sample ID.
+
+    Returns
+    -------
+    int or float
+        Count from `<sample>.n_fragments.txt`, or NaN when it is missing.
+    """
     path = Path(results_dir) / sample / f"{sample}.n_fragments.txt"
     if path.exists():
         return int(path.read_text().strip())
@@ -53,6 +86,7 @@ def _fragment_count(results_dir, sample):
 
 
 def main():
+    """Write the tidy per-model metrics table."""
     args = build_parser().parse_args()
 
     import pandas as pd

@@ -24,6 +24,13 @@ NEGATIVE_MEASURE_NAMES = [
 
 
 def build_parser():
+    """Build the evaluate.py command-line parser.
+
+    Returns
+    -------
+    argparse.ArgumentParser
+        Parser for the evaluate.py flags.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-s", "--sequences", required=True, help="Genome FASTA.")
     parser.add_argument("-l", "--loci", required=True,
@@ -63,6 +70,7 @@ def build_parser():
 
 
 def main():
+    """Evaluate one model and write its performance and counts tables."""
     args = build_parser().parse_args()
 
     import torch

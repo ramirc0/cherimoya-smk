@@ -5,6 +5,13 @@ import argparse
 
 
 def build_parser():
+    """Build the plot_seqlet_lengths.py command-line parser.
+
+    Returns
+    -------
+    argparse.ArgumentParser
+        Parser for the plot_seqlet_lengths.py flags.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-i", "--seqlets", required=True,
         help="Seqlet BED from seqlets.py.")
@@ -14,6 +21,7 @@ def build_parser():
 
 
 def main():
+    """Plot one model's seqlet length distribution."""
     args = build_parser().parse_args()
 
     from _style import apply_style, despine, save_figure

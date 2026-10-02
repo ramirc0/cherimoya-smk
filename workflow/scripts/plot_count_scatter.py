@@ -10,6 +10,13 @@ import argparse
 
 
 def build_parser():
+    """Build the plot_count_scatter.py command-line parser.
+
+    Returns
+    -------
+    argparse.ArgumentParser
+        Parser for the plot_count_scatter.py flags.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-i", "--counts", required=True,
         help="Per-region counts TSV (group, obs_logcount, pred_logcount).")
@@ -19,6 +26,7 @@ def build_parser():
 
 
 def main():
+    """Plot one model's observed vs predicted log-counts."""
     args = build_parser().parse_args()
 
     import numpy as np

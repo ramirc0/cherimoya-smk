@@ -5,6 +5,13 @@ import argparse
 
 
 def build_parser():
+    """Build the fit.py command-line parser.
+
+    Returns
+    -------
+    argparse.ArgumentParser
+        Parser for the fit.py flags.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
 
     # Data
@@ -83,6 +90,7 @@ def build_parser():
 
 
 def main():
+    """Train one model and save its best checkpoint."""
     args = build_parser().parse_args()
 
     import os

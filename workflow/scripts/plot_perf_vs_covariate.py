@@ -10,6 +10,13 @@ import argparse
 
 
 def build_parser():
+    """Build the plot_perf_vs_covariate.py command-line parser.
+
+    Returns
+    -------
+    argparse.ArgumentParser
+        Parser for the plot_perf_vs_covariate.py flags.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-i", "--metrics", required=True, help="metrics.tsv.")
     parser.add_argument("-o", "--output", required=True, help="Destination SVG.")
@@ -21,6 +28,7 @@ def build_parser():
 
 
 def main():
+    """Plot a performance metric against a per-model covariate."""
     args = build_parser().parse_args()
 
     import numpy as np

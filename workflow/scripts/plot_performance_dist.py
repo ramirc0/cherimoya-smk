@@ -6,6 +6,13 @@ from pathlib import Path
 
 
 def build_parser():
+    """Build the plot_performance_dist.py command-line parser.
+
+    Returns
+    -------
+    argparse.ArgumentParser
+        Parser for the plot_performance_dist.py flags.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-i", "--performance", nargs="+", required=True,
         help="Per-model performance TSVs (<sample>.performance.tsv).")
@@ -14,6 +21,7 @@ def build_parser():
 
 
 def main():
+    """Plot the distribution of model performance per metric."""
     args = build_parser().parse_args()
 
     from _style import apply_style, despine, save_figure

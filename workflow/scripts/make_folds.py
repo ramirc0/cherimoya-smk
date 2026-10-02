@@ -38,7 +38,18 @@ HG38 = [
 
 
 def main_chroms(genome):
-    """[(chrom, size)] for a genome's main chromosomes, from chrom.sizes."""
+    """List a genome's main chromosomes with their sizes, from chrom.sizes.
+
+    Parameters
+    ----------
+    genome : str
+        Genome name under `resources/refs/`.
+
+    Returns
+    -------
+    list of tuple of (str, int)
+        Chromosome name and size, in chrom.sizes order.
+    """
     out = []
     with (REFS / f"{genome}.chrom.sizes").open() as fh:
         for line in fh:
@@ -49,7 +60,21 @@ def main_chroms(genome):
 
 
 def balanced_test_bins(sizes):
-    """Greedy length-balanced partition of chroms into N_FOLDS test sets."""
+    """Split chromosomes into `N_FOLDS` test sets of balanced total length.
+
+    Greedy: each chromosome, longest first, joins the set with the least
+    total length so far.
+
+    Parameters
+    ----------
+    sizes : dict of str to int
+        Size of each chromosome.
+
+    Returns
+    -------
+    list of list of str
+        One test set of chromosomes per fold.
+    """
     bins, totals = [[] for _ in range(N_FOLDS)], [0] * N_FOLDS
     for chrom, size in sorted(sizes.items(), key=lambda kv: -kv[1]):
         j = min(range(N_FOLDS), key=lambda k: totals[k])
@@ -59,7 +84,23 @@ def balanced_test_bins(sizes):
 
 
 def folds_for(genome):
-    """The 5 {test, valid, train} folds for a genome."""
+    """Build the CV folds of a genome.
+
+    hg38 uses the published chrombpnet folds. Other genomes get
+    length-balanced test sets. Each validation set takes the smallest
+    chromosomes of the next test set until it holds `VALID_FRACTION` of the
+    genome.
+
+    Parameters
+    ----------
+    genome : str
+        Genome name under `resources/refs/`.
+
+    Returns
+    -------
+    list of dict of str to list of str
+        Chromosomes under `test`, `valid` and `train`, one dict per fold.
+    """
     sizes = dict(main_chroms(genome))
     all_chroms = list(sizes)
     if genome == "hg38":

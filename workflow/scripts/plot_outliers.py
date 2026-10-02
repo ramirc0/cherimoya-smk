@@ -11,6 +11,13 @@ import argparse
 
 
 def build_parser():
+    """Build the plot_outliers.py command-line parser.
+
+    Returns
+    -------
+    argparse.ArgumentParser
+        Parser for the plot_outliers.py flags.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-i", "--metrics", required=True, help="metrics.tsv.")
     parser.add_argument("-o", "--output", required=True, help="Destination SVG.")
@@ -22,6 +29,7 @@ def build_parser():
 
 
 def main():
+    """Plot models ranked by a metric, with the outliers marked."""
     args = build_parser().parse_args()
 
     import numpy as np

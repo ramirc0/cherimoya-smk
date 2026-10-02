@@ -12,6 +12,13 @@ import argparse
 
 
 def build_parser():
+    """Build the name_motifs.py command-line parser.
+
+    Returns
+    -------
+    argparse.ArgumentParser
+        Parser for the name_motifs.py flags.
+    """
     parser = argparse.ArgumentParser(description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("input", help="MEME file with `MOTIF <accession> <name>` lines.")
@@ -20,6 +27,7 @@ def build_parser():
 
 
 def main():
+    """Rewrite the motif IDs of one MEME file."""
     args = build_parser().parse_args()
 
     with open(args.input) as src, open(args.output, "w") as out:

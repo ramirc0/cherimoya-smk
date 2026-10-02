@@ -5,6 +5,13 @@ import argparse
 
 
 def build_parser():
+    """Build the seqlets.py command-line parser.
+
+    Returns
+    -------
+    argparse.ArgumentParser
+        Parser for the seqlets.py flags.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-l", "--loci", required=True,
         help="Peak file (narrowPeak/BED) that was attributed.")
@@ -30,6 +37,7 @@ def build_parser():
 
 
 def main():
+    """Call seqlets and write them as BED."""
     args = build_parser().parse_args()
 
     import numpy
