@@ -63,10 +63,19 @@ rule macs3:
         """
 
 
-# bam2bw flags shared by the signal and control conversions (strand, fragments,
-# read-depth). bam2bw emits `<name>.bw` with -u, else the `<name>.+.bw`/`.-.bw`
-# pair, so the same flags drive both the declared outputs and the tool.
 def _bam2bw_extra():
+    """Return the bam2bw flags shared by the signal and control conversions.
+
+    bam2bw emits `<name>.bw` with `-u`, else the `<name>.+.bw` and
+    `<name>.-.bw` pair. So the same flags drive both the declared outputs and
+    the tool.
+
+    Returns
+    -------
+    list of str
+        Flags `-u`, `-f` and `-r`, each when `preprocess.unstranded`,
+        `preprocess.fragments` or `preprocess.read_depth` is set.
+    """
     return [
         flag
         for flag, on in [

@@ -43,7 +43,19 @@ _manifest = pl.read_csv(_SHEET, separator="\t", infer_schema_length=0)
 
 
 def _column(name):
-    """sample_id -> value for `name`, treating empty strings as absent (None)."""
+    """Map each sample to its value in sheet column `name`.
+
+    Parameters
+    ----------
+    name : str
+        Sample sheet column.
+
+    Returns
+    -------
+    dict of str to str or None
+        Value per `sample_id`, with empty cells as None. Empty when the sheet
+        has no such column.
+    """
     if name not in _manifest.columns:
         return {}
     return {
@@ -53,7 +65,18 @@ def _column(name):
 
 
 def _is_bigwig(path):
-    """True when `path` is already a bigWig (bam2bw can be skipped)."""
+    """Check whether `path` is already a bigWig, so bam2bw can be skipped.
+
+    Parameters
+    ----------
+    path : str
+        Signal or control file.
+
+    Returns
+    -------
+    bool
+        True for a `.bw` or `.bigwig` extension, in any case.
+    """
     return path.lower().endswith((".bw", ".bigwig"))
 
 
@@ -115,16 +138,37 @@ wildcard_constraints:
 
 
 def prefix(sample):
-    """Canonical output prefix for a sample: results/<sample>/<sample>."""
+    """Return the output prefix of a sample.
+
+    Parameters
+    ----------
+    sample : str
+        Sample ID from the sheet.
+
+    Returns
+    -------
+    str
+        Path `<outdir>/<run_id>/<sample>/<sample>`.
+    """
     return f"{OUTDIR}/{sample}/{sample}"
 
 
 def signal_bw(sample):
-    """The signal bigWig(s) for `sample` as a fit/evaluate input list.
+    """Return the signal bigWig(s) of a sample, as fit and evaluate take them.
 
-    A provided bigWig is used as-is (bam2bw skipped); otherwise the bam2bw
-    output(s): a stranded run gives the (+, -) pair, an unstranded run a
-    single track.
+    A provided bigWig is used as-is and bam2bw is skipped. Otherwise these
+    are the bam2bw outputs: the (+, -) pair for a stranded run, one track for
+    an unstranded run.
+
+    Parameters
+    ----------
+    sample : str
+        Sample ID from the sheet.
+
+    Returns
+    -------
+    list of str
+        One or two bigWig paths.
     """
     signal = SIGNAL_OF[sample]
     if _is_bigwig(signal):
@@ -134,11 +178,20 @@ def signal_bw(sample):
 
 
 def control_bw(sample):
-    """The control bigWig(s) for `sample` as a fit/evaluate model input, or []
-    when the sample has no control.
+    """Return the control bigWig(s) of a sample, as fit and evaluate take them.
 
-    Mirrors `signal_bw` strandedness: a stranded run gives the control (+, -)
-    pair, an unstranded run a single track. A provided bigWig is used as-is.
+    Strandedness follows `signal_bw`: the (+, -) pair for a stranded run, one
+    track for an unstranded run. A provided bigWig is used as-is.
+
+    Parameters
+    ----------
+    sample : str
+        Sample ID from the sheet.
+
+    Returns
+    -------
+    list of str
+        Up to two bigWig paths. Empty when the sample has no control.
     """
     ctl = CONTROL_OF.get(sample)
     if not ctl:
@@ -150,8 +203,19 @@ def control_bw(sample):
 
 
 def n_fragments_file(sample):
-    """The count_fragments output for `sample` as a list, or [] for a bigWig
-    signal or when `qc.n_fragments` is off."""
+    """Return the count_fragments output of a sample.
+
+    Parameters
+    ----------
+    sample : str
+        Sample ID from the sheet.
+
+    Returns
+    -------
+    list of str
+        The fragment-count file. Empty for a bigWig signal or when
+        `qc.n_fragments` is off.
+    """
     if not config["qc"]["n_fragments"] or _is_bigwig(SIGNAL_OF[sample]):
         return []
     return [f"{prefix(sample)}.n_fragments.txt"]
@@ -159,58 +223,181 @@ def n_fragments_file(sample):
 
 # Per-sample genome lookups (the sample's assembly from the sheet).
 def fasta_of(sample):
-    """Genome FASTA for a sample (negatives/fit/evaluate)."""
+    """Return the genome FASTA of a sample.
+
+    Parameters
+    ----------
+    sample : str
+        Sample ID from the sheet.
+
+    Returns
+    -------
+    str
+        FASTA of the sample's genome.
+    """
     return GENOMES[GENOME_OF[sample]]["fasta"]
 
 
 def gsize_of(sample):
-    """macs3 effective genome size for a sample (preset like hs/mm, or a number)."""
+    """Return the macs3 effective genome size of a sample.
+
+    Parameters
+    ----------
+    sample : str
+        Sample ID from the sheet.
+
+    Returns
+    -------
+    str or int
+        A macs3 preset such as `hs` or `mm`, or a size in bp.
+    """
     return GENOMES[GENOME_OF[sample]]["gsize"]
 
 
 def chrom_sizes_of(sample):
-    """Pre-generated chrom.sizes for the sample's genome (bam2bw -s)."""
+    """Return the chrom.sizes of a sample's genome, for bam2bw `-s`.
+
+    Parameters
+    ----------
+    sample : str
+        Sample ID from the sheet.
+
+    Returns
+    -------
+    str
+        Pre-generated chrom.sizes file.
+    """
     return GENOMES[GENOME_OF[sample]]["chrom_sizes"]
 
 
 # CV fold chromosome splits (chrombpnet-style), per genome, from resources/folds.
 def fold_json(sample, fold):
-    """Fold-split JSON for a sample's genome (also a fit/evaluate input)."""
+    """Return the CV fold JSON of a sample's genome.
+
+    It is also an input of the per-fold rules.
+
+    Parameters
+    ----------
+    sample : str
+        Sample ID from the sheet.
+    fold : str
+        CV fold index.
+
+    Returns
+    -------
+    str
+        Path `resources/folds/<genome>/fold_<fold>.json`.
+    """
     return f"resources/folds/{GENOME_OF[sample]}/fold_{fold}.json"
 
 
 def _fold(sample, fold):
+    """Load the CV fold JSON of a sample's genome.
+
+    Parameters
+    ----------
+    sample : str
+        Sample ID from the sheet.
+    fold : str
+        CV fold index.
+
+    Returns
+    -------
+    dict of str to list of str
+        Chromosomes under `train`, `valid` and `test`.
+    """
     with open(fold_json(sample, fold)) as fh:
         return json.load(fh)
 
 
 def fold_prefix(sample, fold):
-    """Per-(sample, fold) output prefix: results/<sample>/fold_<fold>/<sample>."""
+    """Return the output prefix of a sample's model for one CV fold.
+
+    Parameters
+    ----------
+    sample : str
+        Sample ID from the sheet.
+    fold : str
+        CV fold index.
+
+    Returns
+    -------
+    str
+        Path `<outdir>/<run_id>/<sample>/fold_<fold>/<sample>`.
+    """
     return f"{OUTDIR}/{sample}/fold_{fold}/{sample}"
 
 
 def per_fold(*suffixes):
-    """Per-model outputs `<fold_prefix>.<suffix>` for every sample and fold."""
+    """Return per-model output paths for every sample and fold.
+
+    Parameters
+    ----------
+    *suffixes : str
+        File suffixes, each appended to `fold_prefix` after a dot.
+
+    Returns
+    -------
+    list of str
+        Paths `<fold_prefix>.<suffix>` for every sample, fold and suffix.
+    """
     return [f"{fold_prefix(s, fold)}.{x}"
             for s in SAMPLES for fold in FOLDS for x in suffixes]
 
 
-# Provided peaks, else macs3 output.
 def peaks_for(wildcards):
-    """Peak file for a sample: a provided (normalized) file, else macs3 output."""
+    """Return the peak file of a sample.
+
+    Parameters
+    ----------
+    wildcards : snakemake.io.Wildcards
+        Rule wildcards with `sample`.
+
+    Returns
+    -------
+    str
+        The prep_peaks copy of the provided peaks, or the macs3 output when
+        the sheet gives none.
+    """
     if PEAKS_OF.get(wildcards.sample):
         return f"{prefix(wildcards.sample)}.peaks.narrowPeak"
     return f"{prefix(wildcards.sample)}_peaks.narrowPeak"
 
 
 def macs3_control_input(wildcards):
-    """Control file(s) fed to macs3 as -c, or [] when the sample has none."""
+    """Return the control file(s) macs3 takes with `-c`.
+
+    Parameters
+    ----------
+    wildcards : snakemake.io.Wildcards
+        Rule wildcards with `sample`.
+
+    Returns
+    -------
+    list of str
+        The sample's control. Empty when it has none.
+    """
     ctl = CONTROL_OF.get(wildcards.sample)
     return [ctl] if ctl else []
 
 
 def macs3_format(wildcards):
-    """The macs3 -f format string derived from the signal file + config."""
+    """Return the macs3 `-f` format of a sample's signal.
+
+    `FRAG` when `preprocess.fragments` is set. Otherwise the signal's file
+    extension without `.gz`, upper-cased, with `PE` appended for paired-end
+    data.
+
+    Parameters
+    ----------
+    wildcards : snakemake.io.Wildcards
+        Rule wildcards with `sample`.
+
+    Returns
+    -------
+    str
+        A macs3 format such as `BAM`, `BAMPE` or `FRAG`.
+    """
     pp = config["preprocess"]
     if pp["fragments"]:
         return "FRAG"
@@ -223,18 +410,55 @@ def macs3_format(wildcards):
 
 
 def _list_flag(name, values):
+    """Return a multi-value flag as tokens.
+
+    Parameters
+    ----------
+    name : str
+        Flag name without the leading dashes.
+    values : iterable
+        Flag values.
+
+    Returns
+    -------
+    list of str
+        The flag `--<name>` followed by each value.
+    """
     return [f"--{name}", *(str(v) for v in values)]
 
 
-# The blacklist as a rule input (for dependency tracking) or [] when unset.
 def blacklist_input(wildcards):
+    """Return the blacklist as a rule input, so rules track it.
+
+    Parameters
+    ----------
+    wildcards : snakemake.io.Wildcards
+        Rule wildcards. Unused.
+
+    Returns
+    -------
+    list of str
+        The blacklist BED. Empty when `references.blacklist` is unset.
+    """
     return [BLACKLIST] if BLACKLIST else []
 
 
 def fit_flags(sample, fold):
-    """All fit.py hyperparameter flag tokens from config['fit'] (use with :q).
+    """Return the fit.py flag tokens from `config["fit"]`.
 
-    Training/validation chroms come from the sample's genome CV `fold`.
+    Training and validation chroms come from the sample's genome CV fold.
+
+    Parameters
+    ----------
+    sample : str
+        Sample ID from the sheet.
+    fold : str
+        CV fold index.
+
+    Returns
+    -------
+    list of str
+        Flag tokens. `shell:` quotes each with `:q`.
     """
     f = config["fit"]
     flags = [
@@ -283,10 +507,22 @@ def fit_flags(sample, fold):
 
 
 def eval_flags(sample, fold):
-    """All evaluate.py flag tokens from config['evaluate'] (use with :q).
+    """Return the evaluate.py flag tokens from `config["evaluate"]`.
 
-    Eval chroms are the sample's genome CV `fold` test set. Windows and
+    Eval chroms are the test set of the sample's genome CV fold. Windows and
     summits are fit's, as the CLI's evaluate inherits them.
+
+    Parameters
+    ----------
+    sample : str
+        Sample ID from the sheet.
+    fold : str
+        CV fold index.
+
+    Returns
+    -------
+    list of str
+        Flag tokens. `shell:` quotes each with `:q`.
     """
     e = config["evaluate"]
     flags = [
@@ -312,10 +548,22 @@ def eval_flags(sample, fold):
 
 
 def attr_flags(sample, fold):
-    """All attribute.py flag tokens from config['attribute'] (use with :q).
+    """Return the attribute.py flag tokens from `config["attribute"]`.
 
-    Chroms are the sample's genome CV `fold` train + valid sets, and in_window
-    is fit's, as `cherimoya pipeline` shares them.
+    Chroms are the train and valid sets of the sample's genome CV fold.
+    `in_window` is fit's. `cherimoya pipeline` shares both.
+
+    Parameters
+    ----------
+    sample : str
+        Sample ID from the sheet.
+    fold : str
+        CV fold index.
+
+    Returns
+    -------
+    list of str
+        Flag tokens. `shell:` quotes each with `:q`.
     """
     a = config["attribute"]
     flags = [
@@ -341,9 +589,21 @@ def attr_flags(sample, fold):
 
 
 def seqlet_flags(sample, fold):
-    """All seqlets.py flag tokens from config['seqlets'] (use with :q).
+    """Return the seqlets.py flag tokens from `config["seqlets"]`.
 
     Chroms are attribute's, so loci line up with its index mask.
+
+    Parameters
+    ----------
+    sample : str
+        Sample ID from the sheet.
+    fold : str
+        CV fold index.
+
+    Returns
+    -------
+    list of str
+        Flag tokens. `shell:` quotes each with `:q`.
     """
     s = config["seqlets"]
     flags = [
@@ -358,7 +618,13 @@ def seqlet_flags(sample, fold):
 
 
 def annot_flags():
-    """All annotate.py flag tokens from config['annotate'] (use with :q)."""
+    """Return the annotate.py flag tokens from `config["annotate"]`.
+
+    Returns
+    -------
+    list of str
+        Flag tokens. `shell:` quotes each with `:q`.
+    """
     a = config["annotate"]
     flags = [
         "--n_score_bins", a["n_score_bins"],
@@ -373,7 +639,13 @@ def annot_flags():
 
 
 def modisco_flags():
-    """All modisco_motifs.py flag tokens from config['modisco'] (use with :q)."""
+    """Return the modisco_motifs.py flag tokens from `config["modisco"]`.
+
+    Returns
+    -------
+    list of str
+        Flag tokens. `shell:` quotes each with `:q`.
+    """
     m = config["modisco"]
     flags = [
         "--n_seqlets", m["n_seqlets"],
@@ -393,7 +665,13 @@ def modisco_flags():
 
 
 def modisco_report_flags():
-    """All `modisco report` flag tokens from config['modisco_report'] (use with :q)."""
+    """Return the `modisco report` flag tokens from `config["modisco_report"]`.
+
+    Returns
+    -------
+    list of str
+        Flag tokens. `shell:` quotes each with `:q`.
+    """
     r = config["modisco_report"]
     flags = [
         "--n_matches", r["n_matches"],
@@ -406,10 +684,23 @@ def modisco_report_flags():
 
 
 def marginalize_flags(sample, fold):
-    """All marginalize.py flag tokens from config['marginalize'] (use with :q).
+    """Return the marginalize.py flag tokens from `config["marginalize"]`.
 
-    Chroms are the sample's genome CV `fold` train set and in_window is fit's,
-    as `cherimoya pipeline` leaves marginalize at its training_chroms default.
+    Chroms are the train set of the sample's genome CV fold, because
+    `cherimoya pipeline` leaves marginalize at its `training_chroms` default.
+    `in_window` is fit's.
+
+    Parameters
+    ----------
+    sample : str
+        Sample ID from the sheet.
+    fold : str
+        CV fold index.
+
+    Returns
+    -------
+    list of str
+        Flag tokens. `shell:` quotes each with `:q`.
     """
     m = config["marginalize"]
     flags = [
