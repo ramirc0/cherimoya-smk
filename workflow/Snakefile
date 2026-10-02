@@ -30,6 +30,7 @@ ALL = MODISCO + per_fold("marginalize")
 rule all:
     input:
         ALL,
+    default_target: True
 
 
 rule preprocess:

@@ -161,10 +161,8 @@ Follow the [Nextstrain Snakemake style guide][sg]. Keep
   required keys, never bare `config.get(key)`.
 - Every rule has `log:`, `benchmark:`, `software:` (`SOFTWARE_ENV`, or a
   `pixi(...)` with `locked=True`). No `run:` blocks, no `message:`.
-- Target-only rules (`all` and the stage targets in `workflow/Snakefile`) have
-  only `input:`. They carry no log, benchmark or software. `all` MUST stay
-  the first rule in `workflow/Snakefile`: Snakemake takes the main file's
-  first rule as the default target and skips included rules.
+- Target-only rules (`all` and the stage targets in `workflow/Snakefile`)
+  carry no log, benchmark or software.
 
 [sg]: https://docs.nextstrain.org/en/latest/reference/snakemake-style-guide.html
 
