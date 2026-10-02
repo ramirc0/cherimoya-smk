@@ -213,10 +213,10 @@ def n_fragments_file(sample):
     Returns
     -------
     list of str
-        The fragment-count file. Empty for a bigWig signal or when
-        `qc.n_fragments` is off.
+        The fragment-count file. Empty for a bigWig signal or when the
+        `n_fragments` covariate is off.
     """
-    if not config["qc"]["n_fragments"] or _is_bigwig(SIGNAL_OF[sample]):
+    if "n_fragments" not in COVARIATES or _is_bigwig(SIGNAL_OF[sample]):
         return []
     return [f"{prefix(sample)}.n_fragments.txt"]
 
