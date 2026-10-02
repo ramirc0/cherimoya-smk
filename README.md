@@ -104,6 +104,27 @@ Plots are written as SVG and PNG. `snakemake --report report.html` bundles them.
 Keep runs apart with `--config run_id=mytag`. Swap sample sheets with
 `--config samples=config/samples.other.tsv`.
 
+## Run part of the pipeline
+
+Name a stage to stop there. Each stage also builds every stage above it.
+
+| target | adds |
+|---|---|
+| `preprocess` | bigWigs, peaks and negatives per sample; `config.snapshot.json` |
+| `train` | model, evaluation, plots and `summary.txt` per fold; `report/` metrics and plots |
+| `attributions` | attributions and the attribution profile plot per fold |
+| `motifs` | seqlets, TomTom annotation and their plots per fold; the motif heatmap |
+| `modisco` | TF-MoDISco patterns and report per fold |
+| `all` | marginalization per fold. This is the default |
+
+Put the target before `--config`:
+
+```bash
+snakemake train --profile profiles/slurm --config run_id=mytag
+```
+
+Run `all` later on the same `run_id` and only the remaining stages run.
+
 ## SLURM
 
 `profiles/slurm` sends `fit`, `evaluate`, `attribute` and `marginalize` to the `gpuh200` partition with one

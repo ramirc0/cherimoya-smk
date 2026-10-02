@@ -19,6 +19,7 @@ snakemake -n -p --profile profiles/local              # dry run; builds the full
 snakemake --profile profiles/local                    # local
 snakemake --profile profiles/slurm                    # SLURM; fit/evaluate -> gpuh200
 snakemake <target> --profile profiles/local --config samples=... run_id=...
+# targets, cumulative: preprocess < train < attributions < motifs < modisco < all
 python workflow/scripts/make_folds.py                 # fold JSONs, once per genome
 python workflow/scripts/name_motifs.py <in.meme> <out.meme>  # NAME_ACCESSION IDs for modisco report
 PY=workflow/envs/.pixi/envs/cherimoya/bin/python      # rule env; `pixi install --all` in workflow/envs/ builds it
@@ -160,6 +161,10 @@ Follow the [Nextstrain Snakemake style guide][sg]. Keep
   required keys, never bare `config.get(key)`.
 - Every rule has `log:`, `benchmark:`, `software:` (`SOFTWARE_ENV`, or a
   `pixi(...)` with `locked=True`). No `run:` blocks, no `message:`.
+- Target-only rules (`all` and the stage targets in `workflow/Snakefile`) have
+  only `input:`. They carry no log, benchmark or software. `all` MUST stay
+  the first rule in `workflow/Snakefile`: Snakemake takes the main file's
+  first rule as the default target and skips included rules.
 
 [sg]: https://docs.nextstrain.org/en/latest/reference/snakemake-style-guide.html
 
