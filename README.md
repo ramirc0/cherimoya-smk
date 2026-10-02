@@ -111,7 +111,7 @@ Name a stage to stop there. Each stage also builds every stage above it.
 | target | adds |
 |---|---|
 | `preprocess` | bigWigs, peaks, negatives and fragment counts per sample; `config.snapshot.json` |
-| `train` | model, evaluation, plots and `summary.txt` per fold; `report/` metrics and plots |
+| `train` | model, evaluation, plots and `summary.txt` per fold; `metrics.tsv` and the run-level performance plots |
 | `attributions` | attributions and the attribution profile plot per fold |
 | `motifs` | seqlets, TomTom annotation and their plots per fold; the motif heatmap |
 | `modisco` | TF-MoDISco patterns and report per fold |
@@ -123,7 +123,7 @@ Put the target before `--config`:
 snakemake train --profile profiles/slurm --config run_id=mytag
 ```
 
-Run `all` later on the same `run_id` and only the remaining stages run.
+Later, run `all` with the same `run_id`. Only the missing stages run.
 
 ## SLURM
 
