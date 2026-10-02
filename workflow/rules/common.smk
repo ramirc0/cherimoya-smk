@@ -186,6 +186,12 @@ def fold_prefix(sample, fold):
     return f"{OUTDIR}/{sample}/fold_{fold}/{sample}"
 
 
+def per_fold(*suffixes):
+    """Per-model outputs `<fold_prefix>.<suffix>` for every sample and fold."""
+    return [f"{fold_prefix(s, fold)}.{x}"
+            for s in SAMPLES for fold in FOLDS for x in suffixes]
+
+
 # Provided peaks, else macs3 output.
 def peaks_for(wildcards):
     """Peak file for a sample: a provided (normalized) file, else macs3 output."""

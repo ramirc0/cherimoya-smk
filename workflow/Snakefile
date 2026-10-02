@@ -7,12 +7,6 @@ include: "rules/interpret.smk"
 include: "rules/report.smk"
 
 
-def per_fold(*suffixes):
-    """Per-model outputs `<fold_prefix>.<suffix>` for every sample and fold."""
-    return [f"{fold_prefix(s, fold)}.{x}"
-            for s in SAMPLES for fold in FOLDS for x in suffixes]
-
-
 # Stage targets are cumulative: each one runs the pipeline up to that stage.
 PREPROCESS = [
     f"{OUTDIR}/config.snapshot.json",
