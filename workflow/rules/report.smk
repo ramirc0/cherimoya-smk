@@ -30,9 +30,7 @@ rule gather_metrics:
     input:
         performance=_ALL_PERFORMANCE,
         samples=config["samples"],
-        # Depth files only when n_fragments is an active covariate (gates the scan).
-        n_fragments=([n_fragments_file(s) for s in SAMPLES if not _is_bigwig(SIGNAL_OF[s])]
-                     if "n_fragments" in COVARIATES else []),
+        n_fragments=[f for s in SAMPLES for f in n_fragments_file(s)],
     output:
         metrics=report(f"{OUTDIR}/report/metrics.tsv",
                        category="Count QC",

@@ -150,8 +150,11 @@ def control_bw(sample):
 
 
 def n_fragments_file(sample):
-    """The count_fragments output (fragment count) for `sample`."""
-    return f"{prefix(sample)}.n_fragments.txt"
+    """The count_fragments output for `sample` as a list, or [] for a bigWig
+    signal or when `qc.n_fragments` is off."""
+    if not config["qc"]["n_fragments"] or _is_bigwig(SIGNAL_OF[sample]):
+        return []
+    return [f"{prefix(sample)}.n_fragments.txt"]
 
 
 # Per-sample genome lookups (the sample's assembly from the sheet).

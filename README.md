@@ -110,7 +110,7 @@ Name a stage to stop there. Each stage also builds every stage above it.
 
 | target | adds |
 |---|---|
-| `preprocess` | bigWigs, peaks and negatives per sample; `config.snapshot.json` |
+| `preprocess` | bigWigs, peaks, negatives and fragment counts per sample; `config.snapshot.json` |
 | `train` | model, evaluation, plots and `summary.txt` per fold; `report/` metrics and plots |
 | `attributions` | attributions and the attribution profile plot per fold |
 | `motifs` | seqlets, TomTom annotation and their plots per fold; the motif heatmap |
