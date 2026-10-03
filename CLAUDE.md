@@ -23,7 +23,7 @@ snakemake <target> --profile profiles/local --config samples=... run_id=...
 python workflow/scripts/make_folds.py                 # fold JSONs, once per genome
 python workflow/scripts/name_motifs.py <in.meme> <out.meme>  # NAME_ACCESSION IDs for modisco report
 PY=workflow/envs/.pixi/envs/cherimoya/bin/python      # rule env; `pixi install --all` in workflow/envs/ builds it
-$PY -m pytest                                         # 193 pass, 13 skip
+$PY -m pytest                                         # 195 pass, 13 skip
 $PY -m pytest -m slow                                 # e2e; needs CHERIMOYA_SMK_SMOKE fixtures + GPU
 CHERIMOYA_SMK_FIT=<dir> $PY -m pytest -m slow tests/test_fit_parity.py  # vs cherimoya fit + evaluate; CPU
 CHERIMOYA_SMK_ATTR=<dir> $PY -m pytest -m slow tests/test_attribute_parity.py  # vs cherimoya attribute; GPU; atol 1e-4 counts, 2e-4 profile (official noise)
@@ -69,8 +69,8 @@ layout.
   `report.smk` (config_snapshot, gather_metrics, plots).
 - `workflow/scripts/_style.py`: shared figure style. `save_figure` writes SVG
   and PNG together. Every `plot_*.py` MUST use it and follow the
-  `matplotlib-style` skill. `despine(ax, categorical_y=True)` is a local addition
-  for heatmaps and horizontal bars.
+  `matplotlib-style` skill. It is a verbatim copy of the skill's
+  `scripts/style.py`. Fix the skill, then copy it over.
 - `config/config.<assay>.yaml.template`: tracked (atac, dnase, chipseq-tf).
   `config.yaml` and `samples.*.tsv` are gitignored.
 - `resources/` (gitignored): `refs/<g>.{fa,fa.fai,chrom.sizes}`,
