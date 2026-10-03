@@ -140,3 +140,96 @@ def test_despine_keeps_empty_lines_out_of_the_layout():
     assert all(line.get_clip_on() is False for line in parts["whiskers"])
     assert ax.get_tightbbox(fig.canvas.get_renderer()).y0 >= 0
     plt.close(fig)
+
+
+def test_label_points_leaves_a_gap_between_labels():
+    from itertools import combinations
+
+    import numpy as np
+    from _style import despine, label_points
+
+    plt = _fig()
+    rng = np.random.default_rng(0)
+    fig, axes = plt.subplots(1, 4, figsize=(16, 4))
+    fig.suptitle("title")
+    for ax in axes:
+        x, y = rng.normal(0.5, 0.02, 8), rng.normal(0.5, 0.02, 8)
+        ax.plot([0.4, 0.6], [0.4, 0.6])
+        points = ax.scatter(x, y)
+        ax.set_title("panel")
+        despine(ax)
+        label_points(ax, points, [f"label {i}" for i in range(8)], fontsize=8)
+    fig.canvas.draw()
+    gap = 2 * fig.dpi / 72
+    for ax in axes:
+        boxes = [t.get_window_extent().padded(gap / 2) for t in ax.texts]
+        assert not any(a.overlaps(b) for a, b in combinations(boxes, 2))
+    plt.close(fig)
+
+
+def test_label_points_keeps_labels_off_markers():
+    import numpy as np
+    from _style import despine, label_points
+
+    plt = _fig()
+    from matplotlib.transforms import Bbox
+
+    fig, ax = plt.subplots(figsize=(3, 3))
+    x, y = np.array([0.5, 0.5, 0.51, 0.52]), np.array([0.5, 0.51, 0.5, 0.52])
+    points = ax.scatter(x, y)
+    despine(ax)
+    texts = label_points(ax, points, ["alpha", "beta", "gamma", "delta"])
+    fig.canvas.draw()
+    radius = plt.rcParams["lines.markersize"] / 2 * fig.dpi / 72
+    for px, py in ax.transData.transform(np.column_stack([x, y])):
+        marker = Bbox.from_extents(px - radius, py - radius, px + radius, py + radius)
+        assert not any(t.get_window_extent().overlaps(marker) for t in texts)
+    plt.close(fig)
+
+
+def test_label_points_keeps_labels_off_markers_at_print_dpi():
+    # adjustText sizes its pull and move steps in pixels. At 300 dpi its screen-sized
+    # defaults pulled labels back onto their own markers on this real figure.
+    from _style import despine, label_points
+
+    plt = _fig()
+    from matplotlib.transforms import Bbox
+
+    panels = [
+        (
+            [0.677, 0.585, 0.722, 0.529, 0.695, 0.592, 0.545, 0.499],
+            [0.67, 0.572, 0.722, 0.514, 0.692, 0.571, 0.528, 0.481],
+        ),
+        (
+            [0.24, 0.309, 0.235, 0.263, 0.225, 0.238, 0.244, 0.335],
+            [0.247, 0.317, 0.238, 0.269, 0.228, 0.243, 0.25, 0.347],
+        ),
+        (
+            [0.65, 0.637, 0.695, 0.856, 0.627, 0.947, 0.775, 0.614],
+            [0.638, 0.588, 0.688, 0.853, 0.601, 0.929, 0.753, 0.562],
+        ),
+        (
+            [0.58, 0.447, 0.664, 0.173, 0.886, 0.125, 0.202, 0.448],
+            [0.971, 0.902, 0.994, 0.32, 1.354, 0.196, 0.54, 1.456],
+        ),
+    ]
+    labels = ["HepG2", "MCF-7", "A549", "SK-N-SH", "HeLa-S3", "H1", "K562", "GM12878"]
+    fig, axes = plt.subplots(1, 4, figsize=(16, 4))
+    fig.suptitle("title")
+    scatters = []
+    for ax, (x, y) in zip(axes, panels):
+        ax.plot([min(x + y), max(x + y)], [min(x + y), max(x + y)], ls="--")
+        scatters.append(ax.scatter(x, y))
+        ax.set_title("panel")
+        despine(ax)
+    for ax, points in zip(axes, scatters):
+        label_points(ax, points, labels, fontsize=8)
+    fig.canvas.draw()
+    radius = plt.rcParams["lines.markersize"] / 2 * fig.dpi / 72
+    for ax in axes:
+        for px, py in ax.transData.transform(ax.collections[0].get_offsets()):
+            marker = Bbox.from_extents(
+                px - radius, py - radius, px + radius, py + radius
+            )
+            assert not any(t.get_window_extent().overlaps(marker) for t in ax.texts)
+    plt.close(fig)
