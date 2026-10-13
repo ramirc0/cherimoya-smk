@@ -48,6 +48,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2026c-h151e31d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/wheel-0.48.0-pyhd8ed1ab_0.conda
       - pypi: git+https://github.com/jmschrei/cherimoya.git?rev=8ecf7f791ec07c05a701076cc58a0f845bf97609#8ecf7f791ec07c05a701076cc58a0f845bf97609
+      - pypi: git+https://github.com/jmschrei/tangermeme?rev=eb25075f7909a6ef1ff3a0bd9b8aa3c1aabb5764#eb25075f7909a6ef1ff3a0bd9b8aa3c1aabb5764
       - pypi: git+https://github.com/macs3-project/MACS.git?rev=170556de25475fc59b1e219e898c21b7eecd5dd8#170556de25475fc59b1e219e898c21b7eecd5dd8
       - pypi: git+https://github.com/ramirc0/poikilos?rev=85144e7826ff88155f20a7743020eba58102638c#85144e7826ff88155f20a7743020eba58102638c
       - pypi: https://files.pythonhosted.org/packages/0c/d5/c5db1ea3394c6e1732fb3286b3bd878b59507a8f77d32a2cebda7d7b7cd4/donfig-0.8.1.post1-py3-none-any.whl
@@ -66,7 +67,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/32/d5/f9a850d79b0851d1d4ef6456097579a9005b31fea68726a4ae5f2d82ddd9/threadpoolctl-3.6.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/33/6d/737d164b4837a9bbd202f5ae3078975f0525a55730fe871d8ed4e3b952b0/nvidia_cuda_cupti-13.0.85-py3-none-manylinux_2_25_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/34/7d/2661f2fb3ac4302f3a246f5fc030213ac60c1fe0bce84f9783dbd831dbb7/nvidia_cusparselt_cu13-0.8.1-py3-none-manylinux2014_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/34/9c/028f5e8a0e09df78cf9b6063fc46cd8da2da7519f440700570e88020f7be/pybigtools-0.3.0-cp312-cp312-manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/35/ea/a56b9fe5066f3537b7882f77e9c5dfb26d8c2eefdaed9b5fc73d57b4dc22/pydantic-2.14.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/39/2a/6d2e9047d1fb243dbaa364b01e0297534b9ed7fd27dba1c9f361519cf69b/cuda_bindings-13.3.1-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/3a/5f/62d28cf019460c7f1394105b4d49d9911a9c444cb77ab0bd95a204c5a6de/numpy-2.5.2-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
@@ -121,7 +121,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/a7/8e/50f46a9c0ce8d2861a394c1347caae037ea0431d2f67d7feb151cbc4649a/filelock-3.32.3-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a8/2f/7b57e29836ea8714f81e9898409196f47d772d5ddedddf1592eadb8ab743/nvidia_cufft-12.0.0.61-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/b5/2c/44d47df76193b31fa4a7c662531076e6ec9a0f2f3017171f47c466211537/pyfaidx-0.9.0.4-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/b5/8d/b086b68db3b01c03254d22fad886bda58451403905b8cd045847d155dfbb/tangermeme-1.5.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b8/2c/897bdd17b05724c894a5b831c6b2e9853adcc2d07a70d6246c0cd5cd3912/adjusttext-1.4.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/bb/38/926757caaac18a66f057d7544a63620bf360a07d281c9f7ecadd2aa83963/numba-0.67.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
@@ -197,6 +196,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2026c-h151e31d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/wheel-0.48.0-pyhd8ed1ab_0.conda
       - pypi: git+https://github.com/jmschrei/cherimoya.git?rev=8ecf7f791ec07c05a701076cc58a0f845bf97609#8ecf7f791ec07c05a701076cc58a0f845bf97609
+      - pypi: git+https://github.com/jmschrei/tangermeme?rev=eb25075f7909a6ef1ff3a0bd9b8aa3c1aabb5764#eb25075f7909a6ef1ff3a0bd9b8aa3c1aabb5764
       - pypi: git+https://github.com/macs3-project/MACS.git?rev=170556de25475fc59b1e219e898c21b7eecd5dd8#170556de25475fc59b1e219e898c21b7eecd5dd8
       - pypi: git+https://github.com/ramirc0/poikilos?rev=85144e7826ff88155f20a7743020eba58102638c#85144e7826ff88155f20a7743020eba58102638c
       - pypi: https://download-r2.pytorch.org/whl/cu126/torch-2.14.0%2Bcu126-cp312-cp312-manylinux_2_28_x86_64.whl
@@ -215,7 +215,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/31/5a/cac7d231f322b66caa16fd4b136ebc8e4b18b2805811c2d58dc47210cdea/nvidia_nccl_cu12-2.29.3-py3-none-manylinux_2_18_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/31/c9/e09a1c823f584a750219f64e0c3ae541907031240b421218f73516f63fe8/bpnet_lite-1.0.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/32/d5/f9a850d79b0851d1d4ef6456097579a9005b31fea68726a4ae5f2d82ddd9/threadpoolctl-3.6.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/34/9c/028f5e8a0e09df78cf9b6063fc46cd8da2da7519f440700570e88020f7be/pybigtools-0.3.0-cp312-cp312-manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/35/ea/a56b9fe5066f3537b7882f77e9c5dfb26d8c2eefdaed9b5fc73d57b4dc22/pydantic-2.14.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/3a/5f/62d28cf019460c7f1394105b4d49d9911a9c444cb77ab0bd95a204c5a6de/numpy-2.5.2-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/3c/2e/8d0c2ab90a8c1d9a24f0399058ab8519a3279d1bd4289511d74e909f060e/markupsafe-3.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl
@@ -272,7 +271,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/b2/66/cc9876340ac68ae71b15c743ddb13f8b30d5244af344ec8322b449e35426/nvidia_cufile_cu12-1.11.1.6-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/b5/09/6ea3ea725f82e1e76684f0708bbedd871fc96da89945adeba65c3835a64c/nvidia_nvshmem_cu12-3.4.5-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/b5/2c/44d47df76193b31fa4a7c662531076e6ec9a0f2f3017171f47c466211537/pyfaidx-0.9.0.4-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/b5/8d/b086b68db3b01c03254d22fad886bda58451403905b8cd045847d155dfbb/tangermeme-1.5.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b8/2c/897bdd17b05724c894a5b831c6b2e9853adcc2d07a70d6246c0cd5cd3912/adjusttext-1.4.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ba/51/e123d997aa098c61d029f76663dedbfb9bc8dcf8c60cbd6adbe42f76d049/nvidia_cudnn_cu12-9.10.2.21-py3-none-manylinux_2_27_x86_64.whl
@@ -2114,6 +2112,37 @@ packages:
   - furo>=2024.1 ; extra == 'docs'
   - sphinx-copybutton>=0.5 ; extra == 'docs'
   requires_python: '>=3.10'
+- pypi: git+https://github.com/jmschrei/tangermeme?rev=eb25075f7909a6ef1ff3a0bd9b8aa3c1aabb5764#eb25075f7909a6ef1ff3a0bd9b8aa3c1aabb5764
+  name: tangermeme
+  version: 1.5.0
+  requires_dist:
+  - figwig>=0.1.0
+  - joblib>=1.3
+  - matplotlib>=3.7
+  - memelite>=0.2
+  - numba>=0.58
+  - numpy>=1.23
+  - pandas>=2.0
+  - pyfaidx>=0.7.2.1
+  - scikit-learn>=1.3
+  - scipy>=1.10
+  - torch>=2.0
+  - tqdm>=4.65
+  - build>=1.0 ; extra == 'dev'
+  - captum>=0.5.0 ; extra == 'dev'
+  - mpld3>=0.5 ; extra == 'dev'
+  - pybigtools>=0.2.5,<0.3 ; extra == 'dev'
+  - pytest>=7.0 ; extra == 'dev'
+  - ruff>=0.4 ; extra == 'dev'
+  - twine>=4.0 ; extra == 'dev'
+  - jinja2>=3.1.3 ; extra == 'docs'
+  - jupyter>=1.0 ; extra == 'docs'
+  - nbconvert>=7.0 ; extra == 'docs'
+  - nbsphinx>=0.9 ; extra == 'docs'
+  - sphinx-rtd-theme>=2.0 ; extra == 'docs'
+  - sphinx>=7.0 ; extra == 'docs'
+  - mpld3>=0.5 ; extra == 'interactive'
+  requires_python: '>=3.10'
 - pypi: git+https://github.com/macs3-project/MACS.git?rev=170556de25475fc59b1e219e898c21b7eecd5dd8#170556de25475fc59b1e219e898c21b7eecd5dd8
   name: macs3
   version: 3.0.5
@@ -2618,13 +2647,6 @@ packages:
   name: nvidia-cusparselt-cu13
   version: 0.8.1
   sha256: 786ce87568c303fadb5afcc7102d454cd3040d75f6f8626f5db460d1871f4dd0
-- pypi: https://files.pythonhosted.org/packages/34/9c/028f5e8a0e09df78cf9b6063fc46cd8da2da7519f440700570e88020f7be/pybigtools-0.3.0-cp312-cp312-manylinux_2_28_x86_64.whl
-  name: pybigtools
-  version: 0.3.0
-  sha256: cb61cbb60bc06d0a4ecfa1eff75462d0076938346bb66ae07eab5acd56c63ee8
-  requires_dist:
-  - numpy
-  requires_python: '>=3.8'
 - pypi: https://files.pythonhosted.org/packages/35/ea/a56b9fe5066f3537b7882f77e9c5dfb26d8c2eefdaed9b5fc73d57b4dc22/pydantic-2.14.1-py3-none-any.whl
   name: pydantic
   version: 2.14.1
@@ -3510,37 +3532,6 @@ packages:
   - importlib-metadata ; python_full_version < '3.8'
   - packaging
   requires_python: '>=3.7'
-- pypi: https://files.pythonhosted.org/packages/b5/8d/b086b68db3b01c03254d22fad886bda58451403905b8cd045847d155dfbb/tangermeme-1.5.0-py3-none-any.whl
-  name: tangermeme
-  version: 1.5.0
-  sha256: f45c87e8a731b00be9f509248c9c52a1c85f28731d7eb2490813d074d0eb1c93
-  requires_dist:
-  - joblib>=1.3
-  - matplotlib>=3.7
-  - memelite>=0.2
-  - numba>=0.58
-  - numpy>=1.23
-  - pandas>=2.0
-  - pybigtools>=0.2
-  - pyfaidx>=0.7.2.1
-  - scikit-learn>=1.3
-  - scipy>=1.10
-  - torch>=2.0
-  - tqdm>=4.65
-  - build>=1.0 ; extra == 'dev'
-  - captum>=0.5.0 ; extra == 'dev'
-  - mpld3>=0.5 ; extra == 'dev'
-  - pytest>=7.0 ; extra == 'dev'
-  - ruff>=0.4 ; extra == 'dev'
-  - twine>=4.0 ; extra == 'dev'
-  - jinja2>=3.1.3 ; extra == 'docs'
-  - jupyter>=1.0 ; extra == 'docs'
-  - nbconvert>=7.0 ; extra == 'docs'
-  - nbsphinx>=0.9 ; extra == 'docs'
-  - sphinx-rtd-theme>=2.0 ; extra == 'docs'
-  - sphinx>=7.0 ; extra == 'docs'
-  - mpld3>=0.5 ; extra == 'interactive'
-  requires_python: '>=3.10'
 - pypi: https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl
   name: six
   version: 1.17.0
