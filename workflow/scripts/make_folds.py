@@ -12,10 +12,14 @@ same structure from each genome's chrom.sizes:
   chromosome groups.
 - others: greedy length-balanced 5-way `test` partition (each chrom once), plus a
   rotating `valid` (smallest chroms of the next fold's test bin, up to ~8% of the
-  genome). Only main chromosomes (autosomes incl. chr2A/2B/chr1b/2b + X/Y) are
-  split; scaffolds and chrM stay in `train`.
+  genome).
 
-Writes resources/folds/<genome>/fold_{0..4}.json for every genome whose
+Only main chromosomes are split: autosomes (incl. chr2A/2B, chr1b/2b, the fly
+arms chr2L-chr3R and yeast's chrI-chrXVI) and X/Y. Scaffolds and chrM are left
+out of every fold. A genome with fewer main chromosomes than folds is skipped,
+e.g. S. pombe, whose three chromosomes cannot fill five test sets.
+
+Writes resources/folds/<genome>/fold_{0..4}.json for every other genome whose
 chrom.sizes is present under resources/refs/. Unchanged files are not rewritten.
 """
 
@@ -27,7 +31,7 @@ REFS = Path("resources/refs")
 OUT = Path("resources/folds")
 N_FOLDS = 5
 VALID_FRACTION = 0.08  # ~8% of the genome held for validation per fold
-MAIN = re.compile(r"chr([0-9]+[AB]?|[0-9]+b|X|Y)")
+MAIN = re.compile(r"chr([0-9]+[AB]?|[0-9]+[bLR]|[IVX]+|Y)")
 
 # chrombpnet's published hg38 folds (zenodo 7445373), used verbatim.
 HG38 = [
@@ -154,10 +158,17 @@ def folds_for(genome):
 def main():
     """Write fold JSONs for every genome under resources/refs.
 
-    A fold file is rewritten only when its content changes.
+    A genome with fewer main chromosomes than folds is skipped. A fold file is
+    rewritten only when its content changes.
     """
     genomes = sorted(p.name[: -len(".chrom.sizes")] for p in REFS.glob("*.chrom.sizes"))
     for genome in genomes:
+        n_main = len(main_chroms(genome))
+        if n_main < N_FOLDS:
+            print(
+                f"{genome}: skipped, {n_main} main chroms cannot fill {N_FOLDS} test sets"
+            )
+            continue
         folds = folds_for(genome)
         d = OUT / genome
         d.mkdir(parents=True, exist_ok=True)

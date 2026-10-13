@@ -68,7 +68,8 @@ commit. `folds:` picks which CV folds to run, e.g. `[0]` or `[0, 1, 2, 3, 4]`.
 - `refs/<g>.fa`, `refs/<g>.fa.fai`, `refs/<g>.chrom.sizes` (`cut -f1,2 <g>.fa.fai`)
 - `folds/<g>/fold_{0..4}.json` with `{train, valid, test}` chromosome lists,
   written by `make_folds.py`. hg38 uses the published chrombpnet folds and mm10
-  the lab's folds. Other genomes get a length-balanced split.
+  the lab's folds. Other genomes get a length-balanced split. A genome with
+  fewer than five main chromosomes, such as S. pombe, gets no folds.
 
 To add a genome, add a `genomes:` entry, provide the three ref files, rerun
 `make_folds.py`, and use the name in the sheet.
