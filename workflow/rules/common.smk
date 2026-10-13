@@ -30,6 +30,15 @@ BENCHDIR = f"benchmarks/{RUN_ID}"
 SOFTWARE_ENV = pixi(workspace="../envs", env=config["pixi_env"], locked=True)
 
 
+# The pixi plugin installs the env inside each job. Parallel SLURM jobs then race
+# on a fresh or relocked env, so install it once before any job starts.
+onstart:
+    shell(
+        "pixi install --manifest-path {workflow.basedir:q}/envs/pixi.toml --locked"
+        " -e {config[pixi_env]:q} -e modisco-report"
+    )
+
+
 _SHEET = Path(config["samples"])
 if not _SHEET.exists():
     raise WorkflowError(

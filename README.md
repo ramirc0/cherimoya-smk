@@ -32,7 +32,9 @@ snakemake --profile profiles/slurm                       # run on SLURM
 The launcher env (`pixi.toml` at the root) has Snakemake, the pixi
 software-deployment plugin and the SLURM executor plugins. Rule envs live in a
 second pixi workspace, `workflow/envs/`. pixi must be on `PATH`. Each job
-activates its env from `workflow/envs/.pixi/envs/` and installs it on first use.
+activates its env from `workflow/envs/.pixi/envs/`. An `onstart` hook installs
+the selected env and `modisco-report` before the first job. Parallel SLURM jobs
+would otherwise race to install them.
 
 ## Inputs
 

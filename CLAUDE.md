@@ -95,6 +95,9 @@ layout.
   - `modisco-report`: `modisco_report` only. Its own conda feature adds MEME
     `tomtom` 5.5.9, whose `icu<76` conflicts with the main env. Its PyPI pins
     come from the shared `pypi-shared` feature.
+- The `onstart` hook in `common.smk` installs `pixi_env` and `modisco-report`
+  before any job, because SLURM jobs race to install them. A new rule env MUST
+  be added to the hook.
 
 ## Behavior to preserve
 
