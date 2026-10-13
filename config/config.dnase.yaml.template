@@ -49,6 +49,8 @@ peaks:
 qc:
   n_peaks: true
   n_fragments: true
+  min_models: 10        # below this many models (samples x folds), skip the
+                        # distribution, outlier and covariate plots
 
 negatives:
   bin_width: 0.02

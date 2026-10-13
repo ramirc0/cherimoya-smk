@@ -16,9 +16,9 @@ PREPROCESS = [
 ]
 TRAIN = PREPROCESS + per_fold("epochs.svg", "count_scatter.svg", "summary.txt") + [
     f"{OUTDIR}/report/metrics.tsv",
-    f"{OUTDIR}/report/performance_distribution.svg",
-    *[f"{OUTDIR}/report/count_pearson_vs_{c}.svg" for c in COVARIATES],
-    f"{OUTDIR}/report/outliers.svg",
+    *([f"{OUTDIR}/report/performance_distribution.svg",
+       *[f"{OUTDIR}/report/count_pearson_vs_{c}.svg" for c in COVARIATES],
+       f"{OUTDIR}/report/outliers.svg"] if RUN_PLOTS else []),
 ]
 ATTRIBUTIONS = TRAIN + per_fold("attribution_profile.svg")
 MOTIFS = ATTRIBUTIONS + per_fold("seqlet_lengths.svg", "motif_counts.svg") + [

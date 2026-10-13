@@ -102,6 +102,9 @@ _has_depth = any(not _is_bigwig(SIGNAL_OF[s]) for s in SAMPLES)
 COVARIATES = [c for c, on in (("n_peaks", _qc["n_peaks"]),
                               ("n_fragments", _qc["n_fragments"] and _has_depth))
               if on]
+# Plots that compare models (distribution, Tukey fence, covariate trend) carry no
+# information across a handful of models.
+RUN_PLOTS = len(SAMPLES) * len(FOLDS) >= _qc["min_models"]
 
 if not SAMPLES:
     raise WorkflowError(f"Sample sheet {_SHEET} has no rows.")

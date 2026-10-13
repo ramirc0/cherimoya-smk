@@ -97,7 +97,8 @@ Logs and benchmarks use the same layout under `logs/` and `benchmarks/`.
   ranked by the mean change in predicted counts
 - `report/`: `metrics.tsv` with an outlier flag per model, the performance
   distribution, count Pearson vs `n_peaks`/`n_fragments`, the outlier plot,
-  and a heatmap of the top motifs by sample
+  and a heatmap of the top motifs by sample. The distribution, covariate and
+  outlier plots need `qc.min_models` models (samples x folds, default 10)
 - `config.snapshot.json`: the fully resolved config, including `--config`
   overrides. Rerun it with `--configfile results/<run_id>/config.snapshot.json`.
 
