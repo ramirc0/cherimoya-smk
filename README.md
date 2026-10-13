@@ -172,3 +172,7 @@ CHERIMOYA_SMK_MARGINALIZE=<dir> pytest -m slow tests/test_marginalize_parity.py 
 
 The parity tests run the official `cherimoya` command and the workflow script
 on the same inputs. Their docstrings list the fixture files.
+
+`pixi run lint` (root workspace) runs `ruff check`, `ruff format --check` and
+`numpydoc lint` on the scripts. `pyproject.toml` holds their config. Neither
+tool parses `.smk` files, so keep the rule helpers numpydoc by hand.
