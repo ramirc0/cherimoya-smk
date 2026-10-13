@@ -64,7 +64,7 @@ rule macs3:
 
 
 def _bam2bw_extra():
-    """Return the bam2bw flags shared by the signal and control conversions.
+    """Return the figwig bam2bw flags shared by the signal and control conversions.
 
     bam2bw emits `<name>.bw` with `-u`, else the `<name>.+.bw` and
     `<name>.-.bw` pair. So the same flags drive both the declared outputs and
@@ -114,7 +114,7 @@ rule bam2bw:
         r"""
         exec &> >(tee {log:q})
 
-        bam2bw \
+        figwig bam2bw \
             -s {input.sizes:q} \
             -n {params.name:q} \
             -ps {params.pos_shift:q} \
@@ -153,7 +153,7 @@ rule bam2bw_control:
         r"""
         exec &> >(tee {log:q})
 
-        bam2bw \
+        figwig bam2bw \
             -s {input.sizes:q} \
             -n {params.name:q} \
             -ps {params.pos_shift:q} \

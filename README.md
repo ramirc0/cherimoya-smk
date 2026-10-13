@@ -148,7 +148,7 @@ With no GPU, set `fit.device`, `evaluate.device`, `attribute.device` and
 
 `workflow/envs/pixi.toml` defines three rule envs, and `pixi.lock` pins
 every conda and PyPI package. `cherimoya` is the main env. cherimoya comes from
-a pinned git commit. torch (CUDA), tangermeme, macs3, bam2bw and pytest are
+a pinned git commit. torch (CUDA), tangermeme, macs3, figwig and pytest are
 PyPI packages in the same env. `cherimoya-sm70` is the same env with torch from
 the CUDA 12.6 index. `modisco_report` uses `modisco-report`: the MEME-suite
 `tomtom` it calls needs an `icu` that conflicts with the main env. Rules run
