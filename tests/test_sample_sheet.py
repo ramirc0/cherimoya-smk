@@ -1,5 +1,6 @@
 """Dry runs on a toy workdir: which sheet rows a run takes, and how their tracks enter it."""
 
+import re
 import subprocess
 from pathlib import Path
 
@@ -44,15 +45,10 @@ def _dry_run(tmp_path, *, stranded, **row):
     cols = ["sample_id", "signal", "genome", "control", "peaks"]
     sheet = ["\t".join(cols), "\t".join(row.get(c, "") for c in cols)]
     (tmp_path / "samples.tsv").write_text("\n".join(sheet) + "\n")
-    cells = [row.get(c, "") for c in ("signal", "control", "peaks")]
-    for name in [
-        "toy.fa",
-        "toy.fa.fai",
-        "toy.chrom.sizes",
-        *",".join(cells).split(","),
-    ]:
-        if name:
-            (tmp_path / name).touch()
+    cells = ",".join(row.get(c, "") for c in ("signal", "control", "peaks"))
+    for name in ["toy.fa", "toy.fa.fai", "toy.chrom.sizes", *cells.split(",")]:
+        if name.strip():
+            (tmp_path / name.strip()).touch()
 
     result = subprocess.run(
         [
@@ -70,6 +66,54 @@ def _dry_run(tmp_path, *, stranded, **row):
         check=False,
     )
     return result.returncode, result.stdout + result.stderr
+
+
+def _fit_command(out):
+    """Return the fit command that a dry run printed."""
+    start = out.index("scripts/fit.py")
+    return out[start : out.index("\n\n", start)]
+
+
+def test_stranded_run_takes_a_prebuilt_pair_in_order(tmp_path):
+    code, out = _dry_run(
+        tmp_path,
+        stranded=True,
+        signal="pos.bw,neg.bw",
+        control="ctl_pos.bw, ctl_neg.bw",
+        peaks="peaks.narrowPeak",
+    )
+    assert code == 0, out
+    assert "rule bam2bw" not in out
+    fit = _fit_command(out)
+    assert "--stranded" in fit
+    assert "-sig pos.bw neg.bw " in fit, fit
+    assert "-c ctl_pos.bw ctl_neg.bw " in fit, fit
+
+
+def test_stranded_run_takes_a_prebuilt_pair_without_control(tmp_path):
+    code, out = _dry_run(
+        tmp_path, stranded=True, signal="pos.bw,neg.bw", peaks="peaks.narrowPeak"
+    )
+    assert code == 0, out
+    fit = _fit_command(out)
+    assert "-sig pos.bw neg.bw " in fit, fit
+    assert not re.search(r"\s-c\s", fit), fit
+
+
+@pytest.mark.parametrize(
+    "stranded,signal",
+    [
+        (True, "x.bw"),  # one bigWig cannot be split into strands
+        (True, "x.bam,neg.bw"),  # a pair must be two bigWigs
+        (False, "pos.bw,neg.bw"),  # an unstranded run takes one track
+    ],
+)
+def test_rejects_a_signal_the_run_cannot_take(tmp_path, stranded, signal):
+    code, out = _dry_run(
+        tmp_path, stranded=stranded, signal=signal, peaks="peaks.narrowPeak"
+    )
+    assert code != 0
+    assert "cannot take" in out, out
 
 
 def test_bigwig_control_needs_peaks(tmp_path):

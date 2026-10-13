@@ -43,9 +43,9 @@ would otherwise race to install them.
 | column      | required | meaning |
 |-------------|----------|---------|
 | `sample_id` | yes      | output name |
-| `signal`    | yes      | BAM, fragments file, or a pre-built bigWig (`.bw`/`.bigwig`) |
+| `signal`    | yes      | BAM, fragments file, or a pre-built bigWig (`.bw`/`.bigwig`). A stranded run takes pre-built tracks as a (+, -) pair, `plus.bw,minus.bw` |
 | `genome`    | yes      | a key under `genomes:` in config |
-| `control`   | no       | control BAM. Passed to `macs3 -c` and fed to the model |
+| `control`   | no       | control BAM, or pre-built bigWigs as for `signal`. Fed to the model. A BAM also goes to `macs3 -c` |
 | `peaks`     | no       | narrowPeak. If empty, macs3 calls peaks from the BAM |
 
 A bigWig signal or control skips `bam2bw` but can't be used for peak calling,

@@ -24,7 +24,8 @@ digraph run_paths {
         prep   [shape=box, style="filled,rounded", fillcolor="#dbe9f6", label="prep_peaks"];
     }
 
-    bw    [shape=note, fillcolor="#f2f7fb", style=filled, label="<sample>.bw"];
+    bw    [shape=note, fillcolor="#f2f7fb", style=filled,
+           label="signal bigWig\n(stranded: a (+, -) pair)"];
     peaks [shape=note, fillcolor="#f2f7fb", style=filled, label="<sample> peaks\n.narrowPeak"];
     err   [shape=octagon, style=filled, fillcolor="#f6d9d9",
            label="WorkflowError\nbigWig needs\nprovided peaks"];

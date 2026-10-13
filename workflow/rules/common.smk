@@ -45,7 +45,8 @@ if not _SHEET.exists():
         f"Sample sheet not found: {_SHEET}\n"
         "Create it (columns: sample_id, signal, genome, [control], [peaks]); "
         "signal is a BAM/fragments file (bam2bw + macs3) or an already-built "
-        "bigWig (requires provided peaks). See config/samples.tsv for the layout."
+        "bigWig, as a `plus.bw,minus.bw` pair in a stranded run (requires "
+        "provided peaks). See config/samples.tsv for the layout."
     )
 
 _manifest = pl.read_csv(_SHEET, separator="\t", infer_schema_length=0)
@@ -73,20 +74,36 @@ def _column(name):
     }
 
 
-def _is_bigwig(path):
-    """Check whether `path` is already a bigWig, so bam2bw can be skipped.
+def _paths(cell):
+    """Split a `signal` or `control` cell into its files.
 
     Parameters
     ----------
-    path : str
-        Signal or control file.
+    cell : str
+        One file, or a comma-separated (+, -) bigWig pair.
+
+    Returns
+    -------
+    list of str
+        The files in cell order, without surrounding whitespace.
+    """
+    return [path.strip() for path in cell.split(",")]
+
+
+def _is_bigwig(cell):
+    """Check whether a `signal` or `control` cell is pre-built, so bam2bw can be skipped.
+
+    Parameters
+    ----------
+    cell : str
+        One file, or a comma-separated (+, -) bigWig pair.
 
     Returns
     -------
     bool
-        True for a `.bw` or `.bigwig` extension, in any case.
+        True when every file has a `.bw` or `.bigwig` extension, in any case.
     """
-    return path.lower().endswith((".bw", ".bigwig"))
+    return all(path.lower().endswith((".bw", ".bigwig")) for path in _paths(cell))
 
 
 SAMPLES = _manifest.get_column("sample_id").to_list()
@@ -120,6 +137,22 @@ if _unknown_genomes:
     raise WorkflowError(
         f"genome(s) not defined in config['genomes']: {_unknown_genomes}"
     )
+# Each cell is (number of files, all bigWig): one BAM/fragments file for bam2bw,
+# or pre-built bigWigs. A stranded run takes those as a (+, -) pair,
+# `plus.bw,minus.bw`, since one bigWig cannot be split into strands.
+_SHAPES = {(1, False), (2, True)} if STRANDED else {(1, False), (1, True)}
+_bad_tracks = [s for s in SAMPLES if any(
+    cell and (len(_paths(cell)), _is_bigwig(cell)) not in _SHAPES
+    for cell in (SIGNAL_OF[s], CONTROL_OF.get(s)))]
+if _bad_tracks:
+    raise WorkflowError(
+        f"{len(_bad_tracks)} sample(s) give a signal or control this run cannot "
+        f"take (e.g. {_bad_tracks[:3]}). " + (
+            "A stranded run takes a BAM/fragments file, which bam2bw splits "
+            "into strands, or a pre-built (+, -) bigWig pair written as "
+            "`plus.bw,minus.bw`." if STRANDED else
+            "An unstranded run takes one BAM/fragments file or bigWig.")
+    )
 # macs3 reads BAM/fragments files only, so a bigWig signal or control needs
 # provided peaks.
 _bw_no_peaks = [s for s in SAMPLES if not PEAKS_OF.get(s) and any(
@@ -130,18 +163,6 @@ if _bw_no_peaks:
         f"peaks (e.g. {_bw_no_peaks[:3]}); provide a `peaks` file, or BAM/fragments "
         "files so macs3 can call peaks."
     )
-# A stranded run needs bam2bw to build the (+, -) pair; a provided bigWig is a
-# single track that cannot be split into strands.
-if STRANDED:
-    _bw_stranded = [s for s in SAMPLES if _is_bigwig(SIGNAL_OF[s])
-                    or (CONTROL_OF.get(s) and _is_bigwig(CONTROL_OF[s]))]
-    if _bw_stranded:
-        raise WorkflowError(
-            f"{len(_bw_stranded)} sample(s) give a pre-built bigWig under a "
-            f"stranded run (e.g. {_bw_stranded[:3]}); a stranded (+, -) pair "
-            "can only come from bam2bw. Provide a BAM signal/control or set "
-            "preprocess.unstranded: true."
-        )
 
 
 wildcard_constraints:
@@ -168,9 +189,10 @@ def prefix(sample):
 def signal_bw(sample):
     """Return the signal bigWig(s) of a sample, as fit and evaluate take them.
 
-    A provided bigWig is used as-is and bam2bw is skipped. Otherwise these
-    are the bam2bw outputs: the (+, -) pair for a stranded run, one track for
-    an unstranded run.
+    Provided bigWigs are used as-is, in sheet order, and bam2bw is skipped:
+    one track, or a stranded run's (+, -) pair. Otherwise these are the bam2bw
+    outputs: the (+, -) pair for a stranded run, one track for an unstranded
+    run.
 
     Parameters
     ----------
@@ -184,7 +206,7 @@ def signal_bw(sample):
     """
     signal = SIGNAL_OF[sample]
     if _is_bigwig(signal):
-        return [signal]
+        return _paths(signal)
     p = prefix(sample)
     return [f"{p}.+.bw", f"{p}.-.bw"] if STRANDED else [f"{p}.bw"]
 
@@ -193,7 +215,7 @@ def control_bw(sample):
     """Return the control bigWig(s) of a sample, as fit and evaluate take them.
 
     Strandedness follows `signal_bw`: the (+, -) pair for a stranded run, one
-    track for an unstranded run. A provided bigWig is used as-is.
+    track for an unstranded run. Provided bigWigs are used as-is.
 
     Parameters
     ----------
@@ -209,7 +231,7 @@ def control_bw(sample):
     if not ctl:
         return []
     if _is_bigwig(ctl):
-        return [ctl]
+        return _paths(ctl)
     p = f"{prefix(sample)}.control"
     return [f"{p}.+.bw", f"{p}.-.bw"] if STRANDED else [f"{p}.bw"]
 
