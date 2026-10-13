@@ -11,6 +11,7 @@ max-jobs-per-second: 5
 slurm-efficiency-report: true
 slurm-efficiency-report-path: logs/efficiency
 slurm-efficiency-threshold: 0.8
+slurm-init-seconds-before-status-checks: 10
 
 default-resources:
   slurm_account: ramirezc

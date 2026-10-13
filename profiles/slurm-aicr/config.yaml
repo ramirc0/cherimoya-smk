@@ -12,6 +12,7 @@ scheduler: greedy
 slurm-efficiency-report: true
 slurm-efficiency-report-path: logs/efficiency
 slurm-efficiency-threshold: 0.8
+slurm-init-seconds-before-status-checks: 10
 
 default-resources:
   slurm_account: genomeatlas_umassmed
