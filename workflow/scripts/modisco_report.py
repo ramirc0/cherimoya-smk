@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Run `modisco report` with pandas' pre-3.0 string handling; takes its arguments."""
 
 import runpy

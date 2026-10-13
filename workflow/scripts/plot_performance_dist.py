@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Plot the distribution of model performance, faceted across metrics."""
 
 import argparse
@@ -26,10 +25,10 @@ def main():
 
     import math
 
-    import pandas as pd
-    import seaborn as sns
     import matplotlib.pyplot as plt
+    import pandas as pd
     import poikilos as pk
+    import seaborn as sns
 
     pk.use("plain")
 

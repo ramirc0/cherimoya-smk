@@ -30,7 +30,9 @@ DEVICE = os.environ.get("CHERIMOYA_SMK_SMOKE_DEVICE", "cuda")
 def _official(fx, out, output):
     # The JSON `cherimoya pipeline` writes for step 2, then its CLI.
     from cherimoya_cli.defaults import (
-        default_attribute_parameters, default_pipeline_parameters)
+        default_attribute_parameters,
+        default_pipeline_parameters,
+    )
     from cherimoya_cli.utils import _check_set, _extract_set
 
     parameters = copy.deepcopy(default_pipeline_parameters)

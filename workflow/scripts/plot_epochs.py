@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Plot a model's training/validation metrics over epochs."""
 
 import argparse
@@ -40,8 +39,8 @@ def main():
 
     import math
 
-    import pandas as pd
     import matplotlib.pyplot as plt
+    import pandas as pd
     import poikilos as pk
 
     pk.use("plain")

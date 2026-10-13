@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Plot the motifs that best match the most seqlets."""
 
 import argparse
@@ -26,9 +25,9 @@ def main():
     """Plot one model's top motifs by seqlet count."""
     args = build_parser().parse_args()
 
-    import polars as pl
     import matplotlib.pyplot as plt
     import poikilos as pk
+    import polars as pl
 
     pk.use("plain")
 

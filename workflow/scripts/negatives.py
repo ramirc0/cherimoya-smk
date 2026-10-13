@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Identify GC-matched negative regions for a set of peaks."""
 
 import argparse

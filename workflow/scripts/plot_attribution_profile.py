@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Plot the mean attribution by position across all attributed peaks."""
 
 import argparse
@@ -26,8 +25,8 @@ def main():
     """Plot one model's mean attribution by position."""
     args = build_parser().parse_args()
 
-    import numpy
     import matplotlib.pyplot as plt
+    import numpy
     import poikilos as pk
 
     pk.use("plain")

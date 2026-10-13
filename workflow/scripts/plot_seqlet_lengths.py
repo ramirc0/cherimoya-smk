@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Plot the seqlet length distribution."""
 
 import argparse
@@ -24,10 +23,10 @@ def main():
     """Plot one model's seqlet length distribution."""
     args = build_parser().parse_args()
 
-    import numpy
-    import polars as pl
     import matplotlib.pyplot as plt
+    import numpy
     import poikilos as pk
+    import polars as pl
 
     pk.use("plain")
 

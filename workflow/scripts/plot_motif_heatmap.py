@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Heatmap of the top motifs across samples, as each sample's fraction of seqlets.
 
 Motifs are the `--n_motifs` with the highest fraction in any sample, so a motif
@@ -55,10 +54,10 @@ def main():
 
     from pathlib import Path
 
-    import numpy
-    import polars as pl
     import matplotlib.pyplot as plt
+    import numpy
     import poikilos as pk
+    import polars as pl
     from matplotlib.colors import PowerNorm
 
     pk.use("plain")

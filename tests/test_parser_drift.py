@@ -6,15 +6,14 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
-
-import fit
-import evaluate
-import attribute
-import seqlets
 import annotate
-import modisco_motifs
+import attribute
+import evaluate
+import fit
 import marginalize
+import modisco_motifs
+import pytest
+import seqlets
 
 defaults = pytest.importorskip("cherimoya_cli.defaults")
 
@@ -76,8 +75,8 @@ TEMPLATES = sorted((Path(__file__).resolve().parents[1] / "config").glob("*.yaml
 
 def _template_block(template, name):
     """Map each key of a flat top-level block in a config template to its value string."""
-    block = re.search(rf"^{name}:.*?\n((?:  .*\n)+)", template.read_text(), re.M).group(1)
-    return dict(re.findall(r"^  (\w+): *([^\s#]+)", block, re.M))
+    block = re.search(rf"^{name}:.*?\n((?:  .*\n)+)", template.read_text(), re.MULTILINE).group(1)
+    return dict(re.findall(r"^  (\w+): *([^\s#]+)", block, re.MULTILINE))
 
 
 def _cli_defaults(*cmd):

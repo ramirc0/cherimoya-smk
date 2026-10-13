@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Discover motifs with TF-MoDISco from one-hot sequences and hypothetical attributions."""
 
 import argparse
@@ -47,8 +46,8 @@ def main():
     """Run TF-MoDISco and write its results to h5."""
     args = build_parser().parse_args()
 
-    import numpy
     import modiscolite
+    import numpy
 
     sequences = numpy.load(args.sequences)["arr_0"]
     attributions = numpy.load(args.attributions)["arr_0"]

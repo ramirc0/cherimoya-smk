@@ -1,8 +1,7 @@
 """Contig-filtering guard in negatives.py: drop/fail on peaks off the FASTA."""
 
-import pytest
-
 import negatives
+import pytest
 
 
 def _write_fixtures(tmp_path, peak_chroms):

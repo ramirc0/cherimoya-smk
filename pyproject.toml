@@ -1,0 +1,16 @@
+# Tool config only. The pixi workspaces live in the pixi.toml files.
+[tool.ruff.lint]
+extend-select = ["D"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+# Test functions are named for what they check.
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D"]
+
+# "all" minus the codes after it: extended summary, examples, see also.
+[tool.numpydoc_validation]
+checks = ["all", "ES01", "EX01", "SA01"]
+# Nested closures (<module>.<func>.<inner>) need no docstring.
+exclude = ['^\w+\.\w+\.']

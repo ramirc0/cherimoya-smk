@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Annotate seqlets with their nearest motifs by TomTom and count seqlets per motif."""
 
 import argparse
@@ -41,7 +40,6 @@ def main():
 
     import pandas
     import pyfaidx
-
     from memelite.io import read_meme
     from memelite.tomtom import tomtom
     from memelite.utils import one_hot_encode

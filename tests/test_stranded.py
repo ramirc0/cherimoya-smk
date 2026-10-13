@@ -1,9 +1,8 @@
 """Guards for the stranded (+, -) grouping wired for cherimoya pipeline parity."""
 
-import pytest
-
-import fit
 import evaluate
+import fit
+import pytest
 
 FIT_MIN = ["-s", "g.fa", "-l", "p.np", "-neg", "n.bed", "-sig", "a.bw", "-o", "o"]
 EVAL_MIN = ["-s", "g.fa", "-l", "p.np", "-sig", "a.bw", "-m", "m.torch", "-o", "o"]

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Report the marginal effect of inserting each motif into background loci."""
 
 import argparse
@@ -52,11 +51,9 @@ def main():
     args = build_parser().parse_args()
 
     import numpy
-
     from bpnetlite.marginalize import marginalization_report
-    from tangermeme.io import extract_loci
-
     from cherimoya import Cherimoya, ControlWrapper
+    from tangermeme.io import extract_loci
 
     model = Cherimoya.load(args.model, device=args.device, compile=args.compile,
         compile_mode=args.compile_mode)

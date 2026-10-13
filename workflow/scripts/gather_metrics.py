@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Collect per-model performance into one tidy table for run-level QC.
 
 One row per (sample, CV fold): joins each model's `<sample>.performance.tsv`

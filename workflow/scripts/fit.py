@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Train a Cherimoya model on one sample's signal."""
 
 import argparse
@@ -99,11 +98,9 @@ def main():
 
     import lightning
     import torch
-
     from cherimoya import Cherimoya
     from cherimoya.io import PeakGenerator, normalize_signal_groups
     from cherimoya.training import fit
-
     from tangermeme.io import _interleave_loci, extract_loci
 
     lightning.seed_everything(args.random_state, verbose=False)

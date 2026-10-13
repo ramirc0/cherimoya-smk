@@ -31,7 +31,9 @@ def _chroms(fx):
 def _official(fx, out):
     # The JSON `cherimoya pipeline` writes for step 3.1, then its CLI.
     from cherimoya_cli.defaults import (
-        default_pipeline_parameters, default_seqlet_parameters)
+        default_pipeline_parameters,
+        default_seqlet_parameters,
+    )
     from cherimoya_cli.utils import _check_set, _extract_set
 
     parameters = copy.deepcopy(default_pipeline_parameters)

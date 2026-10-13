@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Count the fragments in a signal file (depth QC covariate).
 
 Writes a single integer. For a fragments file, that is the number of non-comment

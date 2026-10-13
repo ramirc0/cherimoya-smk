@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Scatter a performance metric against a per-model covariate (depth / peaks).
 
 Answers "does prediction quality track data depth?" -- e.g. count_pearson vs
@@ -31,9 +30,9 @@ def main():
     """Plot a performance metric against a per-model covariate."""
     args = build_parser().parse_args()
 
+    import matplotlib.pyplot as plt
     import numpy as np
     import pandas as pd
-    import matplotlib.pyplot as plt
     import poikilos as pk
 
     pk.use("plain")

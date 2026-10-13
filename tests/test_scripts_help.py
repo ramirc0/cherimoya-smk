@@ -17,7 +17,7 @@ SCRIPTS = Path(__file__).resolve().parents[1] / "workflow" / "scripts"
 def test_help_exits_zero(script):
     result = subprocess.run(
         [sys.executable, str(SCRIPTS / script), "--help"],
-        capture_output=True, text=True,
+        capture_output=True, text=True, check=False,
     )
     assert result.returncode == 0, result.stderr
     assert "usage:" in result.stdout.lower()
@@ -31,6 +31,6 @@ def test_help_exits_zero(script):
 def test_missing_required_args_exits_two(script):
     result = subprocess.run(
         [sys.executable, str(SCRIPTS / script)],
-        capture_output=True, text=True,
+        capture_output=True, text=True, check=False,
     )
     assert result.returncode == 2  # argparse's exit code for missing required args

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Compute hypothetical attributions of a trained Cherimoya model over peaks."""
 
 import argparse
@@ -53,13 +52,11 @@ def main():
     args = build_parser().parse_args()
 
     import numpy
-
+    from cherimoya import Cherimoya, ControlWrapper, LogCountWrapper, ProfileWrapper
+    from cherimoya.deep_lift_shap import attribution_ops
     from tangermeme.deep_lift_shap import deep_lift_shap
     from tangermeme.io import extract_loci
     from tangermeme.saturation_mutagenesis import saturation_mutagenesis
-
-    from cherimoya import Cherimoya, ControlWrapper, LogCountWrapper, ProfileWrapper
-    from cherimoya.deep_lift_shap import attribution_ops
 
     # DeepLIFT is never compiled: its backward hooks cause graph breaks.
     model = Cherimoya.load(args.model, device=args.device,

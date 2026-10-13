@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Rewrite MEME motif IDs as NAME_ACCESSION so reports show readable names.
 
 `modisco report` shows only the MEME motif ID, which in JASPAR is the

@@ -11,8 +11,8 @@ RULES = Path(__file__).resolve().parents[1] / "workflow" / "rules"
 def _shell_blocks():
     for smk in sorted(RULES.glob("*.smk")):
         for name, body in re.findall(r"^rule (\w+):(.*?)(?=^rule |\Z)",
-                                     smk.read_text(), re.S | re.M):
-            block = re.search(r'shell:\s*r"""(.*?)"""', body, re.S)
+                                     smk.read_text(), re.DOTALL | re.MULTILINE):
+            block = re.search(r'shell:\s*r"""(.*?)"""', body, re.DOTALL)
             if block:
                 yield name, block.group(1)
 

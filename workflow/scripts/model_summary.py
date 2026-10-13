@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Write a torchinfo layer summary and parameter count for a trained model."""
 
 import argparse
@@ -30,7 +29,6 @@ def main():
 
     import torch
     import torchinfo
-
     from cherimoya import Cherimoya
 
     # The checkpoint stores its constructor config, so this is the trained

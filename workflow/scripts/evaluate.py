@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Evaluate a trained Cherimoya model and write per-group performance metrics."""
 
 import argparse
@@ -74,14 +73,12 @@ def main():
     args = build_parser().parse_args()
 
     import torch
-
-    from sklearn.metrics import average_precision_score, roc_auc_score
-    from tangermeme.io import _interleave_loci, extract_loci
-    from tangermeme.predict import predict
-
     from cherimoya import Cherimoya, ControlWrapper
     from cherimoya.io import channel_permutation_from_groups, normalize_signal_groups
     from cherimoya.performance import calculate_performance_measures
+    from sklearn.metrics import average_precision_score, roc_auc_score
+    from tangermeme.io import _interleave_loci, extract_loci
+    from tangermeme.predict import predict
 
     # --stranded wraps the flat file lists into one (+, -) group each; the
     # flattened files feed extract_loci while the model's own signal_groups
@@ -97,8 +94,7 @@ def main():
 
     # `extract_loci` raises when no locus falls on --chroms.
     if len(_interleave_loci(args.loci, args.chroms)) == 0:
-        print("No loci on chromosomes {}, so {} was not written.".format(
-            args.chroms, args.performance_filename))
+        print(f"No loci on chromosomes {args.chroms}, so {args.performance_filename} was not written.")
         return
 
     def _extract(loci, summits):

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Observed vs predicted log-count scatter for one model (count-head QC).
 
 Every point is a test peak: x = observed log-counts, y = the model's predicted
@@ -29,9 +28,9 @@ def main():
     """Plot one model's observed vs predicted log-counts."""
     args = build_parser().parse_args()
 
+    import matplotlib.pyplot as plt
     import numpy as np
     import pandas as pd
-    import matplotlib.pyplot as plt
     import poikilos as pk
 
     pk.use("plain")

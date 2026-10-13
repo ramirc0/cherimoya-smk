@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Call seqlets from attributions and write them as genome coordinates (BED)."""
 
 import argparse
@@ -42,7 +41,6 @@ def main():
 
     import numpy
     import torch
-
     from tangermeme.io import _interleave_loci
     from tangermeme.seqlet import recursive_seqlets
     from tangermeme.utils import example_to_fasta_coords

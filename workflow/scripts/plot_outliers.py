@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Rank plot of models by a metric, highlighting the flagged outliers.
 
 Reads metrics.tsv (which already carries the boolean `outlier` column from
@@ -32,9 +31,9 @@ def main():
     """Plot models ranked by a metric, with the outliers marked."""
     args = build_parser().parse_args()
 
+    import matplotlib.pyplot as plt
     import numpy as np
     import pandas as pd
-    import matplotlib.pyplot as plt
     import poikilos as pk
 
     pk.use("plain")

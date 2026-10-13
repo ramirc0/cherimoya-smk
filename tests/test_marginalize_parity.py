@@ -32,7 +32,9 @@ def _official_json(fx, out):
     # The JSON `cherimoya pipeline` writes for step 5. Motifs go into the
     # negatives, with the blacklist excluded.
     from cherimoya_cli.defaults import (
-        default_marginalize_parameters, default_pipeline_parameters)
+        default_marginalize_parameters,
+        default_pipeline_parameters,
+    )
     from cherimoya_cli.utils import _check_set, _extract_set
 
     parameters = copy.deepcopy(default_pipeline_parameters)
