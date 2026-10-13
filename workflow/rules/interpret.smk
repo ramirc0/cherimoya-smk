@@ -22,7 +22,7 @@ rule attribute:
         r"""
         exec &> >(tee {log:q})
 
-        python workflow/scripts/attribute.py \
+        python {workflow.basedir:q}/scripts/attribute.py \
             {params.flags:q} \
             -s {input.fasta:q} \
             -l {input.peaks:q} \
@@ -54,7 +54,7 @@ rule seqlets:
         r"""
         exec &> >(tee {log:q})
 
-        python workflow/scripts/seqlets.py \
+        python {workflow.basedir:q}/scripts/seqlets.py \
             {params.flags:q} \
             -l {input.peaks:q} \
             --ohe_filename {input.ohe:q} \
@@ -85,7 +85,7 @@ rule annotate:
         r"""
         exec &> >(tee {log:q})
 
-        python workflow/scripts/annotate.py \
+        python {workflow.basedir:q}/scripts/annotate.py \
             {params.flags:q} \
             -s {input.fasta:q} \
             -b {input.bed:q} \
@@ -115,7 +115,7 @@ rule modisco_motifs:
         r"""
         exec &> >(tee {log:q})
 
-        python workflow/scripts/modisco_motifs.py \
+        python {workflow.basedir:q}/scripts/modisco_motifs.py \
             {params.flags:q} \
             -s {input.ohe:q} \
             -a {input.attr:q} \
@@ -144,7 +144,7 @@ rule modisco_report:
         r"""
         exec &> >(tee {log:q})
 
-        python workflow/scripts/modisco_report.py report \
+        python {workflow.basedir:q}/scripts/modisco_report.py report \
             {params.flags:q} \
             -i {input.h5:q} \
             -o {output.report:q} \
@@ -176,7 +176,7 @@ rule marginalize:
         r"""
         exec &> >(tee {log:q})
 
-        python workflow/scripts/marginalize.py \
+        python {workflow.basedir:q}/scripts/marginalize.py \
             {params.flags:q} \
             -s {input.fasta:q} \
             -l {input.negatives:q} \
@@ -205,7 +205,7 @@ rule attribution_profile:
         r"""
         exec &> >(tee {log:q})
 
-        python workflow/scripts/plot_attribution_profile.py \
+        python {workflow.basedir:q}/scripts/plot_attribution_profile.py \
             --ohe_filename {input.ohe:q} \
             --attr_filename {input.attr:q} \
             -o {output.plot:q} \
@@ -229,7 +229,7 @@ rule seqlet_lengths:
         r"""
         exec &> >(tee {log:q})
 
-        python workflow/scripts/plot_seqlet_lengths.py \
+        python {workflow.basedir:q}/scripts/plot_seqlet_lengths.py \
             -i {input.bed:q} \
             -o {output.plot:q} \
             --sample {wildcards.sample:q}
@@ -252,7 +252,7 @@ rule motif_counts:
         r"""
         exec &> >(tee {log:q})
 
-        python workflow/scripts/plot_motif_counts.py \
+        python {workflow.basedir:q}/scripts/plot_motif_counts.py \
             -i {input.counts:q} \
             -o {output.plot:q} \
             --sample {wildcards.sample:q}

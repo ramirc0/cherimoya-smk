@@ -23,7 +23,7 @@ rule negatives:
         r"""
         exec &> >(tee {log:q})
 
-        python workflow/scripts/negatives.py \
+        python {workflow.basedir:q}/scripts/negatives.py \
             -i {input.peaks:q} \
             -f {input.fasta:q} \
             -o {output.bed:q} \

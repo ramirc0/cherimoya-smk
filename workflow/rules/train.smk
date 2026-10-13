@@ -26,7 +26,7 @@ rule fit:
         r"""
         exec &> >(tee {log:q})
 
-        python workflow/scripts/fit.py \
+        python {workflow.basedir:q}/scripts/fit.py \
             -s {input.fasta:q} \
             -l {input.peaks:q} \
             -neg {input.negatives:q} \
@@ -69,7 +69,7 @@ rule evaluate:
         r"""
         exec &> >(tee {log:q})
 
-        python workflow/scripts/evaluate.py \
+        python {workflow.basedir:q}/scripts/evaluate.py \
             -s {input.fasta:q} \
             -l {input.peaks:q} \
             -sig {input.signal:q} \
@@ -80,12 +80,12 @@ rule evaluate:
             -neg {input.negatives:q} \
             {params.flags:q}
 
-        python workflow/scripts/plot_epochs.py \
+        python {workflow.basedir:q}/scripts/plot_epochs.py \
             -i {input.history:q} \
             -o {output.epochs:q} \
             --sample {wildcards.sample:q}
 
-        python workflow/scripts/plot_count_scatter.py \
+        python {workflow.basedir:q}/scripts/plot_count_scatter.py \
             -i {output.counts:q} \
             -o {output.count_scatter:q} \
             --sample {wildcards.sample:q}
@@ -110,7 +110,7 @@ rule model_summary:
         r"""
         exec &> >(tee {log:q})
 
-        python workflow/scripts/model_summary.py \
+        python {workflow.basedir:q}/scripts/model_summary.py \
             -m {input.model:q} \
             -o {output.summary:q} \
             --in_window {params.in_window:q}

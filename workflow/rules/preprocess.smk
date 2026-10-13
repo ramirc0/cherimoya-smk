@@ -183,7 +183,7 @@ rule count_fragments:
         r"""
         exec &> >(tee {log:q})
 
-        python workflow/scripts/count_fragments.py \
+        python {workflow.basedir:q}/scripts/count_fragments.py \
             {params.fragments:q} \
             {params.paired_end:q} \
             -i {input.signal:q} \

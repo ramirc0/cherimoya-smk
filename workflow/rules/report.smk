@@ -46,7 +46,7 @@ rule gather_metrics:
         r"""
         exec &> >(tee {log:q})
 
-        python workflow/scripts/gather_metrics.py \
+        python {workflow.basedir:q}/scripts/gather_metrics.py \
             -i {input.performance:q} \
             -s {input.samples:q} \
             -r {params.results_dir:q} \
@@ -74,7 +74,7 @@ rule perf_vs_covariate:
         r"""
         exec &> >(tee {log:q})
 
-        python workflow/scripts/plot_perf_vs_covariate.py \
+        python {workflow.basedir:q}/scripts/plot_perf_vs_covariate.py \
             -i {input.metrics:q} \
             -o {output.plot:q} \
             -x {wildcards.covariate:q} \
@@ -100,7 +100,7 @@ rule outliers:
         r"""
         exec &> >(tee {log:q})
 
-        python workflow/scripts/plot_outliers.py \
+        python {workflow.basedir:q}/scripts/plot_outliers.py \
             -i {input.metrics:q} \
             -o {output.plot:q}
         """
@@ -125,7 +125,7 @@ rule performance_distribution:
         r"""
         exec &> >(tee {log:q})
 
-        python workflow/scripts/plot_performance_dist.py \
+        python {workflow.basedir:q}/scripts/plot_performance_dist.py \
             -i {input.performance:q} \
             -o {output.plot:q}
         """
@@ -149,7 +149,7 @@ rule motif_heatmap:
         r"""
         exec &> >(tee {log:q})
 
-        python workflow/scripts/plot_motif_heatmap.py \
+        python {workflow.basedir:q}/scripts/plot_motif_heatmap.py \
             -i {input.counts:q} \
             -o {output.plot:q}
         """
