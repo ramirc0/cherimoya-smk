@@ -120,15 +120,15 @@ if _unknown_genomes:
     raise WorkflowError(
         f"genome(s) not defined in config['genomes']: {_unknown_genomes}"
     )
-# A bigWig signal skips bam2bw; peaks cannot be called from it, so they must be
-# provided (macs3 needs a BAM/fragments file).
-_bw_no_peaks = [s for s in SAMPLES
-                if _is_bigwig(SIGNAL_OF[s]) and not PEAKS_OF.get(s)]
+# macs3 reads BAM/fragments files only, so a bigWig signal or control needs
+# provided peaks.
+_bw_no_peaks = [s for s in SAMPLES if not PEAKS_OF.get(s) and any(
+    cell and _is_bigwig(cell) for cell in (SIGNAL_OF[s], CONTROL_OF.get(s)))]
 if _bw_no_peaks:
     raise WorkflowError(
-        f"{len(_bw_no_peaks)} sample(s) give a bigWig signal but no peaks "
-        f"(e.g. {_bw_no_peaks[:3]}); provide a `peaks` file or a BAM/fragments "
-        "signal so macs3 can call peaks."
+        f"{len(_bw_no_peaks)} sample(s) give a bigWig signal or control but no "
+        f"peaks (e.g. {_bw_no_peaks[:3]}); provide a `peaks` file, or BAM/fragments "
+        "files so macs3 can call peaks."
     )
 # A stranded run needs bam2bw to build the (+, -) pair; a provided bigWig is a
 # single track that cannot be split into strands.

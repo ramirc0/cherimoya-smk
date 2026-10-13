@@ -48,8 +48,8 @@ would otherwise race to install them.
 | `control`   | no       | control BAM. Passed to `macs3 -c` and fed to the model |
 | `peaks`     | no       | narrowPeak. If empty, macs3 calls peaks from the BAM |
 
-A bigWig signal skips `bam2bw` but can't be used for peak calling, so it needs
-a `peaks` file. See `docs/run-paths.svg` for every entry path.
+A bigWig signal or control skips `bam2bw` but can't be used for peak calling,
+so its row needs a `peaks` file. See `docs/run-paths.svg` for every entry path.
 
 **Config** (`config/config.yaml`, gitignored). Start from one of the three
 templates:
