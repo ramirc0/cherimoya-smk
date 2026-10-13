@@ -32,7 +32,7 @@ set-threads:
 set-resources:
   macs3:
     mem_mb: 16000
-    runtime: 240m
+    runtime: 30m             # macs3 main: K562 DNase 1:43 at 1 CPU
   bam2bw:
     mem_mb: 16000
     runtime: 480m
