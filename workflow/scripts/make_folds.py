@@ -8,6 +8,8 @@ the rest. There is no official split for non-human genomes, so we reproduce the
 same structure from each genome's chrom.sizes:
 
 - hg38: chrombpnet's published folds verbatim (the established standard).
+- mm10: the lab's folds verbatim (static/folds/mm10), which reuse the hg38
+  chromosome groups.
 - others: greedy length-balanced 5-way `test` partition (each chrom once), plus a
   rotating `valid` (smallest chroms of the next fold's test bin, up to ~8% of the
   genome). Only main chromosomes (autosomes incl. chr2A/2B/chr1b/2b + X/Y) are
@@ -40,6 +42,15 @@ HG38 = [
         "test": ["chr7", "chr13", "chr17", "chr19", "chr21", "chrX"],
         "valid": ["chr10", "chr18"],
     },
+]
+
+# The lab's mm10 folds (static/folds/mm10), used verbatim.
+MM10 = [
+    {"test": ["chr1", "chr3", "chr6"], "valid": ["chr8", "chr16"]},
+    {"test": ["chr2", "chr8", "chr9", "chr16"], "valid": ["chr12", "chr17"]},
+    {"test": ["chr4", "chr11", "chr12", "chr15", "chrY"], "valid": ["chr7", "chr19"]},
+    {"test": ["chr5", "chr10", "chr14", "chr18"], "valid": ["chr1"]},
+    {"test": ["chr7", "chr13", "chr17", "chr19", "chrX"], "valid": ["chr11", "chr18"]},
 ]
 
 
@@ -92,7 +103,7 @@ def balanced_test_bins(sizes):
 def folds_for(genome):
     """Build the CV folds of a genome.
 
-    hg38 uses the published chrombpnet folds. Other genomes get
+    hg38 and mm10 use their established folds verbatim. Other genomes get
     length-balanced test sets. Each validation set takes the smallest
     chromosomes of the next test set until it holds `VALID_FRACTION` of the
     genome.
@@ -111,6 +122,8 @@ def folds_for(genome):
     all_chroms = list(sizes)
     if genome == "hg38":
         specs = HG38
+    elif genome == "mm10":
+        specs = MM10
     else:
         bins = balanced_test_bins(sizes)
         target = VALID_FRACTION * sum(sizes.values())

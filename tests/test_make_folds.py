@@ -31,3 +31,12 @@ def test_rerun_keeps_unchanged_fold_files(refs):
     make_folds.main()
     assert path.stat().st_mtime == 0
     assert json.loads(path.read_text())["test"]
+
+
+def test_mm10_uses_the_lab_folds(refs):
+    refs("mm10", [*(f"chr{n}" for n in range(1, 20)), "chrX", "chrY", "chrM"])
+    fold = make_folds.folds_for("mm10")[0]
+    assert (fold["test"], fold["valid"]) == (
+        ["chr1", "chr3", "chr6"],
+        ["chr8", "chr16"],
+    )
