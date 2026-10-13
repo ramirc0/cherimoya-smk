@@ -9,28 +9,62 @@ import pytest
 SCRIPTS = Path(__file__).resolve().parents[1] / "workflow" / "scripts"
 
 
-@pytest.mark.parametrize("script", ["negatives.py", "fit.py", "evaluate.py", "model_summary.py",
-                                    "attribute.py", "seqlets.py", "annotate.py", "modisco_motifs.py",
-                                    "marginalize.py", "modisco_report.py", "name_motifs.py", "plot_attribution_profile.py",
-                                    "plot_seqlet_lengths.py", "plot_motif_counts.py",
-                                    "plot_motif_heatmap.py"])
+@pytest.mark.parametrize(
+    "script",
+    [
+        "negatives.py",
+        "fit.py",
+        "evaluate.py",
+        "model_summary.py",
+        "attribute.py",
+        "seqlets.py",
+        "annotate.py",
+        "modisco_motifs.py",
+        "marginalize.py",
+        "modisco_report.py",
+        "name_motifs.py",
+        "plot_attribution_profile.py",
+        "plot_seqlet_lengths.py",
+        "plot_motif_counts.py",
+        "plot_motif_heatmap.py",
+    ],
+)
 def test_help_exits_zero(script):
     result = subprocess.run(
         [sys.executable, str(SCRIPTS / script), "--help"],
-        capture_output=True, text=True, check=False,
+        capture_output=True,
+        text=True,
+        check=False,
     )
     assert result.returncode == 0, result.stderr
     assert "usage:" in result.stdout.lower()
 
 
-@pytest.mark.parametrize("script", ["negatives.py", "fit.py", "evaluate.py", "model_summary.py",
-                                    "attribute.py", "seqlets.py", "annotate.py", "modisco_motifs.py",
-                                    "marginalize.py", "modisco_report.py", "name_motifs.py", "plot_attribution_profile.py",
-                                    "plot_seqlet_lengths.py", "plot_motif_counts.py",
-                                    "plot_motif_heatmap.py"])
+@pytest.mark.parametrize(
+    "script",
+    [
+        "negatives.py",
+        "fit.py",
+        "evaluate.py",
+        "model_summary.py",
+        "attribute.py",
+        "seqlets.py",
+        "annotate.py",
+        "modisco_motifs.py",
+        "marginalize.py",
+        "modisco_report.py",
+        "name_motifs.py",
+        "plot_attribution_profile.py",
+        "plot_seqlet_lengths.py",
+        "plot_motif_counts.py",
+        "plot_motif_heatmap.py",
+    ],
+)
 def test_missing_required_args_exits_two(script):
     result = subprocess.run(
         [sys.executable, str(SCRIPTS / script)],
-        capture_output=True, text=True, check=False,
+        capture_output=True,
+        text=True,
+        check=False,
     )
     assert result.returncode == 2  # argparse's exit code for missing required args

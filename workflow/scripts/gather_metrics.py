@@ -23,19 +23,40 @@ def build_parser():
         Parser for the gather_metrics.py flags.
     """
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("-i", "--performance", nargs="+", required=True,
-        help="Per-model performance TSVs (<sample>.performance.tsv).")
-    parser.add_argument("-s", "--samples", required=True,
-        help="Sample sheet (sample_id, genome, ...).")
-    parser.add_argument("-r", "--results_dir", required=True,
-        help="Run output dir (<results>/<run_id>) holding per-sample QC files.")
-    parser.add_argument("--covariates", nargs="*", default=[],
+    parser.add_argument(
+        "-i",
+        "--performance",
+        nargs="+",
+        required=True,
+        help="Per-model performance TSVs (<sample>.performance.tsv).",
+    )
+    parser.add_argument(
+        "-s", "--samples", required=True, help="Sample sheet (sample_id, genome, ...)."
+    )
+    parser.add_argument(
+        "-r",
+        "--results_dir",
+        required=True,
+        help="Run output dir (<results>/<run_id>) holding per-sample QC files.",
+    )
+    parser.add_argument(
+        "--covariates",
+        nargs="*",
+        default=[],
         choices=["n_peaks", "n_fragments"],
-        help="QC covariate columns to emit.")
-    parser.add_argument("--outlier_metric", default="count_pearson",
-        help="Metric screened for the `outlier` flag (default count_pearson).")
-    parser.add_argument("--outlier_iqr", type=float, default=1.5,
-        help="Tukey fence multiplier for the outlier flag (default 1.5).")
+        help="QC covariate columns to emit.",
+    )
+    parser.add_argument(
+        "--outlier_metric",
+        default="count_pearson",
+        help="Metric screened for the `outlier` flag (default count_pearson).",
+    )
+    parser.add_argument(
+        "--outlier_iqr",
+        type=float,
+        default=1.5,
+        help="Tukey fence multiplier for the outlier flag (default 1.5).",
+    )
     parser.add_argument("-o", "--output", required=True, help="Destination TSV.")
     return parser
 
@@ -123,7 +144,9 @@ def main():
     df["outlier"] = m < q1 - args.outlier_iqr * (q3 - q1)
 
     df.to_csv(args.output, sep="\t", index=False)
-    print(f"wrote {len(df)} rows ({int(df['outlier'].sum())} outliers) -> {args.output}")
+    print(
+        f"wrote {len(df)} rows ({int(df['outlier'].sum())} outliers) -> {args.output}"
+    )
 
 
 if __name__ == "__main__":

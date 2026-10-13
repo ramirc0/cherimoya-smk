@@ -39,7 +39,8 @@ def _official(fx, out):
     parameters = copy.deepcopy(default_pipeline_parameters)
     parameters.update(loci=[str(fx / "peaks.narrowPeak")])
     seqlet_parameters = _extract_set(
-        parameters, default_seqlet_parameters, "seqlet_parameters")
+        parameters, default_seqlet_parameters, "seqlet_parameters"
+    )
     _check_set(seqlet_parameters, "ohe_filename", str(fx / "attributions.ohe.npz"))
     _check_set(seqlet_parameters, "attr_filename", str(fx / "attributions.attr.npz"))
     _check_set(seqlet_parameters, "idx_filename", str(fx / "attributions.idxs.npy"))
@@ -53,15 +54,25 @@ def _official(fx, out):
 
 
 def _ours(fx, out):
-    subprocess.run([
-        sys.executable, str(SCRIPTS / "seqlets.py"),
-        "-l", str(fx / "peaks.narrowPeak"),
-        "--ohe_filename", str(fx / "attributions.ohe.npz"),
-        "--attr_filename", str(fx / "attributions.attr.npz"),
-        "--idx_filename", str(fx / "attributions.idxs.npy"),
-        "--output_filename", str(out / "s.bed"),
-        "--chroms", *_chroms(fx),
-    ], check=True)
+    subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPTS / "seqlets.py"),
+            "-l",
+            str(fx / "peaks.narrowPeak"),
+            "--ohe_filename",
+            str(fx / "attributions.ohe.npz"),
+            "--attr_filename",
+            str(fx / "attributions.attr.npz"),
+            "--idx_filename",
+            str(fx / "attributions.idxs.npy"),
+            "--output_filename",
+            str(out / "s.bed"),
+            "--chroms",
+            *_chroms(fx),
+        ],
+        check=True,
+    )
 
 
 def test_seqlets_match_pipeline(tmp_path):

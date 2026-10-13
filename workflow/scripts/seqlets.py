@@ -12,26 +12,66 @@ def build_parser():
         Parser for the seqlets.py flags.
     """
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("-l", "--loci", required=True,
-        help="Peak file (narrowPeak/BED) that was attributed.")
-    parser.add_argument("--ohe_filename", required=True,
-        help="One-hot sequences from attribute.py (.npz).")
-    parser.add_argument("--attr_filename", required=True,
-        help="Hypothetical attributions from attribute.py (.npz).")
-    parser.add_argument("--idx_filename", required=True,
-        help="Mask of attributed loci from attribute.py (.npy).")
+    parser.add_argument(
+        "-l",
+        "--loci",
+        required=True,
+        help="Peak file (narrowPeak/BED) that was attributed.",
+    )
+    parser.add_argument(
+        "--ohe_filename",
+        required=True,
+        help="One-hot sequences from attribute.py (.npz).",
+    )
+    parser.add_argument(
+        "--attr_filename",
+        required=True,
+        help="Hypothetical attributions from attribute.py (.npz).",
+    )
+    parser.add_argument(
+        "--idx_filename",
+        required=True,
+        help="Mask of attributed loci from attribute.py (.npy).",
+    )
     parser.add_argument("--output_filename", default="seqlets.bed")
-    parser.add_argument("--chroms", nargs="+", default=[
-        "chr2", "chr4", "chr5", "chr7", "chr9", "chr10", "chr11", "chr12",
-        "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19",
-        "chr21", "chr22", "chrX", "chrY", "chr8", "chr20"],
-        help="Chromosomes attribute.py was run on.")
+    parser.add_argument(
+        "--chroms",
+        nargs="+",
+        default=[
+            "chr2",
+            "chr4",
+            "chr5",
+            "chr7",
+            "chr9",
+            "chr10",
+            "chr11",
+            "chr12",
+            "chr13",
+            "chr14",
+            "chr15",
+            "chr16",
+            "chr17",
+            "chr18",
+            "chr19",
+            "chr21",
+            "chr22",
+            "chrX",
+            "chrY",
+            "chr8",
+            "chr20",
+        ],
+        help="Chromosomes attribute.py was run on.",
+    )
     parser.add_argument("--threshold", type=float, default=0.01)
     parser.add_argument("--min_seqlet_len", type=int, default=4)
     parser.add_argument("--max_seqlet_len", type=int, default=25)
     parser.add_argument("--additional_flanks", type=int, default=3)
-    parser.add_argument("--n_bins", type=int, default=1000,
-        help="Histogram bins for the attribution null distribution.")
+    parser.add_argument(
+        "--n_bins",
+        type=int,
+        default=1000,
+        help="Histogram bins for the attribution null distribution.",
+    )
     return parser
 
 

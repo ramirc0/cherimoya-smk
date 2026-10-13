@@ -20,10 +20,19 @@ def build_parser():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-i", "--metrics", required=True, help="metrics.tsv.")
     parser.add_argument("-o", "--output", required=True, help="Destination SVG.")
-    parser.add_argument("-m", "--metric", default="count_pearson",
-        help="Metric to rank on (default count_pearson).")
-    parser.add_argument("-k", "--iqr_mult", type=float, default=1.5,
-        help="Tukey fence multiplier for the drawn fence line (default 1.5).")
+    parser.add_argument(
+        "-m",
+        "--metric",
+        default="count_pearson",
+        help="Metric to rank on (default count_pearson).",
+    )
+    parser.add_argument(
+        "-k",
+        "--iqr_mult",
+        type=float,
+        default=1.5,
+        help="Tukey fence multiplier for the drawn fence line (default 1.5).",
+    )
     return parser
 
 
@@ -49,10 +58,23 @@ def main():
 
     fig, ax = plt.subplots(figsize=(6, 3.6))
     rank = np.arange(len(df))
-    ax.scatter(rank[~is_out], y[~is_out], s=5, color="#3b6ea5",
-        alpha=0.5, edgecolor="none", label="pass")
-    ax.scatter(rank[is_out], y[is_out], s=14, color="#d1495b",
-        edgecolor="none", label=f"outlier (< {fence:.2f})")
+    ax.scatter(
+        rank[~is_out],
+        y[~is_out],
+        s=5,
+        color="#3b6ea5",
+        alpha=0.5,
+        edgecolor="none",
+        label="pass",
+    )
+    ax.scatter(
+        rank[is_out],
+        y[is_out],
+        s=14,
+        color="#d1495b",
+        edgecolor="none",
+        label=f"outlier (< {fence:.2f})",
+    )
     ax.axhline(fence, color="#d1495b", lw=1, ls="--")
     ax.set_xlabel(f"models ranked by {args.metric}")
     ax.set_ylabel(args.metric)

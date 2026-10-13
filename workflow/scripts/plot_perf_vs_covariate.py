@@ -19,10 +19,18 @@ def build_parser():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-i", "--metrics", required=True, help="metrics.tsv.")
     parser.add_argument("-o", "--output", required=True, help="Destination SVG.")
-    parser.add_argument("-x", "--covariate", default="n_fragments",
-        help="Column for the x-axis (default n_fragments).")
-    parser.add_argument("-y", "--metric", default="count_pearson",
-        help="Performance column for the y-axis (default count_pearson).")
+    parser.add_argument(
+        "-x",
+        "--covariate",
+        default="n_fragments",
+        help="Column for the x-axis (default n_fragments).",
+    )
+    parser.add_argument(
+        "-y",
+        "--metric",
+        default="count_pearson",
+        help="Performance column for the y-axis (default count_pearson).",
+    )
     return parser
 
 
@@ -37,7 +45,9 @@ def main():
 
     pk.use("plain")
 
-    df = pd.read_csv(args.metrics, sep="\t").dropna(subset=[args.covariate, args.metric])
+    df = pd.read_csv(args.metrics, sep="\t").dropna(
+        subset=[args.covariate, args.metric]
+    )
     x, y = df[args.covariate].to_numpy(float), df[args.metric].to_numpy(float)
 
     # Spearman = Pearson on ranks (avoids a scipy dependency).
@@ -56,7 +66,9 @@ def main():
         if m.sum() >= 5:
             centers.append(10 ** ((edges[b] + edges[b + 1]) / 2))
             meds.append(np.median(y[m]))
-    ax.plot(centers, meds, color="#d1495b", lw=2, marker="o", ms=3, label="binned median")
+    ax.plot(
+        centers, meds, color="#d1495b", lw=2, marker="o", ms=3, label="binned median"
+    )
 
     ax.set_xscale("log")
     ax.set_xlabel(args.covariate)

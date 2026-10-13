@@ -12,8 +12,9 @@ def build_parser():
         Parser for the plot_seqlet_lengths.py flags.
     """
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("-i", "--seqlets", required=True,
-        help="Seqlet BED from seqlets.py.")
+    parser.add_argument(
+        "-i", "--seqlets", required=True, help="Seqlet BED from seqlets.py."
+    )
     parser.add_argument("-o", "--output", required=True, help="Destination SVG.")
     parser.add_argument("--sample", default="", help="Sample label for the title.")
     return parser
@@ -30,8 +31,12 @@ def main():
 
     pk.use("plain")
 
-    bed = pl.read_csv(args.seqlets, separator="\t", has_header=False,
-        new_columns=["chrom", "start", "end", "attribution", "p"])
+    bed = pl.read_csv(
+        args.seqlets,
+        separator="\t",
+        has_header=False,
+        new_columns=["chrom", "start", "end", "attribution", "p"],
+    )
     lengths = (bed["end"] - bed["start"]).to_numpy()
 
     fig, ax = plt.subplots(figsize=(4, 3))

@@ -17,14 +17,27 @@ def build_parser():
         Parser for the count_fragments.py flags.
     """
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("-i", "--signal", required=True,
-        help="Signal file: a BAM or a (bgzipped) fragments file.")
-    parser.add_argument("-o", "--output", required=True,
-        help="Destination text file (one integer).")
-    parser.add_argument("--fragments", action="store_true", default=False,
-        help="Signal is a fragments file (count lines), not a BAM.")
-    parser.add_argument("--paired_end", action="store_true", default=False,
-        help="BAM is paired-end: count read pairs (read1) as fragments.")
+    parser.add_argument(
+        "-i",
+        "--signal",
+        required=True,
+        help="Signal file: a BAM or a (bgzipped) fragments file.",
+    )
+    parser.add_argument(
+        "-o", "--output", required=True, help="Destination text file (one integer)."
+    )
+    parser.add_argument(
+        "--fragments",
+        action="store_true",
+        default=False,
+        help="Signal is a fragments file (count lines), not a BAM.",
+    )
+    parser.add_argument(
+        "--paired_end",
+        action="store_true",
+        default=False,
+        help="BAM is paired-end: count read pairs (read1) as fragments.",
+    )
     return parser
 
 

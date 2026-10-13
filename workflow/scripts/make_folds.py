@@ -32,8 +32,14 @@ HG38 = [
     {"test": ["chr1", "chr3", "chr6"], "valid": ["chr8", "chr20"]},
     {"test": ["chr2", "chr8", "chr9", "chr16"], "valid": ["chr12", "chr17"]},
     {"test": ["chr4", "chr11", "chr12", "chr15", "chrY"], "valid": ["chr22", "chr7"]},
-    {"test": ["chr5", "chr10", "chr14", "chr18", "chr20", "chr22"], "valid": ["chr6", "chr21"]},
-    {"test": ["chr7", "chr13", "chr17", "chr19", "chr21", "chrX"], "valid": ["chr10", "chr18"]},
+    {
+        "test": ["chr5", "chr10", "chr14", "chr18", "chr20", "chr22"],
+        "valid": ["chr6", "chr21"],
+    },
+    {
+        "test": ["chr7", "chr13", "chr17", "chr19", "chr21", "chrX"],
+        "valid": ["chr10", "chr18"],
+    },
 ]
 
 
@@ -122,18 +128,19 @@ def folds_for(genome):
     folds = []
     for spec in specs:
         held = set(spec["test"]) | set(spec["valid"])
-        folds.append({
-            "test": spec["test"],
-            "valid": spec["valid"],
-            "train": [c for c in all_chroms if c not in held],
-        })
+        folds.append(
+            {
+                "test": spec["test"],
+                "valid": spec["valid"],
+                "train": [c for c in all_chroms if c not in held],
+            }
+        )
     return folds
 
 
 def main():
     """Write fold JSONs for every genome under resources/refs."""
-    genomes = sorted(p.name[: -len(".chrom.sizes")]
-                     for p in REFS.glob("*.chrom.sizes"))
+    genomes = sorted(p.name[: -len(".chrom.sizes")] for p in REFS.glob("*.chrom.sizes"))
     for genome in genomes:
         folds = folds_for(genome)
         d = OUT / genome
@@ -146,8 +153,10 @@ def main():
             for c in fold["test"]:
                 counts[c] = counts.get(c, 0) + 1
         bad = {c: n for c, n in counts.items() if n != 1}
-        print(f"{genome}: {len(folds)} folds, {len(counts)} chroms"
-              + (f"  WARN test-count!=1: {bad}" if bad else "  (each chrom test x1)"))
+        print(
+            f"{genome}: {len(folds)} folds, {len(counts)} chroms"
+            + (f"  WARN test-count!=1: {bad}" if bad else "  (each chrom test x1)")
+        )
 
 
 if __name__ == "__main__":

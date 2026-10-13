@@ -7,7 +7,12 @@ from pathlib import Path
 import numpy
 import polars as pl
 
-SCRIPT = Path(__file__).resolve().parents[1] / "workflow" / "scripts" / "plot_motif_heatmap.py"
+SCRIPT = (
+    Path(__file__).resolve().parents[1]
+    / "workflow"
+    / "scripts"
+    / "plot_motif_heatmap.py"
+)
 
 
 def synthetic_counts(root, n_samples, names, n_programs=6, seed=0):
@@ -34,8 +39,10 @@ def synthetic_counts(root, n_samples, names, n_programs=6, seed=0):
 
 
 def _run(paths, out):
-    subprocess.run([sys.executable, str(SCRIPT), "-i", *map(str, paths), "-o", str(out)],
-        check=True)
+    subprocess.run(
+        [sys.executable, str(SCRIPT), "-i", *map(str, paths), "-o", str(out)],
+        check=True,
+    )
 
 
 def test_heatmap_scales_to_many_samples(tmp_path):

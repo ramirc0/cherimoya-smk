@@ -12,10 +12,16 @@ def build_parser():
         Parser for the plot_attribution_profile.py flags.
     """
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--ohe_filename", required=True,
-        help="One-hot sequences from attribute.py (.npz).")
-    parser.add_argument("--attr_filename", required=True,
-        help="Hypothetical attributions from attribute.py (.npz).")
+    parser.add_argument(
+        "--ohe_filename",
+        required=True,
+        help="One-hot sequences from attribute.py (.npz).",
+    )
+    parser.add_argument(
+        "--attr_filename",
+        required=True,
+        help="Hypothetical attributions from attribute.py (.npz).",
+    )
     parser.add_argument("-o", "--output", required=True, help="Destination SVG.")
     parser.add_argument("--sample", default="", help="Sample label for the title.")
     return parser

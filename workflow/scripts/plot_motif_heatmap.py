@@ -16,14 +16,21 @@ def build_parser():
     argparse.ArgumentParser
         Parser for the plot_motif_heatmap.py flags.
     """
-    parser = argparse.ArgumentParser(description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("-i", "--counts", nargs="+", required=True,
-        help="Seqlets per motif (<results>/<sample>/fold_<k>/<sample>.motif_seqlet_count.tsv).")
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument(
+        "-i",
+        "--counts",
+        nargs="+",
+        required=True,
+        help="Seqlets per motif (<results>/<sample>/fold_<k>/<sample>.motif_seqlet_count.tsv).",
+    )
     parser.add_argument("-o", "--output", required=True, help="Destination SVG.")
     parser.add_argument("-n", "--n_motifs", type=int, default=30)
-    parser.add_argument("--max_labels", type=int, default=40,
-        help="Most samples to label by name.")
+    parser.add_argument(
+        "--max_labels", type=int, default=40, help="Most samples to label by name."
+    )
     return parser
 
 
@@ -65,20 +72,29 @@ def main():
     frames = []
     for path in args.counts:
         path = Path(path)
-        frames.append(pl.read_csv(path, separator="\t").with_columns(
-            pl.col("motifs").str.strip_chars(),
-            (pl.col("count") / pl.col("count").sum()).alias("fraction"),
-            sample=pl.lit(path.parents[1].name),
-            fold=pl.lit(path.parent.name)))
+        frames.append(
+            pl.read_csv(path, separator="\t").with_columns(
+                pl.col("motifs").str.strip_chars(),
+                (pl.col("count") / pl.col("count").sum()).alias("fraction"),
+                sample=pl.lit(path.parents[1].name),
+                fold=pl.lit(path.parent.name),
+            )
+        )
     df = pl.concat(frames)
     if df.select("sample").n_unique() < len(args.counts):
         df = df.with_columns(sample=pl.format("{}/{}", "sample", "fold"))
 
-    top = (df.group_by("motifs").agg(pl.col("fraction").max())
-        .sort("fraction", descending=True).head(args.n_motifs)["motifs"])
-    wide = (df.filter(pl.col("motifs").is_in(top.implode()))
+    top = (
+        df.group_by("motifs")
+        .agg(pl.col("fraction").max())
+        .sort("fraction", descending=True)
+        .head(args.n_motifs)["motifs"]
+    )
+    wide = (
+        df.filter(pl.col("motifs").is_in(top.implode()))
         .pivot(on="motifs", index="sample", values="fraction")
-        .fill_null(0))
+        .fill_null(0)
+    )
     samples = wide["sample"].to_numpy()
     motifs = numpy.array(wide.columns[1:])
     M = wide.drop("sample").to_numpy()
@@ -90,8 +106,11 @@ def main():
     # Rows are 0.22 in tall until the heatmap reaches 9 in; the rest is labels.
     # The colorbar gets its own cell so its size does not follow the row count.
     height = min(0.22 * n, 9)
-    fig, axes = plt.subplot_mosaic([[".", "cbar", "."], ["heat"] * 3],
-        figsize=(2.5 + 0.2 * len(motifs), 3 + height), height_ratios=[0.12, height])
+    fig, axes = plt.subplot_mosaic(
+        [[".", "cbar", "."], ["heat"] * 3],
+        figsize=(2.5 + 0.2 * len(motifs), 3 + height),
+        height_ratios=[0.12, height],
+    )
     ax = axes["heat"]
     mesh = ax.pcolormesh(M, cmap="viridis", norm=PowerNorm(0.5, vmin=0))
     ax.invert_yaxis()

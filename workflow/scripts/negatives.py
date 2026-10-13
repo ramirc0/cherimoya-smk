@@ -12,31 +12,80 @@ def build_parser():
         Parser for the negatives.py flags.
     """
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("-i", "--peaks", required=True,
-        help="A peak file (narrowPeak/BED) to draw GC-matched negatives against.")
-    parser.add_argument("-f", "--fasta", required=True,
-        help="A FASTA file of the genome the peaks are defined on.")
-    parser.add_argument("-b", "--bigwig", default=None,
-        help="Optional bigWig used to also match on signal.")
-    parser.add_argument("-o", "--output", required=True,
-        help="Destination BED file for the matched negative loci.")
-    parser.add_argument("-l", "--bin_width", type=float, default=0.02,
-        help="GC bin width for matching. Default 0.02.")
-    parser.add_argument("-n", "--max_n_perc", type=float, default=0.1,
-        help="Maximum fraction of Ns allowed in a locus. Default 0.1.")
-    parser.add_argument("-a", "--beta", type=float, default=0.5,
-        help="Signal-matching strength when a bigWig is given. Default 0.5.")
-    parser.add_argument("-w", "--in_window", type=int, default=2114,
-        help="Input window size. Default 2114.")
-    parser.add_argument("-x", "--out_window", type=int, default=1000,
-        help="Output window size. Default 1000.")
-    parser.add_argument("-r", "--random_state", type=int, default=243746692,
-        help="Seed for drawing the negatives. Default 243746692.")
+    parser.add_argument(
+        "-i",
+        "--peaks",
+        required=True,
+        help="A peak file (narrowPeak/BED) to draw GC-matched negatives against.",
+    )
+    parser.add_argument(
+        "-f",
+        "--fasta",
+        required=True,
+        help="A FASTA file of the genome the peaks are defined on.",
+    )
+    parser.add_argument(
+        "-b",
+        "--bigwig",
+        default=None,
+        help="Optional bigWig used to also match on signal.",
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        required=True,
+        help="Destination BED file for the matched negative loci.",
+    )
+    parser.add_argument(
+        "-l",
+        "--bin_width",
+        type=float,
+        default=0.02,
+        help="GC bin width for matching. Default 0.02.",
+    )
+    parser.add_argument(
+        "-n",
+        "--max_n_perc",
+        type=float,
+        default=0.1,
+        help="Maximum fraction of Ns allowed in a locus. Default 0.1.",
+    )
+    parser.add_argument(
+        "-a",
+        "--beta",
+        type=float,
+        default=0.5,
+        help="Signal-matching strength when a bigWig is given. Default 0.5.",
+    )
+    parser.add_argument(
+        "-w",
+        "--in_window",
+        type=int,
+        default=2114,
+        help="Input window size. Default 2114.",
+    )
+    parser.add_argument(
+        "-x",
+        "--out_window",
+        type=int,
+        default=1000,
+        help="Output window size. Default 1000.",
+    )
+    parser.add_argument(
+        "-r",
+        "--random_state",
+        type=int,
+        default=243746692,
+        help="Seed for drawing the negatives. Default 243746692.",
+    )
     parser.add_argument("-v", "--verbose", action="store_true")
-    parser.add_argument("--on_missing_contig", choices=("filter", "fail"),
+    parser.add_argument(
+        "--on_missing_contig",
+        choices=("filter", "fail"),
         default="filter",
         help="What to do with peaks on contigs absent from the FASTA. "
-             "filter: drop and warn (default); fail: error out.")
+        "filter: drop and warn (default); fail: error out.",
+    )
     return parser
 
 
@@ -74,8 +123,9 @@ def resolve_present_chroms(peaks_path, fasta_path, policy):
     import pandas as pd
     import pyfaidx
 
-    peak_chroms = pd.read_csv(peaks_path, sep="\t", usecols=[0], header=None,
-        names=["chrom"], dtype=str)["chrom"]
+    peak_chroms = pd.read_csv(
+        peaks_path, sep="\t", usecols=[0], header=None, names=["chrom"], dtype=str
+    )["chrom"]
     fasta_contigs = set(map(str, pyfaidx.Fasta(fasta_path).keys()))
 
     present = sorted(set(peak_chroms) & fasta_contigs)
@@ -83,8 +133,10 @@ def resolve_present_chroms(peaks_path, fasta_path, policy):
 
     if missing:
         n_dropped = int(peak_chroms.isin(missing).sum())
-        detail = (f"{n_dropped} peak(s) on {len(missing)} contig(s) absent from the "
-                  f"FASTA: {', '.join(missing)}")
+        detail = (
+            f"{n_dropped} peak(s) on {len(missing)} contig(s) absent from the "
+            f"FASTA: {', '.join(missing)}"
+        )
         if policy == "fail":
             raise SystemExit(
                 f"[negatives] ERROR: {detail}. Fix the peaks/reference or set "

@@ -14,25 +14,55 @@ def build_parser():
     parser = argparse.ArgumentParser(description=__doc__)
 
     # Data
-    parser.add_argument("-s", "--sequences", required=True,
-        help="Genome FASTA.")
-    parser.add_argument("-l", "--loci", required=True,
-        help="Peak file (narrowPeak/BED) of positive loci.")
-    parser.add_argument("-neg", "--negatives", required=True,
-        help="BED file of GC-matched negative loci.")
-    parser.add_argument("-sig", "--signals", nargs="+", required=True,
+    parser.add_argument("-s", "--sequences", required=True, help="Genome FASTA.")
+    parser.add_argument(
+        "-l",
+        "--loci",
+        required=True,
+        help="Peak file (narrowPeak/BED) of positive loci.",
+    )
+    parser.add_argument(
+        "-neg",
+        "--negatives",
+        required=True,
+        help="BED file of GC-matched negative loci.",
+    )
+    parser.add_argument(
+        "-sig",
+        "--signals",
+        nargs="+",
+        required=True,
         help="One or more signal bigWigs. A flat list of N files is N "
-             "independent unstranded groups; with --stranded the files are "
-             "one stranded (+, -) group.")
-    parser.add_argument("-c", "--controls", nargs="+", default=None,
-        help="Optional control bigWig(s), grouped like --signals.")
-    parser.add_argument("--stranded", action="store_true", default=False,
+        "independent unstranded groups; with --stranded the files are "
+        "one stranded (+, -) group.",
+    )
+    parser.add_argument(
+        "-c",
+        "--controls",
+        nargs="+",
+        default=None,
+        help="Optional control bigWig(s), grouped like --signals.",
+    )
+    parser.add_argument(
+        "--stranded",
+        action="store_true",
+        default=False,
         help="Treat the signal (and control) files as a single stranded "
-             "(+, -) group instead of independent unstranded tracks.")
-    parser.add_argument("-e", "--exclusion_lists", nargs="+", default=None,
-        help="Optional BED files of regions to exclude.")
-    parser.add_argument("-o", "--name", required=True,
-        help="Output prefix; the best checkpoint is written to <name>.torch.")
+        "(+, -) group instead of independent unstranded tracks.",
+    )
+    parser.add_argument(
+        "-e",
+        "--exclusion_lists",
+        nargs="+",
+        default=None,
+        help="Optional BED files of regions to exclude.",
+    )
+    parser.add_argument(
+        "-o",
+        "--name",
+        required=True,
+        help="Output prefix; the best checkpoint is written to <name>.torch.",
+    )
 
     # Model
     parser.add_argument("--n_filters", type=int, default=128)
@@ -46,19 +76,29 @@ def build_parser():
     parser.add_argument("--max_jitter", type=int, default=500)
     parser.add_argument("--negative_ratio", type=float, default=0.25)
     parser.add_argument("--reverse_complement", action="store_true", default=True)
-    parser.add_argument("--no_reverse_complement", dest="reverse_complement",
-        action="store_false")
+    parser.add_argument(
+        "--no_reverse_complement", dest="reverse_complement", action="store_false"
+    )
     parser.add_argument("--summits", action="store_true", default=False)
 
     # Optimization
     parser.add_argument("--batch_size", type=int, default=64)
     parser.add_argument("--max_epochs", type=int, default=20)
-    parser.add_argument("--min_total_steps", type=int, default=20000,
+    parser.add_argument(
+        "--min_total_steps",
+        type=int,
+        default=20000,
         help="Raise max_epochs until training takes this many steps; 0 "
-             "disables the floor.")
-    parser.add_argument("--loss_weights", nargs=2, type=float, default=None,
+        "disables the floor.",
+    )
+    parser.add_argument(
+        "--loss_weights",
+        nargs=2,
+        type=float,
+        default=None,
         metavar=("PROFILE", "COUNT"),
-        help="Fixed loss weights replacing the learned Kendall weights.")
+        help="Fixed loss weights replacing the learned Kendall weights.",
+    )
     parser.add_argument("--n_warmup_epochs", type=int, default=2)
     parser.add_argument("--early_stopping", type=int, default=None)
     parser.add_argument("--muon_lr", type=float, default=0.025)
@@ -77,12 +117,32 @@ def build_parser():
     parser.add_argument("--no_compile", dest="compile", action="store_false")
     parser.add_argument("--compile_mode", default="max-autotune")
     parser.add_argument("--random_state", type=int, default=0)
-    parser.add_argument("--training_chroms", nargs="+", default=[
-        "chr2", "chr4", "chr5", "chr7", "chr9", "chr10", "chr11", "chr12",
-        "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr21",
-        "chr22", "chrX", "chrY"])
-    parser.add_argument("--validation_chroms", nargs="+",
-        default=["chr8", "chr20"])
+    parser.add_argument(
+        "--training_chroms",
+        nargs="+",
+        default=[
+            "chr2",
+            "chr4",
+            "chr5",
+            "chr7",
+            "chr9",
+            "chr10",
+            "chr11",
+            "chr12",
+            "chr13",
+            "chr14",
+            "chr15",
+            "chr16",
+            "chr17",
+            "chr18",
+            "chr19",
+            "chr21",
+            "chr22",
+            "chrX",
+            "chrY",
+        ],
+    )
+    parser.add_argument("--validation_chroms", nargs="+", default=["chr8", "chr20"])
     parser.add_argument("-v", "--verbose", action="store_true", default=False)
 
     return parser
@@ -109,8 +169,11 @@ def main():
     # each file is its own unstranded group. The structured spec preserves
     # grouping for the model; the flat file list feeds extract_loci.
     signals = [args.signals] if args.stranded else args.signals
-    controls = None if args.controls is None else (
-        [args.controls] if args.stranded else args.controls)
+    controls = (
+        None
+        if args.controls is None
+        else ([args.controls] if args.stranded else args.controls)
+    )
     signal_files, signal_groups = normalize_signal_groups(signals)
     control_files, control_groups = normalize_signal_groups(controls)
 
@@ -159,8 +222,9 @@ def main():
     valid_labels = None
     if len(_interleave_loci(args.negatives, args.validation_chroms)) > 0:
         negative_data = _extract_valid(args.negatives, False)
-        valid_labels = torch.cat([torch.ones(len(valid_data[0])),
-            torch.zeros(len(negative_data[0]))])
+        valid_labels = torch.cat(
+            [torch.ones(len(valid_data[0])), torch.zeros(len(negative_data[0]))]
+        )
         valid_data = [torch.cat(pair) for pair in zip(valid_data, negative_data)]
 
     if control_files is not None:

@@ -17,8 +17,12 @@ def build_parser():
         Parser for the plot_count_scatter.py flags.
     """
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("-i", "--counts", required=True,
-        help="Per-region counts TSV (group, obs_logcount, pred_logcount).")
+    parser.add_argument(
+        "-i",
+        "--counts",
+        required=True,
+        help="Per-region counts TSV (group, obs_logcount, pred_logcount).",
+    )
     parser.add_argument("-o", "--output", required=True, help="Destination SVG.")
     parser.add_argument("--sample", default="", help="Sample name for the title.")
     return parser
@@ -51,6 +55,7 @@ def main():
     ax.set_ylabel("predicted log-counts")
     # Wrap the (long) sample name so the title fits the figure width.
     import textwrap
+
     header = "\n".join(textwrap.wrap(args.sample, 30)) + "\n" if args.sample else ""
     ax.set_title(f"{header}count Pearson r = {r:.3f}  (n={len(x)})", fontsize=11)
     ax.legend(frameon=False, fontsize=8, loc="upper left")

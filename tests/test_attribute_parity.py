@@ -36,13 +36,17 @@ def _official(fx, out, output):
     from cherimoya_cli.utils import _check_set, _extract_set
 
     parameters = copy.deepcopy(default_pipeline_parameters)
-    parameters.update(sequences=str(fx / "genome.fa"),
-        loci=[str(fx / "peaks.narrowPeak")], model=str(fx / "model.torch"),
-        device=DEVICE)
+    parameters.update(
+        sequences=str(fx / "genome.fa"),
+        loci=[str(fx / "peaks.narrowPeak")],
+        model=str(fx / "model.torch"),
+        device=DEVICE,
+    )
     if (fx / "blacklist.bed").exists():
         parameters["exclusion_lists"] = [str(fx / "blacklist.bed")]
     attribute_parameters = _extract_set(
-        parameters, default_attribute_parameters, "attribute_parameters")
+        parameters, default_attribute_parameters, "attribute_parameters"
+    )
     attribute_parameters["output"] = output
     _check_set(attribute_parameters, "ohe_filename", str(out / "o.ohe.npz"))
     _check_set(attribute_parameters, "attr_filename", str(out / "o.attr.npz"))
@@ -57,20 +61,36 @@ def _official(fx, out, output):
 def _ours(fx, out, output):
     # attribute.py as the rule calls it: chroms are the fold's train + valid.
     fold = json.loads((fx / "fold.json").read_text())
-    exclusion = ["-e", str(fx / "blacklist.bed")] if (fx / "blacklist.bed").exists() else []
-    subprocess.run([
-        sys.executable, str(SCRIPTS / "attribute.py"),
-        "-s", str(fx / "genome.fa"),
-        "-l", str(fx / "peaks.narrowPeak"),
-        "-m", str(fx / "model.torch"),
-        "--chroms", *fold["train"], *fold["valid"],
-        "--device", DEVICE,
-        "--output", output,
-        "--ohe_filename", str(out / "s.ohe.npz"),
-        "--attr_filename", str(out / "s.attr.npz"),
-        "--idx_filename", str(out / "s.idxs.npy"),
-        *exclusion,
-    ], check=True)
+    exclusion = (
+        ["-e", str(fx / "blacklist.bed")] if (fx / "blacklist.bed").exists() else []
+    )
+    subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPTS / "attribute.py"),
+            "-s",
+            str(fx / "genome.fa"),
+            "-l",
+            str(fx / "peaks.narrowPeak"),
+            "-m",
+            str(fx / "model.torch"),
+            "--chroms",
+            *fold["train"],
+            *fold["valid"],
+            "--device",
+            DEVICE,
+            "--output",
+            output,
+            "--ohe_filename",
+            str(out / "s.ohe.npz"),
+            "--attr_filename",
+            str(out / "s.attr.npz"),
+            "--idx_filename",
+            str(out / "s.idxs.npy"),
+            *exclusion,
+        ],
+        check=True,
+    )
 
 
 # Two official GPU runs differ by up to ~2e-5 on counts (full ATAC peaks,

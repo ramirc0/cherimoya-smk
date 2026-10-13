@@ -18,9 +18,12 @@ def build_parser():
     argparse.ArgumentParser
         Parser for the name_motifs.py flags.
     """
-    parser = argparse.ArgumentParser(description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("input", help="MEME file with `MOTIF <accession> <name>` lines.")
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument(
+        "input", help="MEME file with `MOTIF <accession> <name>` lines."
+    )
     parser.add_argument("output", help="Renamed MEME file.")
     return parser
 

@@ -12,14 +12,21 @@ def build_parser():
         Parser for the model_summary.py flags.
     """
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("-m", "--model", required=True,
-        help="Checkpoint written by fit (<name>.torch).")
-    parser.add_argument("-o", "--output", required=True,
-        help="Text file for the summary table.")
-    parser.add_argument("--in_window", type=int, default=2114,
-        help="Input sequence length of the dummy forward pass.")
-    parser.add_argument("--depth", type=int, default=2,
-        help="Module nesting depth shown in the table.")
+    parser.add_argument(
+        "-m", "--model", required=True, help="Checkpoint written by fit (<name>.torch)."
+    )
+    parser.add_argument(
+        "-o", "--output", required=True, help="Text file for the summary table."
+    )
+    parser.add_argument(
+        "--in_window",
+        type=int,
+        default=2114,
+        help="Input sequence length of the dummy forward pass.",
+    )
+    parser.add_argument(
+        "--depth", type=int, default=2, help="Module nesting depth shown in the table."
+    )
     return parser
 
 
@@ -41,8 +48,7 @@ def main():
     if model.n_control_tracks:
         inputs.append(torch.zeros(1, model.n_control_tracks, args.in_window))
 
-    stats = torchinfo.summary(model, input_data=inputs, depth=args.depth,
-        verbose=0)
+    stats = torchinfo.summary(model, input_data=inputs, depth=args.depth, verbose=0)
     with open(args.output, "w") as fh:
         fh.write(f"{stats}\n")
 

@@ -20,74 +20,159 @@ defaults = pytest.importorskip("cherimoya_cli.defaults")
 
 # Keys present in both our parser and the cherimoya_cli default dict.
 FIT_KEYS = [
-    "n_filters", "n_layers", "expansion", "residual_scale", "batch_size",
-    "in_window", "out_window", "max_jitter", "negative_ratio",
-    "reverse_complement", "summits", "max_epochs", "min_total_steps",
-    "loss_weights", "n_warmup_epochs", "early_stopping", "muon_lr",
-    "muon_wd", "adam_lr", "adam_wd", "lw_lr", "lw_wd", "lw_momentum",
-    "num_workers", "dtype", "device", "compile", "compile_mode",
-    "random_state", "training_chroms", "validation_chroms",
-    "exclusion_lists", "verbose",
+    "n_filters",
+    "n_layers",
+    "expansion",
+    "residual_scale",
+    "batch_size",
+    "in_window",
+    "out_window",
+    "max_jitter",
+    "negative_ratio",
+    "reverse_complement",
+    "summits",
+    "max_epochs",
+    "min_total_steps",
+    "loss_weights",
+    "n_warmup_epochs",
+    "early_stopping",
+    "muon_lr",
+    "muon_wd",
+    "adam_lr",
+    "adam_wd",
+    "lw_lr",
+    "lw_wd",
+    "lw_momentum",
+    "num_workers",
+    "dtype",
+    "device",
+    "compile",
+    "compile_mode",
+    "random_state",
+    "training_chroms",
+    "validation_chroms",
+    "exclusion_lists",
+    "verbose",
 ]
 
 EVAL_KEYS = [
-    "batch_size", "in_window", "out_window", "reverse_complement_average",
-    "summits", "device", "dtype", "compile", "compile_mode", "chroms",
-    "exclusion_lists", "verbose",
+    "batch_size",
+    "in_window",
+    "out_window",
+    "reverse_complement_average",
+    "summits",
+    "device",
+    "dtype",
+    "compile",
+    "compile_mode",
+    "chroms",
+    "exclusion_lists",
+    "verbose",
 ]
 
 ATTR_KEYS = [
-    "batch_size", "in_window", "chroms", "compile", "compile_mode",
-    "algorithm", "output", "group", "attr_window", "n_shuffles",
-    "warning_threshold", "random_state", "ohe_filename", "attr_filename",
-    "idx_filename", "dtype", "device", "verbose", "exclusion_lists",
+    "batch_size",
+    "in_window",
+    "chroms",
+    "compile",
+    "compile_mode",
+    "algorithm",
+    "output",
+    "group",
+    "attr_window",
+    "n_shuffles",
+    "warning_threshold",
+    "random_state",
+    "ohe_filename",
+    "attr_filename",
+    "idx_filename",
+    "dtype",
+    "device",
+    "verbose",
+    "exclusion_lists",
 ]
 
 SEQLET_KEYS = [
-    "threshold", "min_seqlet_len", "max_seqlet_len", "additional_flanks",
-    "chroms", "output_filename",
+    "threshold",
+    "min_seqlet_len",
+    "max_seqlet_len",
+    "additional_flanks",
+    "chroms",
+    "output_filename",
 ]
 
 ANNOT_KEYS = [
-    "n_score_bins", "n_median_bins", "n_target_bins", "n_cache",
-    "reverse_complement", "n_jobs", "output_filename",
+    "n_score_bins",
+    "n_median_bins",
+    "n_target_bins",
+    "n_cache",
+    "reverse_complement",
+    "n_jobs",
+    "output_filename",
 ]
 
 MODISCO_KEYS = ["n_seqlets"]
 
 # `modisco motifs` flags the pipeline leaves at the CLI default.
 MODISCO_CLI_KEYS = [
-    "n_leiden", "window", "size", "trim_size", "seqlet_flank_size",
-    "initial_flank_to_add", "final_flank_to_add",
+    "n_leiden",
+    "window",
+    "size",
+    "trim_size",
+    "seqlet_flank_size",
+    "initial_flank_to_add",
+    "final_flank_to_add",
 ]
 
 # Extras passed to TFMoDISco; the CLI hard-codes target_seqlet_fdr=0.05.
-MODISCO_LIB_KEYS = ["min_metacluster_size", "n_leiden_iterations", "final_min_cluster_size"]
-
-MARGINALIZE_KEYS = [
-    "batch_size", "in_window", "chroms", "n_loci", "shuffle", "random_state",
-    "attributions", "minimal", "compile", "compile_mode", "output_filename",
-    "device", "verbose", "exclusion_lists",
+MODISCO_LIB_KEYS = [
+    "min_metacluster_size",
+    "n_leiden_iterations",
+    "final_min_cluster_size",
 ]
 
-TEMPLATES = sorted((Path(__file__).resolve().parents[1] / "config").glob("*.yaml.template"))
+MARGINALIZE_KEYS = [
+    "batch_size",
+    "in_window",
+    "chroms",
+    "n_loci",
+    "shuffle",
+    "random_state",
+    "attributions",
+    "minimal",
+    "compile",
+    "compile_mode",
+    "output_filename",
+    "device",
+    "verbose",
+    "exclusion_lists",
+]
+
+TEMPLATES = sorted(
+    (Path(__file__).resolve().parents[1] / "config").glob("*.yaml.template")
+)
 
 
 def _template_block(template, name):
     """Map each key of a flat top-level block in a config template to its value string."""
-    block = re.search(rf"^{name}:.*?\n((?:  .*\n)+)", template.read_text(), re.MULTILINE).group(1)
+    block = re.search(
+        rf"^{name}:.*?\n((?:  .*\n)+)", template.read_text(), re.MULTILINE
+    ).group(1)
     return dict(re.findall(r"^  (\w+): *([^\s#]+)", block, re.MULTILINE))
 
 
 def _cli_defaults(*cmd):
     """Map each `--flag` of a `modisco` subcommand to its help default string."""
     exe = Path(sys.executable).parent / "modisco"
-    text = subprocess.run([str(exe), *cmd, "--help"], capture_output=True, text=True,
-        check=True).stdout
+    text = subprocess.run(
+        [str(exe), *cmd, "--help"], capture_output=True, text=True, check=True
+    ).stdout
     blocks = [" ".join(b.split()) for b in re.split(r"\n(?=\s{2}-)", text)]
-    return {m.group(1): re.findall(r"\(default: ([^)]*)\)", b)[-1]
-            for b in blocks if (m := re.search(r"--(\w+)", b))
-            and "(default:" in b}
+    return {
+        m.group(1): re.findall(r"\(default: ([^)]*)\)", b)[-1]
+        for b in blocks
+        if (m := re.search(r"--(\w+)", b)) and "(default:" in b
+    }
 
 
 @pytest.mark.parametrize("key", FIT_KEYS)

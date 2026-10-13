@@ -26,8 +26,12 @@ def build_parser():
         Parser for the plot_epochs.py flags.
     """
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("-i", "--history", required=True,
-        help="Training log TSV (<sample>.log) from the fit step.")
+    parser.add_argument(
+        "-i",
+        "--history",
+        required=True,
+        help="Training log TSV (<sample>.log) from the fit step.",
+    )
     parser.add_argument("-o", "--output", required=True, help="Destination SVG.")
     parser.add_argument("--sample", default="", help="Sample label for the title.")
     return parser
@@ -52,15 +56,16 @@ def main():
     # suptitle so it does not collide with the axis titles.
     ncols = min(3, len(metrics))
     nrows = math.ceil(len(metrics) / ncols)
-    fig, axes = plt.subplots(nrows, ncols, figsize=(4 * ncols, 3 * nrows),
-        squeeze=False)
+    fig, axes = plt.subplots(
+        nrows, ncols, figsize=(4 * ncols, 3 * nrows), squeeze=False
+    )
     axes = axes.ravel()
     for ax, metric in zip(axes, metrics):
         ax.plot(df["Epoch"], df[metric], marker="o")
         ax.set_title(metric)
         ax.set_xlabel("Epoch")
         pk.despine(ax)
-    for ax in axes[len(metrics):]:
+    for ax in axes[len(metrics) :]:
         ax.set_visible(False)
 
     if args.sample:

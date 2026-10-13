@@ -20,6 +20,8 @@ def test_ids_become_name_accession(tmp_path):
     src, out = tmp_path / "in.meme", tmp_path / "out.meme"
     src.write_text(MEME)
     subprocess.run([sys.executable, str(SCRIPT), str(src), str(out)], check=True)
-    assert out.read_text() == (MEME
-        .replace("MA0074.1 RXRA::VDR", "RXRA+VDR_MA0074.1")
-        .replace("MA1854.2 Etv1/4/5", "Etv1-4-5_MA1854.2"))
+    assert out.read_text() == (
+        MEME.replace("MA0074.1 RXRA::VDR", "RXRA+VDR_MA0074.1").replace(
+            "MA1854.2 Etv1/4/5", "Etv1-4-5_MA1854.2"
+        )
+    )

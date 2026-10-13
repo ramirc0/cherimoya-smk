@@ -10,8 +10,9 @@ RULES = Path(__file__).resolve().parents[1] / "workflow" / "rules"
 
 def _shell_blocks():
     for smk in sorted(RULES.glob("*.smk")):
-        for name, body in re.findall(r"^rule (\w+):(.*?)(?=^rule |\Z)",
-                                     smk.read_text(), re.DOTALL | re.MULTILINE):
+        for name, body in re.findall(
+            r"^rule (\w+):(.*?)(?=^rule |\Z)", smk.read_text(), re.DOTALL | re.MULTILINE
+        ):
             block = re.search(r'shell:\s*r"""(.*?)"""', body, re.DOTALL)
             if block:
                 yield name, block.group(1)
@@ -27,4 +28,5 @@ def test_command_does_not_end_on_a_params_only_line(name, shell):
     # which bash passes to the tool as a literal argument.
     last = [line.strip() for line in shell.splitlines() if line.strip()][-1]
     assert not re.fullmatch(r"(\{params\.\w+:q\}\s*)+", last), (
-        f"rule {name} ends on {last!r}; move optional flags before required ones")
+        f"rule {name} ends on {last!r}; move optional flags before required ones"
+    )

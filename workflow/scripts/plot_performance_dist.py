@@ -13,8 +13,13 @@ def build_parser():
         Parser for the plot_performance_dist.py flags.
     """
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("-i", "--performance", nargs="+", required=True,
-        help="Per-model performance TSVs (<sample>.performance.tsv).")
+    parser.add_argument(
+        "-i",
+        "--performance",
+        nargs="+",
+        required=True,
+        help="Per-model performance TSVs (<sample>.performance.tsv).",
+    )
     parser.add_argument("-o", "--output", required=True, help="Destination SVG.")
     return parser
 
@@ -48,15 +53,16 @@ def main():
     # axis crushes them. KDE only when a metric has more than one distinct value.
     ncols = min(4, len(metrics))
     nrows = math.ceil(len(metrics) / ncols)
-    fig, axes = plt.subplots(nrows, ncols, figsize=(3.2 * ncols, 2.8 * nrows),
-        squeeze=False)
+    fig, axes = plt.subplots(
+        nrows, ncols, figsize=(3.2 * ncols, 2.8 * nrows), squeeze=False
+    )
     axes = axes.ravel()
     for ax, metric in zip(axes, metrics):
         sns.histplot(data=df, x=metric, kde=df[metric].nunique() > 1, ax=ax)
         ax.set_title(metric)
         ax.set_xlabel("")
         pk.despine(ax)
-    for ax in axes[len(metrics):]:
+    for ax in axes[len(metrics) :]:
         ax.set_visible(False)
 
     pk.save_figure(fig, args.output)

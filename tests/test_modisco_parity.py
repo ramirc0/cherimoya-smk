@@ -33,11 +33,13 @@ def _h5_items(path):
 
     items = {}
     with h5py.File(path, "r") as f:
+
         def visit(name, obj):
             for key, value in obj.attrs.items():
                 items[f"{name}@{key}"] = numpy.asarray(value)
             if isinstance(obj, h5py.Dataset):
                 items[name] = obj[()]
+
         visit("/", f)
         f.visititems(visit)
     return items
@@ -52,11 +54,21 @@ def test_motifs_match_pipeline(tmp_path):
     from cherimoya_cli.defaults import default_pipeline_parameters as p
 
     fx = Path(FIXTURES)
-    subprocess.run([MODISCO, "motifs",
-        "-s", str(fx / "attributions.ohe.npz"),
-        "-a", str(fx / "attributions.attr.npz"),
-        "-n", str(p["modisco_motifs_parameters"]["n_seqlets"]),
-        "-o", str(tmp_path / "o.h5")], check=True)
+    subprocess.run(
+        [
+            MODISCO,
+            "motifs",
+            "-s",
+            str(fx / "attributions.ohe.npz"),
+            "-a",
+            str(fx / "attributions.attr.npz"),
+            "-n",
+            str(p["modisco_motifs_parameters"]["n_seqlets"]),
+            "-o",
+            str(tmp_path / "o.h5"),
+        ],
+        check=True,
+    )
 
     official = _h5_items(tmp_path / "o.h5")
     ours = _h5_items(fx / "modisco_results.h5")
@@ -71,11 +83,21 @@ def test_report_matches_pipeline(tmp_path):
     if not shutil.which("tomtom"):
         pytest.skip("MEME tomtom not on PATH")
     fx = Path(FIXTURES)
-    subprocess.run([MODISCO, "report",
-        "-i", str(fx / "modisco_results.h5"),
-        "-o", str(tmp_path / "o"),
-        "-s", "./",
-        "-m", str(fx / "motifs.meme")], check=True)
+    subprocess.run(
+        [
+            MODISCO,
+            "report",
+            "-i",
+            str(fx / "modisco_results.h5"),
+            "-o",
+            str(tmp_path / "o"),
+            "-s",
+            "./",
+            "-m",
+            str(fx / "motifs.meme"),
+        ],
+        check=True,
+    )
 
     official = _strip_images((tmp_path / "o" / "report.html").read_text())
     ours = _strip_images((fx / "modisco" / "report.html").read_text())

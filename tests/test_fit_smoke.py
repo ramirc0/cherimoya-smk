@@ -26,31 +26,58 @@ def test_fit_then_evaluate(tmp_path):
     fx = Path(FIXTURES)
     prefix = tmp_path / "smoke"
 
-    subprocess.run([
-        sys.executable, str(SCRIPTS / "fit.py"),
-        "-s", str(fx / "genome.fa"),
-        "-l", str(fx / "peaks.narrowPeak"),
-        "-neg", str(fx / "negatives.bed"),
-        "-sig", str(fx / "signal.bw"),
-        "-o", str(prefix),
-        "--max_epochs", "1", "--min_total_steps", "0",
-        "--n_warmup_epochs", "0", "--batch_size", "8",
-        "--device", DEVICE,
-    ], check=True)
+    subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPTS / "fit.py"),
+            "-s",
+            str(fx / "genome.fa"),
+            "-l",
+            str(fx / "peaks.narrowPeak"),
+            "-neg",
+            str(fx / "negatives.bed"),
+            "-sig",
+            str(fx / "signal.bw"),
+            "-o",
+            str(prefix),
+            "--max_epochs",
+            "1",
+            "--min_total_steps",
+            "0",
+            "--n_warmup_epochs",
+            "0",
+            "--batch_size",
+            "8",
+            "--device",
+            DEVICE,
+        ],
+        check=True,
+    )
 
     assert prefix.with_suffix(".torch").exists()
 
     perf = tmp_path / "smoke.performance.tsv"
-    subprocess.run([
-        sys.executable, str(SCRIPTS / "evaluate.py"),
-        "-s", str(fx / "genome.fa"),
-        "-l", str(fx / "peaks.narrowPeak"),
-        "-neg", str(fx / "negatives.bed"),
-        "-sig", str(fx / "signal.bw"),
-        "-m", str(prefix.with_suffix(".torch")),
-        "-o", str(perf),
-        "--device", DEVICE,
-    ], check=True)
+    subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPTS / "evaluate.py"),
+            "-s",
+            str(fx / "genome.fa"),
+            "-l",
+            str(fx / "peaks.narrowPeak"),
+            "-neg",
+            str(fx / "negatives.bed"),
+            "-sig",
+            str(fx / "signal.bw"),
+            "-m",
+            str(prefix.with_suffix(".torch")),
+            "-o",
+            str(perf),
+            "--device",
+            DEVICE,
+        ],
+        check=True,
+    )
 
     header = perf.read_text().splitlines()[0].split("\t")
     assert len(header) == 12

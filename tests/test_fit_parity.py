@@ -47,17 +47,25 @@ def _official(fx, out, loss_weights):
     parameters = copy.deepcopy(default_fit_parameters)
     # The fixture has no peaks on the test chroms, so the official fit
     # writes only o.validation.performance.tsv.
-    parameters.update(sequences=str(fx / "genome.fa"),
+    parameters.update(
+        sequences=str(fx / "genome.fa"),
         loci=str(fx / "peaks.narrowPeak"),
         negatives=str(fx / "negatives.bed"),
         signals=[signals] if stranded else signals,
         controls=[controls] if stranded else controls,
         exclusion_lists=[str(fx / "blacklist.bed")],
-        training_chroms=fold["train"], validation_chroms=fold["valid"],
+        training_chroms=fold["train"],
+        validation_chroms=fold["valid"],
         test_chroms=fold["test"],
-        device="cpu", max_epochs=2, min_total_steps=0, n_warmup_epochs=1,
-        batch_size=16, random_state=0, loss_weights=loss_weights,
-        name=str(out / "o"))
+        device="cpu",
+        max_epochs=2,
+        min_total_steps=0,
+        n_warmup_epochs=1,
+        batch_size=16,
+        random_state=0,
+        loss_weights=loss_weights,
+        name=str(out / "o"),
+    )
 
     name = out / "fit.json"
     name.write_text(json.dumps(parameters, sort_keys=True, indent=4))
@@ -71,21 +79,36 @@ def _ours(fx, out, loss_weights, random_state=0):
     fold = json.loads((fx / "fold.json").read_text())
     signals, controls, stranded = _tracks(fx)
     cmd = [
-        sys.executable, str(SCRIPTS / "fit.py"),
-        "-s", str(fx / "genome.fa"),
-        "-l", str(fx / "peaks.narrowPeak"),
-        "-neg", str(fx / "negatives.bed"),
-        "-sig", *signals,
-        "--exclusion_lists", str(fx / "blacklist.bed"),
-        "--training_chroms", *fold["train"],
-        "--validation_chroms", *fold["valid"],
-        "--device", "cpu",
-        "--max_epochs", "2",
-        "--min_total_steps", "0",
-        "--n_warmup_epochs", "1",
-        "--batch_size", "16",
-        "--random_state", str(random_state),
-        "-o", str(out / "s"),
+        sys.executable,
+        str(SCRIPTS / "fit.py"),
+        "-s",
+        str(fx / "genome.fa"),
+        "-l",
+        str(fx / "peaks.narrowPeak"),
+        "-neg",
+        str(fx / "negatives.bed"),
+        "-sig",
+        *signals,
+        "--exclusion_lists",
+        str(fx / "blacklist.bed"),
+        "--training_chroms",
+        *fold["train"],
+        "--validation_chroms",
+        *fold["valid"],
+        "--device",
+        "cpu",
+        "--max_epochs",
+        "2",
+        "--min_total_steps",
+        "0",
+        "--n_warmup_epochs",
+        "1",
+        "--batch_size",
+        "16",
+        "--random_state",
+        str(random_state),
+        "-o",
+        str(out / "s"),
     ]
     if controls:
         cmd += ["-c", *controls]
@@ -111,8 +134,7 @@ def official(fx, tmp_path_factory):
     def run(loss_weights):
         key = str(loss_weights)
         if key not in runs:
-            runs[key] = _official(fx, tmp_path_factory.mktemp("official"),
-                loss_weights)
+            runs[key] = _official(fx, tmp_path_factory.mktemp("official"), loss_weights)
         return runs[key]
 
     return run
@@ -165,18 +187,29 @@ def test_evaluate_matches_cli(fx, official, tmp_path):
     fold = json.loads((fx / "fold.json").read_text())
     signals, controls, stranded = _tracks(fx)
     cmd = [
-        sys.executable, str(SCRIPTS / "evaluate.py"),
-        "-s", str(fx / "genome.fa"),
-        "-l", str(fx / "peaks.narrowPeak"),
-        "-neg", str(fx / "negatives.bed"),
-        "-sig", *signals,
-        "--exclusion_lists", str(fx / "blacklist.bed"),
-        "-m", f"{theirs}.torch",
-        "-o", str(tmp_path / "s.performance.tsv"),
-        "--chroms", *fold["valid"],
-        "--batch_size", "16",
+        sys.executable,
+        str(SCRIPTS / "evaluate.py"),
+        "-s",
+        str(fx / "genome.fa"),
+        "-l",
+        str(fx / "peaks.narrowPeak"),
+        "-neg",
+        str(fx / "negatives.bed"),
+        "-sig",
+        *signals,
+        "--exclusion_lists",
+        str(fx / "blacklist.bed"),
+        "-m",
+        f"{theirs}.torch",
+        "-o",
+        str(tmp_path / "s.performance.tsv"),
+        "--chroms",
+        *fold["valid"],
+        "--batch_size",
+        "16",
         "--no_compile",
-        "--device", "cpu",
+        "--device",
+        "cpu",
     ]
     if controls:
         cmd += ["-c", *controls]

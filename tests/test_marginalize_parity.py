@@ -38,14 +38,21 @@ def _official_json(fx, out):
     from cherimoya_cli.utils import _check_set, _extract_set
 
     parameters = copy.deepcopy(default_pipeline_parameters)
-    parameters.update(sequences=str(fx / "genome.fa"),
-        loci=[str(fx / "peaks.narrowPeak")], negatives=[str(fx / "negatives.bed")],
-        exclusion_lists=[str(fx / "blacklist.bed")], model=str(fx / "model.torch"),
-        motifs=str(fx / "motifs.meme"), device=DEVICE)
+    parameters.update(
+        sequences=str(fx / "genome.fa"),
+        loci=[str(fx / "peaks.narrowPeak")],
+        negatives=[str(fx / "negatives.bed")],
+        exclusion_lists=[str(fx / "blacklist.bed")],
+        model=str(fx / "model.torch"),
+        motifs=str(fx / "motifs.meme"),
+        device=DEVICE,
+    )
     marginalize_parameters = _extract_set(
-        parameters, default_marginalize_parameters, "marginalize_parameters")
+        parameters, default_marginalize_parameters, "marginalize_parameters"
+    )
     marginalize_parameters["loci"] = (
-        parameters["marginalize_parameters"]["loci"] or parameters["negatives"])
+        parameters["marginalize_parameters"]["loci"] or parameters["negatives"]
+    )
     _check_set(marginalize_parameters, "output_filename", str(out) + "/")
     _check_set(marginalize_parameters, "motifs", parameters["motifs"])
 
@@ -57,16 +64,26 @@ def _official_json(fx, out):
 def _ours_argv(fx, out):
     # marginalize.py as the rule calls it: chroms are the fold's train set.
     fold = json.loads((fx / "fold.json").read_text())
-    return [str(SCRIPTS / "marginalize.py"),
-        "-s", str(fx / "genome.fa"),
-        "-l", str(fx / "negatives.bed"),
-        "-e", str(fx / "blacklist.bed"),
-        "-m", str(fx / "model.torch"),
-        "-t", str(fx / "motifs.meme"),
-        "-o", str(out),
-        "--chroms", *fold["train"],
-        "--device", DEVICE,
-        "--verbose"]
+    return [
+        str(SCRIPTS / "marginalize.py"),
+        "-s",
+        str(fx / "genome.fa"),
+        "-l",
+        str(fx / "negatives.bed"),
+        "-e",
+        str(fx / "blacklist.bed"),
+        "-m",
+        str(fx / "model.torch"),
+        "-t",
+        str(fx / "motifs.meme"),
+        "-o",
+        str(out),
+        "--chroms",
+        *fold["train"],
+        "--device",
+        DEVICE,
+        "--verbose",
+    ]
 
 
 def test_report_inputs_match_pipeline(tmp_path, monkeypatch):
@@ -78,8 +95,11 @@ def test_report_inputs_match_pipeline(tmp_path, monkeypatch):
     from cherimoya_cli.commands import marginalize as official
 
     calls = []
-    monkeypatch.setattr(bpnetlite.marginalize, "marginalization_report",
-        lambda *args, **kwargs: calls.append((args, kwargs)))
+    monkeypatch.setattr(
+        bpnetlite.marginalize,
+        "marginalization_report",
+        lambda *args, **kwargs: calls.append((args, kwargs)),
+    )
 
     fx = Path(FIXTURES)
     official.run(argparse.Namespace(parameters=str(_official_json(fx, tmp_path / "o"))))
@@ -107,8 +127,11 @@ def test_report_matches_pipeline(tmp_path):
     # cache makes both runs use the kernels the official run compiled.
     env = {**os.environ, "TORCHINDUCTOR_CACHE_DIR": str(tmp_path / "inductor")}
     cli = Path(sys.executable).parent / "cherimoya"
-    subprocess.run([str(cli), "marginalize", "-p",
-        str(_official_json(fx, official))], check=True, env=env)
+    subprocess.run(
+        [str(cli), "marginalize", "-p", str(_official_json(fx, official))],
+        check=True,
+        env=env,
+    )
     subprocess.run([sys.executable, *_ours_argv(fx, ours)], check=True, env=env)
 
     names = sorted(p.name for p in official.iterdir())
