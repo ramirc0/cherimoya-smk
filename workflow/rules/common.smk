@@ -13,10 +13,14 @@ configfile: "config/config.yaml"
 RESULTS = config["outdir"]
 RUN_ID = config.get("run_id", "default")
 OUTDIR = f"{RESULTS}/{RUN_ID}"        # per-sample outputs, grouped per run
-# assembly -> {fasta, fai, chrom_sizes, gsize}. Each sample picks its genome via
-# the sample sheet's `genome` column (multi-species data).
+# assembly -> {fasta, fai, chrom_sizes, gsize, [blacklist]}. Each sample picks its
+# genome via the sample sheet's `genome` column (multi-species data).
 GENOMES = config["genomes"]
-BLACKLIST = config["references"].get("blacklist") or None
+if "references" in config:
+    raise WorkflowError(
+        "references.blacklist moved to genomes.<genome>.blacklist, so each genome "
+        "excludes its own regions."
+    )
 FOLDS = [str(f) for f in config["folds"]]   # CV folds; every per-fold rule fans out over them
 if "folds" in config["attribute"]:
     raise WorkflowError("attribute.folds was removed; interpretation runs on every fold in `folds`.")
@@ -304,6 +308,23 @@ def chrom_sizes_of(sample):
     return GENOMES[GENOME_OF[sample]]["chrom_sizes"]
 
 
+def blacklist_of(sample):
+    """Return the blacklist BED of a sample's genome, for rule inputs and exclusion flags.
+
+    Parameters
+    ----------
+    sample : str
+        Sample ID from the sheet.
+
+    Returns
+    -------
+    list of str
+        The `genomes.<genome>.blacklist` BED. Empty when the genome has none.
+    """
+    blacklist = GENOMES[GENOME_OF[sample]].get("blacklist")
+    return [blacklist] if blacklist else []
+
+
 # CV fold chromosome splits (chrombpnet-style), per genome, from resources/folds.
 def fold_json(sample, fold):
     """Return the CV fold JSON of a sample's genome.
@@ -461,22 +482,6 @@ def _list_flag(name, values):
     return [f"--{name}", *(str(v) for v in values)]
 
 
-def blacklist_input(wildcards):
-    """Return the blacklist as a rule input, so rules track it.
-
-    Parameters
-    ----------
-    wildcards : snakemake.io.Wildcards
-        Rule wildcards. Unused.
-
-    Returns
-    -------
-    list of str
-        The blacklist BED. Empty when `references.blacklist` is unset.
-    """
-    return [BLACKLIST] if BLACKLIST else []
-
-
 def fit_flags(sample, fold):
     """Return the fit.py flag tokens from `config["fit"]`.
 
@@ -535,8 +540,8 @@ def fit_flags(sample, fold):
         flags += ["--early_stopping", f["early_stopping"]]
     if f["loss_weights"] is not None:
         flags += _list_flag("loss_weights", f["loss_weights"])
-    if BLACKLIST:
-        flags += ["--exclusion_lists", BLACKLIST]
+    if blacklist := blacklist_of(sample):
+        flags += _list_flag("exclusion_lists", blacklist)
     return [str(x) for x in flags]
 
 
@@ -576,8 +581,8 @@ def eval_flags(sample, fold):
         flags.append("--summits")
     if not e["compile"]:
         flags.append("--no_compile")
-    if BLACKLIST:
-        flags += ["--exclusion_lists", BLACKLIST]
+    if blacklist := blacklist_of(sample):
+        flags += _list_flag("exclusion_lists", blacklist)
     return [str(x) for x in flags]
 
 
@@ -617,8 +622,8 @@ def attr_flags(sample, fold):
     ]
     if a["compile"]:
         flags.append("--compile")
-    if BLACKLIST:
-        flags += ["--exclusion_lists", BLACKLIST]
+    if blacklist := blacklist_of(sample):
+        flags += _list_flag("exclusion_lists", blacklist)
     return [str(x) for x in flags]
 
 
@@ -754,6 +759,6 @@ def marginalize_flags(sample, fold):
         flags.append("--no_minimal")
     if not m["compile"]:
         flags.append("--no_compile")
-    if BLACKLIST:
-        flags += ["--exclusion_lists", BLACKLIST]
+    if blacklist := blacklist_of(sample):
+        flags += _list_flag("exclusion_lists", blacklist)
     return [str(x) for x in flags]

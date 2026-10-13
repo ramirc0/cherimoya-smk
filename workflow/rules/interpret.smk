@@ -5,7 +5,7 @@ rule attribute:
         peaks=peaks_for,
         model=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.torch",
         fold=lambda wc: fold_json(wc.sample, wc.fold),
-        blacklist=blacklist_input,
+        blacklist=lambda wc: blacklist_of(wc.sample),
     output:
         ohe=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.attributions.ohe.npz",
         attr=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.attributions.attr.npz",
@@ -158,7 +158,7 @@ rule marginalize:
     input:
         fasta=lambda wc: fasta_of(wc.sample),
         negatives=f"{OUTDIR}/{{sample}}/{{sample}}.negatives.bed",
-        blacklist=blacklist_input,
+        blacklist=lambda wc: blacklist_of(wc.sample),
         model=rules.attribute.input.model,
         fold=lambda wc: fold_json(wc.sample, wc.fold),
         motifs=config["annotate"]["motifs"],

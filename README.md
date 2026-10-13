@@ -72,7 +72,9 @@ commit. `folds:` picks which CV folds to run, e.g. `[0]` or `[0, 1, 2, 3, 4]`.
   fewer than five main chromosomes, such as S. pombe, gets no folds.
 
 To add a genome, add a `genomes:` entry, provide the three ref files, rerun
-`make_folds.py`, and use the name in the sheet.
+`make_folds.py`, and use the name in the sheet. An entry may also set
+`blacklist`, a BED of regions that fit, evaluate, attribute and marginalize
+exclude. Each genome carries its own, so one run can mix genomes.
 
 ## Outputs
 

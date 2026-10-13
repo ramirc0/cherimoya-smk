@@ -8,9 +8,6 @@ pixi_env: cherimoya
 random_state: 243746692  # seeds negatives, fit, attribute and marginalize
 run_id: default          # logs go under logs/<run_id>/; override per run to keep runs separate
 
-references:
-  blacklist: resources/ENCFF356LFX.slop1057.bed   # optional BED of regions to exclude (fit, evaluate, attribute, marginalize)
-
 # CV folds. Every per-fold step (fit through marginalize) runs once per fold.
 # Fold JSONs (train/valid/test chrom splits) live in
 # resources/folds/<genome>/fold_<k>.json; generate them once per genome with
@@ -26,6 +23,7 @@ genomes:
     fai: resources/refs/hg38.fa.fai
     chrom_sizes: resources/refs/hg38.chrom.sizes
     gsize: hs             # macs3 -g (preset hs/mm or a bp number)
+    blacklist: resources/ENCFF356LFX.slop1057.bed   # optional BED of regions to exclude (fit, evaluate, attribute, marginalize)
 
 # macs3 + bam2bw. ATAC: unstranded single track with the Tn5 +4/-4 shift.
 preprocess:

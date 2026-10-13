@@ -8,7 +8,7 @@ rule fit:
         signal=lambda wc: signal_bw(wc.sample),
         control=lambda wc: control_bw(wc.sample),
         fold=lambda wc: fold_json(wc.sample, wc.fold),
-        blacklist=blacklist_input,
+        blacklist=lambda wc: blacklist_of(wc.sample),
     output:
         model=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.torch",
         history=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.log",  # per-epoch log
@@ -48,7 +48,7 @@ rule evaluate:
         model=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.torch",
         history=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.log",
         fold=lambda wc: fold_json(wc.sample, wc.fold),
-        blacklist=blacklist_input,
+        blacklist=lambda wc: blacklist_of(wc.sample),
     output:
         performance=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.performance.tsv",
         counts=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.counts.tsv",
