@@ -193,11 +193,7 @@ rule attribution_profile:
         ohe=rules.attribute.output.ohe,
         attr=rules.attribute.output.attr,
     output:
-        plot=report(
-            f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.attribution_profile.svg",
-            category="Interpretation",
-            labels={"sample": "{sample}", "fold": "{fold}", "plot": "attribution profile"},
-        ),
+        plot=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.attribution_profile.svg",
         plot_png=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.attribution_profile.png",
     log:
         f"{LOGDIR}/attribution_profile/{{sample}}.fold_{{fold}}.log",
@@ -221,11 +217,7 @@ rule seqlet_lengths:
     input:
         bed=rules.seqlets.output.bed,
     output:
-        plot=report(
-            f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.seqlet_lengths.svg",
-            category="Interpretation",
-            labels={"sample": "{sample}", "fold": "{fold}", "plot": "seqlet lengths"},
-        ),
+        plot=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.seqlet_lengths.svg",
         plot_png=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.seqlet_lengths.png",
     log:
         f"{LOGDIR}/seqlet_lengths/{{sample}}.fold_{{fold}}.log",
@@ -248,11 +240,7 @@ rule motif_counts:
     input:
         counts=rules.annotate.output.counts,
     output:
-        plot=report(
-            f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.motif_counts.svg",
-            category="Interpretation",
-            labels={"sample": "{sample}", "fold": "{fold}", "plot": "top motifs"},
-        ),
+        plot=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.motif_counts.svg",
         plot_png=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.motif_counts.png",
     log:
         f"{LOGDIR}/motif_counts/{{sample}}.fold_{{fold}}.log",

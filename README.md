@@ -99,7 +99,7 @@ Logs and benchmarks use the same layout under `logs/` and `benchmarks/`.
 - `config.snapshot.json`: the fully resolved config, including `--config`
   overrides. Rerun it with `--configfile results/<run_id>/config.snapshot.json`.
 
-Plots are written as SVG and PNG. `snakemake --report report.html` bundles them.
+Plots are written as SVG and PNG.
 
 Keep runs apart with `--config run_id=mytag`. Swap sample sheets with
 `--config samples=config/samples.other.tsv`.

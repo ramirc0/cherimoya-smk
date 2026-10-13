@@ -32,9 +32,7 @@ rule gather_metrics:
         samples=config["samples"],
         n_fragments=[f for s in SAMPLES for f in n_fragments_file(s)],
     output:
-        metrics=report(f"{OUTDIR}/report/metrics.tsv",
-                       category="Count QC",
-                       labels={"table": "per-model metrics + outlier flag"}),
+        metrics=f"{OUTDIR}/report/metrics.tsv",
     params:
         results_dir=OUTDIR,
         covariates=COVARIATES,
@@ -62,11 +60,7 @@ rule perf_vs_covariate:
     input:
         metrics=f"{OUTDIR}/report/metrics.tsv",
     output:
-        plot=report(
-            f"{OUTDIR}/report/count_pearson_vs_{{covariate}}.svg",
-            category="Count QC",
-            labels={"plot": "count_pearson vs {covariate}"},
-        ),
+        plot=f"{OUTDIR}/report/count_pearson_vs_{{covariate}}.svg",
         plot_png=f"{OUTDIR}/report/count_pearson_vs_{{covariate}}.png",
     wildcard_constraints:
         covariate="|".join(COVARIATES),
@@ -94,8 +88,7 @@ rule outliers:
     input:
         metrics=f"{OUTDIR}/report/metrics.tsv",
     output:
-        plot=report(f"{OUTDIR}/report/outliers.svg",
-                    category="Count QC", labels={"plot": "outliers"}),
+        plot=f"{OUTDIR}/report/outliers.svg",
         plot_png=f"{OUTDIR}/report/outliers.png",
     log:
         f"{LOGDIR}/outliers/all.log",
@@ -120,11 +113,7 @@ rule performance_distribution:
     input:
         performance=_ALL_PERFORMANCE,
     output:
-        plot=report(
-            f"{OUTDIR}/report/performance_distribution.svg",
-            category="Performance",
-            labels={"plot": "distribution"},
-        ),
+        plot=f"{OUTDIR}/report/performance_distribution.svg",
         plot_png=f"{OUTDIR}/report/performance_distribution.png",
     log:
         f"{LOGDIR}/performance_distribution/all.log",
@@ -148,8 +137,7 @@ rule motif_heatmap:
         counts=[f"{OUTDIR}/{s}/fold_{fold}/{s}.motif_seqlet_count.tsv"
                 for s in SAMPLES for fold in FOLDS],
     output:
-        plot=report(f"{OUTDIR}/report/motif_heatmap.svg",
-                    category="Interpretation", labels={"plot": "top motifs by sample"}),
+        plot=f"{OUTDIR}/report/motif_heatmap.svg",
         plot_png=f"{OUTDIR}/report/motif_heatmap.png",
     log:
         f"{LOGDIR}/motif_heatmap/all.log",

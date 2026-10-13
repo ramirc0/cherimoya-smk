@@ -52,16 +52,8 @@ rule evaluate:
     output:
         performance=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.performance.tsv",
         counts=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.counts.tsv",
-        epochs=report(
-            f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.epochs.svg",
-            category="Training curves",
-            labels={"sample": "{sample}", "fold": "{fold}"},
-        ),
-        count_scatter=report(
-            f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.count_scatter.svg",
-            category="Count QC",
-            labels={"sample": "{sample}", "fold": "{fold}"},
-        ),
+        epochs=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.epochs.svg",
+        count_scatter=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.count_scatter.svg",
         epochs_png=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.epochs.png",
         count_scatter_png=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.count_scatter.png",
     params:
