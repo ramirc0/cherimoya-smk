@@ -31,9 +31,10 @@ def main():
 
     import numpy as np
     import pandas as pd
-    from _style import apply_style, despine, save_figure
-    apply_style()
     import matplotlib.pyplot as plt
+    import poikilos as pk
+
+    pk.use("plain")
 
     df = pd.read_csv(args.counts, sep="\t")
     x = df["obs_logcount"].to_numpy(float)
@@ -54,8 +55,8 @@ def main():
     header = "\n".join(textwrap.wrap(args.sample, 30)) + "\n" if args.sample else ""
     ax.set_title(f"{header}count Pearson r = {r:.3f}  (n={len(x)})", fontsize=11)
     ax.legend(frameon=False, fontsize=8, loc="upper left")
-    despine(ax)
-    save_figure(fig, args.output)
+    pk.despine(ax)
+    pk.save_figure(fig, args.output)
 
 
 if __name__ == "__main__":

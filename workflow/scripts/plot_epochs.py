@@ -38,13 +38,13 @@ def main():
     """Plot one model's metrics over epochs."""
     args = build_parser().parse_args()
 
-    from _style import apply_style, despine, save_figure
-    apply_style()
-
     import math
 
     import pandas as pd
     import matplotlib.pyplot as plt
+    import poikilos as pk
+
+    pk.use("plain")
 
     df = pd.read_csv(args.history, sep="\t")
     metrics = [m for m in METRICS if m in df.columns]
@@ -60,13 +60,13 @@ def main():
         ax.plot(df["Epoch"], df[metric], marker="o")
         ax.set_title(metric)
         ax.set_xlabel("Epoch")
-        despine(ax)
+        pk.despine(ax)
     for ax in axes[len(metrics):]:
         ax.set_visible(False)
 
     if args.sample:
         fig.suptitle(args.sample)
-    save_figure(fig, args.output)
+    pk.save_figure(fig, args.output)
 
 
 if __name__ == "__main__":

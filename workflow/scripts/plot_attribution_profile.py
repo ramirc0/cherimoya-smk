@@ -26,11 +26,11 @@ def main():
     """Plot one model's mean attribution by position."""
     args = build_parser().parse_args()
 
-    from _style import apply_style, despine, save_figure
-    apply_style()
-
     import numpy
     import matplotlib.pyplot as plt
+    import poikilos as pk
+
+    pk.use("plain")
 
     X = numpy.load(args.ohe_filename)["arr_0"]
     X_attr = numpy.load(args.attr_filename)["arr_0"]
@@ -46,9 +46,9 @@ def main():
     ax.set_ylabel("Attribution")
     ax.set_title(f"{args.sample} (n={attr.shape[0]:,} peaks)".strip())
     ax.legend(frameon=False)
-    despine(ax)
+    pk.despine(ax)
 
-    save_figure(fig, args.output)
+    pk.save_figure(fig, args.output)
 
 
 if __name__ == "__main__":

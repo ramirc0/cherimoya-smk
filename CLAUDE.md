@@ -23,7 +23,7 @@ snakemake <target> --profile profiles/local --config samples=... run_id=...
 python workflow/scripts/make_folds.py                 # fold JSONs, once per genome
 python workflow/scripts/name_motifs.py <in.meme> <out.meme>  # NAME_ACCESSION IDs for modisco report
 PY=workflow/envs/.pixi/envs/cherimoya/bin/python      # rule env; `pixi install --all` in workflow/envs/ builds it
-$PY -m pytest                                         # 198 pass, 13 skip
+$PY -m pytest                                         # 186 pass, 13 skip
 $PY -m pytest -m slow                                 # e2e; needs CHERIMOYA_SMK_SMOKE fixtures + GPU
 CHERIMOYA_SMK_FIT=<dir> $PY -m pytest -m slow tests/test_fit_parity.py  # vs cherimoya fit + evaluate; CPU
 CHERIMOYA_SMK_ATTR=<dir> $PY -m pytest -m slow tests/test_attribute_parity.py  # vs cherimoya attribute; GPU; atol 1e-4 counts, 2e-4 profile (official noise)
@@ -67,10 +67,10 @@ layout.
 - `preprocess.smk` (prep_peaks, macs3, bam2bw, bam2bw_control, count_fragments),
   `negatives.smk`, `train.smk` (fit, evaluate), `interpret.smk` (attribute, seqlets, annotate, modisco_motifs, modisco_report, marginalize),
   `report.smk` (config_snapshot, gather_metrics, plots).
-- `workflow/scripts/_style.py`: shared figure style. `save_figure` writes SVG
-  and PNG together. Every `plot_*.py` MUST use it and follow the
-  `matplotlib-style` skill. It is a verbatim copy of the skill's
-  `scripts/style.py`. Fix the skill, then copy it over.
+- Plots use poikilos `plain` (git pin in `workflow/envs/pixi.toml`). Every
+  `plot_*.py` MUST call `pk.use("plain")`, `pk.despine()` on every axes and
+  `pk.save_figure()`, which writes SVG and PNG. Rules MUST declare both.
+  `MPLBACKEND=Agg` comes from the `cherimoya` feature's activation env.
 - `config/config.<assay>.yaml.template`: tracked (atac, dnase, chipseq-tf).
   `config.yaml` and `samples.*.tsv` are gitignored.
 - `resources/` (gitignored): `refs/<g>.{fa,fa.fai,chrom.sizes}`,

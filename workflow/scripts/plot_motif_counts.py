@@ -26,11 +26,11 @@ def main():
     """Plot one model's top motifs by seqlet count."""
     args = build_parser().parse_args()
 
-    from _style import apply_style, despine, save_figure
-    apply_style()
-
     import polars as pl
     import matplotlib.pyplot as plt
+    import poikilos as pk
+
+    pk.use("plain")
 
     counts = pl.read_csv(args.counts, separator="\t")
     total = counts["count"].sum()
@@ -41,9 +41,9 @@ def main():
     ax.barh(top["motifs"], top["count"] / total)
     ax.set_xlabel("Fraction of seqlets")
     ax.set_title(f"{args.sample} (n={total:,} seqlets)".strip())
-    despine(ax, categorical_y=True)
+    pk.despine(ax, categorical_y=True)
 
-    save_figure(fig, args.output)
+    pk.save_figure(fig, args.output)
 
 
 if __name__ == "__main__":

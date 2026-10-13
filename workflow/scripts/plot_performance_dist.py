@@ -24,14 +24,14 @@ def main():
     """Plot the distribution of model performance per metric."""
     args = build_parser().parse_args()
 
-    from _style import apply_style, despine, save_figure
-    apply_style()
-
     import math
 
     import pandas as pd
     import seaborn as sns
     import matplotlib.pyplot as plt
+    import poikilos as pk
+
+    pk.use("plain")
 
     # Each performance TSV holds one row per signal group; tag with the model id
     # (<sample>/fold_<k> from the path) so every model contributes to the distribution.
@@ -56,11 +56,11 @@ def main():
         sns.histplot(data=df, x=metric, kde=df[metric].nunique() > 1, ax=ax)
         ax.set_title(metric)
         ax.set_xlabel("")
-        despine(ax)
+        pk.despine(ax)
     for ax in axes[len(metrics):]:
         ax.set_visible(False)
 
-    save_figure(fig, args.output)
+    pk.save_figure(fig, args.output)
 
 
 if __name__ == "__main__":

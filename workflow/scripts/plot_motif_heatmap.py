@@ -53,15 +53,15 @@ def main():
     """Plot the top motifs across models as a heatmap."""
     args = build_parser().parse_args()
 
-    from _style import apply_style, despine, save_figure
-    apply_style()
-
     from pathlib import Path
 
     import numpy
     import polars as pl
     import matplotlib.pyplot as plt
+    import poikilos as pk
     from matplotlib.colors import PowerNorm
+
+    pk.use("plain")
 
     frames = []
     for path in args.counts:
@@ -107,9 +107,9 @@ def main():
     # Evenly spaced under the sqrt norm; linear ticks crowd its top end.
     ticks = M.max() * numpy.linspace(0, 1, 5) ** 2
     cbar.set_ticks(ticks, labels=[f"{t:.2g}" for t in ticks])
-    despine(ax, categorical_x=True, categorical_y=True)
+    pk.despine(ax, categorical_x=True, categorical_y=True)
 
-    save_figure(fig, args.output)
+    pk.save_figure(fig, args.output)
 
 
 if __name__ == "__main__":

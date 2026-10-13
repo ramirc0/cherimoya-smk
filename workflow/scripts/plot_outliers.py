@@ -34,9 +34,10 @@ def main():
 
     import numpy as np
     import pandas as pd
-    from _style import apply_style, despine, save_figure
-    apply_style()
     import matplotlib.pyplot as plt
+    import poikilos as pk
+
+    pk.use("plain")
 
     df = pd.read_csv(args.metrics, sep="\t").dropna(subset=[args.metric])
     df = df.sort_values(args.metric, ascending=True).reset_index(drop=True)
@@ -58,8 +59,8 @@ def main():
     ax.set_ylabel(args.metric)
     ax.set_title(f"{args.metric}: {int(is_out.sum())} of {len(df)} below Tukey fence")
     ax.legend(frameon=False, fontsize=8, loc="lower right")
-    despine(ax)
-    save_figure(fig, args.output)
+    pk.despine(ax)
+    pk.save_figure(fig, args.output)
 
     print(f"{int(is_out.sum())} outliers (fence={fence:.3f})")
 

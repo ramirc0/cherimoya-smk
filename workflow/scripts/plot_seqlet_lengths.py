@@ -24,12 +24,12 @@ def main():
     """Plot one model's seqlet length distribution."""
     args = build_parser().parse_args()
 
-    from _style import apply_style, despine, save_figure
-    apply_style()
-
     import numpy
     import polars as pl
     import matplotlib.pyplot as plt
+    import poikilos as pk
+
+    pk.use("plain")
 
     bed = pl.read_csv(args.seqlets, separator="\t", has_header=False,
         new_columns=["chrom", "start", "end", "attribution", "p"])
@@ -40,9 +40,9 @@ def main():
     ax.set_xlabel("Seqlet length (bp)")
     ax.set_ylabel("Seqlets")
     ax.set_title(f"{args.sample} (n={len(lengths):,} seqlets)".strip())
-    despine(ax)
+    pk.despine(ax)
 
-    save_figure(fig, args.output)
+    pk.save_figure(fig, args.output)
 
 
 if __name__ == "__main__":

@@ -46,7 +46,6 @@ wheel = { version = "==0.48.0", build = "pyhd8ed1ab_0" }
 zstd = { version = "==1.5.7", build = "hb78ec9c_7" }
 
 [feature.cherimoya.pypi-dependencies]
-adjusttext = "==1.4.0"
 aiohappyeyeballs = "==2.7.1"
 aiohttp = "==3.14.3"
 aiosignal = "==1.4.0"
@@ -70,6 +69,7 @@ mpmath = "==1.3.0"
 multidict = "==6.9.1"
 networkx = "==3.6.1"
 pluggy = "==1.6.0"
+poikilos = { git = "https://github.com/ramirc0/poikilos", rev = "85144e7826ff88155f20a7743020eba58102638c", extras = ["labels"] }
 propcache = "==0.5.4"
 pybigtools = "==0.3.0"
 pybigwig = "==0.3.25"
@@ -85,6 +85,10 @@ torchinfo = "==1.8.0"
 torchmetrics = "==1.9.0"
 typing-extensions = "==4.16.0"
 yarl = "==1.25.1"
+
+# Plot rules only save figures. Without this, a job that inherits DISPLAY picks a GUI backend.
+[feature.cherimoya.activation.env]
+MPLBACKEND = "Agg"
 
 [feature.pypi-shared.pypi-dependencies]
 contourpy = "==1.3.3"

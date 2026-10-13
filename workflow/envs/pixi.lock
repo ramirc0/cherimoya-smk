@@ -48,6 +48,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2026c-h151e31d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/wheel-0.48.0-pyhd8ed1ab_0.conda
       - pypi: git+https://github.com/jmschrei/cherimoya.git?rev=c0e9637797e7d957b9609b75c9dc692b438ae653#c0e9637797e7d957b9609b75c9dc692b438ae653
+      - pypi: git+https://github.com/ramirc0/poikilos?rev=85144e7826ff88155f20a7743020eba58102638c#85144e7826ff88155f20a7743020eba58102638c
       - pypi: https://files.pythonhosted.org/packages/10/bd/c038d7cc38edc1aa5bf91ab8068b63d4308c66c4c8bb3cbba7dfbc049f9c/pyparsing-3.3.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/12/43/7da7fe42f254ce57777d1a86eece3f86d1b3329fc568d48e2bc16c8b7ebc/lightning-2.6.6-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/12/98/e976540c1addf70442be7842a18cf70884a964abbf69442504f4d2939989/pandas-3.0.5-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl
@@ -176,6 +177,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2026c-h151e31d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/wheel-0.48.0-pyhd8ed1ab_0.conda
       - pypi: git+https://github.com/jmschrei/cherimoya.git?rev=c0e9637797e7d957b9609b75c9dc692b438ae653#c0e9637797e7d957b9609b75c9dc692b438ae653
+      - pypi: git+https://github.com/ramirc0/poikilos?rev=85144e7826ff88155f20a7743020eba58102638c#85144e7826ff88155f20a7743020eba58102638c
       - pypi: https://download-r2.pytorch.org/whl/cu126/torch-2.14.0%2Bcu126-cp312-cp312-manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/06/1e/b8b7c2f4099a37b96af5c9bb158632ea9e5d9d27d7391d7eb8fc45236674/nvidia_cusparse_cu12-12.5.4.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/10/bd/c038d7cc38edc1aa5bf91ab8068b63d4308c66c4c8bb3cbba7dfbc049f9c/pyparsing-3.3.2-py3-none-any.whl
@@ -2072,6 +2074,13 @@ packages:
   - furo>=2024.1 ; extra == 'docs'
   - sphinx-copybutton>=0.5 ; extra == 'docs'
   requires_python: '>=3.10'
+- pypi: git+https://github.com/ramirc0/poikilos?rev=85144e7826ff88155f20a7743020eba58102638c#85144e7826ff88155f20a7743020eba58102638c
+  name: poikilos
+  version: 0.1.0
+  requires_dist:
+  - matplotlib>=3.11
+  - adjusttext>=1.4.0 ; extra == 'labels'
+  requires_python: '>=3.11'
 - pypi: https://download-r2.pytorch.org/whl/cu126/torch-2.14.0%2Bcu126-cp312-cp312-manylinux_2_28_x86_64.whl
   name: torch
   version: 2.14.0+cu126
