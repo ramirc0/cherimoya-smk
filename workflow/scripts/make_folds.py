@@ -14,7 +14,7 @@ same structure from each genome's chrom.sizes:
   split; scaffolds and chrM stay in `train`.
 
 Writes resources/folds/<genome>/fold_{0..4}.json for every genome whose
-chrom.sizes is present under resources/refs/.
+chrom.sizes is present under resources/refs/. Unchanged files are not rewritten.
 """
 
 import json
@@ -139,14 +139,21 @@ def folds_for(genome):
 
 
 def main():
-    """Write fold JSONs for every genome under resources/refs."""
+    """Write fold JSONs for every genome under resources/refs.
+
+    A fold file is rewritten only when its content changes.
+    """
     genomes = sorted(p.name[: -len(".chrom.sizes")] for p in REFS.glob("*.chrom.sizes"))
     for genome in genomes:
         folds = folds_for(genome)
         d = OUT / genome
         d.mkdir(parents=True, exist_ok=True)
         for i, fold in enumerate(folds):
-            (d / f"fold_{i}.json").write_text(json.dumps(fold, indent=2) + "\n")
+            path = d / f"fold_{i}.json"
+            text = json.dumps(fold, indent=2) + "\n"
+            # Fold JSONs are rule inputs. A rewrite would make every run look outdated.
+            if not path.exists() or path.read_text() != text:
+                path.write_text(text)
         # sanity: every main chrom in test exactly once
         counts = {}
         for fold in folds:
