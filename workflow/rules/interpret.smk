@@ -30,6 +30,8 @@ rule attribute:
             --ohe_filename {output.ohe:q} \
             --attr_filename {output.attr:q} \
             --idx_filename {output.idxs:q}
+
+        sync {output:q}
         """
 
 
@@ -61,6 +63,8 @@ rule seqlets:
             --attr_filename {input.attr:q} \
             --idx_filename {input.idxs:q} \
             --output_filename {output.bed:q}
+
+        sync {output:q}
         """
 
 
@@ -93,6 +97,8 @@ rule annotate:
             --n_jobs {threads} \
             --output_filename {output.bed:q} \
             --count_filename {output.counts:q}
+
+        sync {output:q}
         """
 
 
@@ -121,6 +127,8 @@ rule modisco_motifs:
             -a {input.attr:q} \
             -o {output.h5:q} \
             --verbose
+
+        sync {output:q}
         """
 
 
@@ -150,6 +158,8 @@ rule modisco_report:
             -o {output.report:q} \
             -s ./ \
             -m {input.motifs:q}
+
+        sync {output:q}
         """
 
 
@@ -184,6 +194,8 @@ rule marginalize:
             -t {input.motifs:q} \
             -o {output.report:q} \
             --verbose
+
+        sync {output:q}
         """
 
 
@@ -210,6 +222,8 @@ rule attribution_profile:
             --attr_filename {input.attr:q} \
             -o {output.plot:q} \
             --sample {wildcards.sample:q}
+
+        sync {output:q}
         """
 
 
@@ -233,6 +247,8 @@ rule seqlet_lengths:
             -i {input.bed:q} \
             -o {output.plot:q} \
             --sample {wildcards.sample:q}
+
+        sync {output:q}
         """
 
 
@@ -256,4 +272,6 @@ rule motif_counts:
             -i {input.counts:q} \
             -o {output.plot:q} \
             --sample {wildcards.sample:q}
+
+        sync {output:q}
         """

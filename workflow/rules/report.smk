@@ -23,6 +23,8 @@ rule config_snapshot:
         exec &> >(tee {log:q})
 
         printf '%s\n' {params.config_json:q} > {output.snapshot:q}
+
+        sync {output:q}
         """
 
 
@@ -52,6 +54,8 @@ rule gather_metrics:
             -r {params.results_dir:q} \
             --covariates {params.covariates:q} \
             -o {output.metrics:q}
+
+        sync {output:q}
         """
 
 
@@ -79,6 +83,8 @@ rule perf_vs_covariate:
             -o {output.plot:q} \
             -x {wildcards.covariate:q} \
             -y count_pearson
+
+        sync {output:q}
         """
 
 
@@ -103,6 +109,8 @@ rule outliers:
         python {workflow.basedir:q}/scripts/plot_outliers.py \
             -i {input.metrics:q} \
             -o {output.plot:q}
+
+        sync {output:q}
         """
 
 
@@ -128,6 +136,8 @@ rule performance_distribution:
         python {workflow.basedir:q}/scripts/plot_performance_dist.py \
             -i {input.performance:q} \
             -o {output.plot:q}
+
+        sync {output:q}
         """
 
 
@@ -152,4 +162,6 @@ rule motif_heatmap:
         python {workflow.basedir:q}/scripts/plot_motif_heatmap.py \
             -i {input.counts:q} \
             -o {output.plot:q}
+
+        sync {output:q}
         """

@@ -34,6 +34,8 @@ rule fit:
             {params.control_flag:q} {input.control:q} \
             {params.flags:q} \
             -o {params.name:q}
+
+        sync {output:q}
         """
 
 
@@ -89,6 +91,8 @@ rule evaluate:
             -i {output.counts:q} \
             -o {output.count_scatter:q} \
             --sample {wildcards.sample:q}
+
+        sync {output:q}
         """
 
 
@@ -114,4 +118,6 @@ rule model_summary:
             -m {input.model:q} \
             -o {output.summary:q} \
             --in_window {params.in_window:q}
+
+        sync {output:q}
         """

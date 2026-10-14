@@ -23,6 +23,8 @@ rule prep_peaks:
         else
             cp {input.peaks:q} {output.peaks:q}
         fi
+
+        sync {output:q}
         """
 
 
@@ -60,6 +62,8 @@ rule macs3:
             -n {params.name:q} \
             -q {params.q:q} \
             -t {input.signal:q}
+
+        sync {output:q}
         """
 
 
@@ -123,6 +127,8 @@ rule bam2bw:
             -p {threads} \
             {params.extra:q} \
             {input.signal:q}
+
+        sync {output:q}
         """
 
 
@@ -161,6 +167,8 @@ rule bam2bw_control:
             -p {threads} \
             {params.extra:q} \
             {input.control:q}
+
+        sync {output:q}
         """
 
 
@@ -188,4 +196,6 @@ rule count_fragments:
             {params.paired_end:q} \
             -i {input.signal:q} \
             -o {output.n_fragments:q}
+
+        sync {output:q}
         """

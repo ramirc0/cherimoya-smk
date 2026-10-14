@@ -34,4 +34,6 @@ rule negatives:
             -x {params.out_window:q} \
             -r {params.random_state:q} \
             --on_missing_contig {params.on_missing_contig:q}
+
+        sync {output:q}
         """
