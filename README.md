@@ -180,3 +180,35 @@ on the same inputs. Their docstrings list the fixture files.
 `pixi run lint` (root workspace) runs `ruff check`, `ruff format --check` and
 `numpydoc lint` on the scripts. `pyproject.toml` holds their config. Neither
 tool parses `.smk` files, so keep the rule helpers numpydoc by hand.
+
+## References
+
+Amemiya, Haley M., Anshul Kundaje, and Alan P. Boyle. 2019. “The ENCODE Blacklist: Identification of Problematic Regions of the Genome.” Scientific Reports 9 (1): 9354. https://doi.org/10.1038/s41598-019-45839-z.
+
+Avsec, Žiga, Melanie Weilert, Avanti Shrikumar, et al. 2021. “Base-Resolution Models of Transcription-Factor Binding Reveal Soft Motif Syntax.” Nature Genetics 53 (3): 354–66. https://doi.org/10.1038/s41588-021-00782-6.
+
+Gupta, Shobhit, John A. Stamatoyannopoulos, Timothy L. Bailey, and William Stafford Noble. 2007. “Quantifying Similarity between Motifs.” Genome Biology 8 (2): R24. https://doi.org/10.1186/gb-2007-8-2-r24.
+
+Lundberg, Scott M., and Su-In Lee. 2017. “A Unified Approach to Interpreting Model Predictions.” In Advances in Neural Information Processing Systems 30. https://proceedings.neurips.cc/paper/2017/hash/8a20a8621978632d76c43dfd28b67767-Abstract.html.
+
+Mölder, Felix, Kim Philipp Jablonski, Brice Letcher, et al. 2021. “Sustainable Data Analysis with Snakemake.” F1000Research 10 (January): 33. https://doi.org/10.12688/f1000research.29032.3.
+
+Ovek Baydar, Damla, Ieva Rauluseviciute, Dina R. Aronsen, et al. 2025. “JASPAR 2026: Expansion of Transcription Factor Binding Profiles and Integration of Deep Learning Models.” Nucleic Acids Research 54 (D1): D184–93. https://doi.org/10.1093/nar/gkaf1209.
+
+Pampari, Anusri, Anna Shcherbina, Evgeny Z. Kvon, et al. 2024. “ChromBPNet: Bias Factorized, Base-Resolution Deep Learning Models of Chromatin Accessibility Reveal Cis-Regulatory Sequence Syntax, Transcription Factor Footprints and Regulatory Variants.” Preprint, bioRxiv. https://doi.org/10.1101/2024.12.25.630221.
+
+Schreiber, Jacob. 2025. “Tomtom-Lite: Accelerating Tomtom Enables Large-Scale and Real-Time Motif Similarity Scoring.” Bioinformatics 41 (11): btaf577. https://doi.org/10.1093/bioinformatics/btaf577.
+
+Schreiber, Jacob. 2026. “Tangermeme: A Toolkit for Understanding Cis-Regulatory Logic Using Deep Learning Models.” Nature Methods, ahead of print, October 8. https://doi.org/10.1038/s41592-026-03254-z.
+
+Schreiber, Jacob. n.d. Bpnet-Lite. Github. Accessed October 14, 2026. https://github.com/jmschrei/bpnet-lite.
+
+Schreiber, Jacob. n.d. Cherimoya. Github. Accessed October 14, 2026. https://github.com/jmschrei/cherimoya.
+
+Schreiber, Jacob. n.d. Figwig. Github. Accessed October 14, 2026. https://github.com/jmschrei/figwig.
+
+Shrikumar, Avanti, Peyton Greenside, and Anshul Kundaje. 2017. “Learning Important Features through Propagating Activation Differences.” In Proceedings of the 34th International Conference on Machine Learning, 70:3145–53. PMLR. https://proceedings.mlr.press/v70/shrikumar17a.html.
+
+Shrikumar, Avanti, Katherine Tian, Žiga Avsec, et al. 2018. “Technical Note on Transcription Factor Motif Discovery from Importance Scores (TF-MoDISco) Version 0.5.6.5.” Preprint, arXiv. https://doi.org/10.48550/arXiv.1811.00416.
+
+Zhang, Yong, Tao Liu, Clifford A. Meyer, et al. 2008. “Model-Based Analysis of ChIP-Seq (MACS).” Genome Biology 9 (9): R137. https://doi.org/10.1186/gb-2008-9-9-r137.
