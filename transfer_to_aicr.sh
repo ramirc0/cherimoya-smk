@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # One-way rclone copies between this workdir and AICR. `copy` never deletes.
-#   ./transfer_to_aicr.sh push [rclone flags]   workflow, config, refs, staged inputs -> AICR
+#   ./transfer_to_aicr.sh push [rclone flags]   workflow, config, refs, staged inputs, notes -> AICR
 #   ./transfer_to_aicr.sh pull [rclone flags]   results, logs, benchmarks -> here
 # Pass --dry-run to preview.
 
@@ -36,6 +36,7 @@ case "$cmd" in
       --filter '+ /pytest.ini' \
       --filter '+ /README.md' \
       --filter '+ /.claude/CLAUDE.md' \
+      --filter '+ /.claude/handoffs/**' \
       --filter '+ /.gitignore' \
       --filter '+ /transfer_to_aicr.sh' \
       --filter '- **'
