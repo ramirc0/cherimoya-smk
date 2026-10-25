@@ -28,7 +28,7 @@ default-resources:
   slurm_partition: 12hours
   runtime: 60m
   mem_mb: 4000
-  slurm_extra: "--exclude=z1056,z1062"
+  slurm_extra: "--exclude=z020,z1056,z1062"
 
 set-threads:
   macs3: 1
