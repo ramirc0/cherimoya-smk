@@ -1,0 +1,2 @@
+sample_id	signal	genome	control	peaks
+K562_ATAC	resources/encode/atac/ENCFF512VEZ.bam	hg38		

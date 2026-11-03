@@ -22,6 +22,7 @@ peaks  ── prep_peaks ─────┘                 │      └─ per-
 
 ```bash
 cp config/config.atac.yaml.template config/config.yaml   # or .dnase / .chipseq-tf
+cp config/samples.tsv.template config/samples.tsv         # then edit
 pixi shell                                               # launcher env
 python workflow/scripts/make_folds.py                    # once per genome
 snakemake -n -p --profile profiles/local                 # dry run
@@ -38,7 +39,8 @@ would otherwise race to install them.
 
 ## Inputs
 
-**Sample sheet** (TSV, path set by `samples:` in config). One row per sample:
+**Sample sheet** (TSV, path set by `samples:` in config). Start from
+`config/samples.tsv.template`. One row per sample:
 
 | column      | required | meaning |
 |-------------|----------|---------|
@@ -108,7 +110,8 @@ Logs and benchmarks use the same layout under `logs/` and `benchmarks/`.
 Plots are written as SVG and PNG.
 
 Keep runs apart with `--config run_id=mytag`. Swap sample sheets with
-`--config samples=config/samples.other.tsv`.
+`--config samples=config/samples.other.tsv`. Only the templates in `config/`
+are tracked. Keep each run's config and sheets in `config/<run_id>/`.
 
 ## Run part of the pipeline
 
