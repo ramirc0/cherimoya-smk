@@ -11,15 +11,18 @@ cmd="${1:?usage: transfer_to_aicr.sh <push|pull> [rclone flags]}"
 shift
 
 remote="AICR:/work/umass/genomeatlas_umassmed/cherimoya-smk"
-opts=(--transfers 16 --checkers 32 --sftp-concurrency 64 --multi-thread-streams 4 -P "$@")
+opts=(--transfers 16 --checkers 32 --sftp-concurrency 64 --multi-thread-streams 4 -P)
 
 case "$cmd" in
   push)
     # Envs are rebuilt on AICR. --copy-links sends the files behind the
     # resources/ symlinks (refs, motifs, the staged inputs), not the links.
+    # rclone applies the first matching filter, so the env excludes precede
+    # the caller's filters.
     rclone copy . "$remote" "${opts[@]}" --copy-links \
       --filter '- .pixi/**' \
       --filter '- __pycache__/**' \
+      "$@" \
       --filter '+ /workflow/**' \
       --filter '+ /config/**' \
       --filter '+ /profiles/**' \
@@ -45,7 +48,7 @@ case "$cmd" in
       --filter '- **'
     ;;
   pull)
-    rclone copy "$remote" . "${opts[@]}" \
+    rclone copy "$remote" . "${opts[@]}" "$@" \
       --filter '+ /results/**' \
       --filter '+ /logs/**' \
       --filter '+ /benchmarks/**' \
