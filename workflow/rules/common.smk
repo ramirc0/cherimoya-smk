@@ -50,7 +50,7 @@ if not _SHEET.exists():
         "Create it (columns: sample_id, signal, genome, [control], [peaks]); "
         "signal is a BAM/fragments file (bam2bw + macs3) or an already-built "
         "bigWig, as a `plus.bw,minus.bw` pair in a stranded run (requires "
-        "provided peaks). See config/samples.tsv for the layout."
+        "provided peaks). See config/samples.tsv.template for the layout."
     )
 
 _manifest = pl.read_csv(_SHEET, separator="\t", infer_schema_length=0)
