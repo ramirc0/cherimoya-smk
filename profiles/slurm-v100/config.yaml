@@ -13,7 +13,9 @@ jobs: unlimited
 # partition behind all of ours. Twice its 36 GPUs keeps one job queued per GPU.
 resources:
   gpu_slots: 72
-max-jobs-per-timespan: 5/1s
+# Job selection reruns once per timespan and stats every ready job's input on
+# NFS. At 1s, a driver with more ready jobs than slots pins a login-node core.
+max-jobs-per-timespan: 50/10s
 # ILP re-solves a model per batch of finished jobs. It only pays off with temp()
 # outputs. Greedy starts big-input jobs first, so give a small blocking rule `priority:`.
 scheduler: greedy
