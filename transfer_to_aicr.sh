@@ -16,7 +16,7 @@ opts=(--transfers 16 --checkers 32 --sftp-concurrency 64 --multi-thread-streams 
 case "$cmd" in
   push)
     # Envs are rebuilt on AICR. --copy-links sends the files behind the
-    # resources/ symlinks (refs, motifs, the chip-nexus and procap inputs), not the links.
+    # resources/ symlinks (refs, motifs, the chip-nexus, procap and chip-exo inputs), not the links.
     rclone copy . "$remote" "${opts[@]}" --copy-links \
       --filter '- .pixi/**' \
       --filter '- __pycache__/**' \
@@ -30,6 +30,7 @@ case "$cmd" in
       --filter '+ /resources/motifs/**' \
       --filter '+ /resources/chip-nexus/**' \
       --filter '+ /resources/procap/**' \
+      --filter '+ /resources/chip-exo/**' \
       --filter '+ /resources/*.bed' \
       --filter '+ /pixi.toml' \
       --filter '+ /pixi.lock' \
