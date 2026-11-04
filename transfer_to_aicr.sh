@@ -35,6 +35,7 @@ case "$cmd" in
       --filter '+ /resources/procap/**' \
       --filter '+ /resources/chip-exo/**' \
       --filter '+ /resources/encode-pseudobulks/**' \
+      --filter '+ /resources/bolero/**' \
       --filter '+ /resources/*.bed' \
       --filter '+ /pixi.toml' \
       --filter '+ /pixi.lock' \
