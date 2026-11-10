@@ -37,7 +37,8 @@ def main():
     import pandas as pd
     import poikilos as pk
 
-    pk.use("plain")
+    pk.use("zed")
+    zed = pk.PALETTES["zed"].colors
 
     df = pd.read_csv(args.counts, sep="\t")
     x = df["obs_logcount"].to_numpy(float)
@@ -49,7 +50,7 @@ def main():
     fig.colorbar(hb, ax=ax, label="peaks")
 
     lo, hi = min(x.min(), y.min()), max(x.max(), y.max())
-    ax.plot([lo, hi], [lo, hi], color="#d1495b", lw=1, ls="--", label="y = x")
+    ax.plot([lo, hi], [lo, hi], color=zed["black"], label="y = x")
 
     ax.set_xlabel("observed log-counts")
     ax.set_ylabel("predicted log-counts")
@@ -57,9 +58,9 @@ def main():
     import textwrap
 
     header = "\n".join(textwrap.wrap(args.sample, 30)) + "\n" if args.sample else ""
-    ax.set_title(f"{header}count Pearson r = {r:.3f}  (n={len(x)})", fontsize=11)
-    ax.legend(frameon=False, fontsize=8, loc="upper left")
-    pk.despine(ax)
+    ax.set_title(f"{header}count Pearson r = {r:.3f}  (n={len(x)})")
+    ax.legend(loc="upper left")
+    pk.despine(ax, offset=7.5)
     pk.save_figure(fig, args.output)
 
 

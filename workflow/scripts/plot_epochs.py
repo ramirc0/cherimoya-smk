@@ -47,7 +47,7 @@ def main():
     import pandas as pd
     import poikilos as pk
 
-    pk.use("plain")
+    pk.use("zed")
 
     df = pd.read_csv(args.history, sep="\t")
     metrics = [m for m in METRICS if m in df.columns]
@@ -64,7 +64,7 @@ def main():
         ax.plot(df["Epoch"], df[metric], marker="o")
         ax.set_title(metric)
         ax.set_xlabel("Epoch")
-        pk.despine(ax)
+        pk.despine(ax, offset=7.5)
     for ax in axes[len(metrics) :]:
         ax.set_visible(False)
 

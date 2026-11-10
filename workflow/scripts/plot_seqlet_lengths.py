@@ -29,7 +29,7 @@ def main():
     import poikilos as pk
     import polars as pl
 
-    pk.use("plain")
+    pk.use("zed")
 
     bed = pl.read_csv(
         args.seqlets,
@@ -44,7 +44,7 @@ def main():
     ax.set_xlabel("Seqlet length (bp)")
     ax.set_ylabel("Seqlets")
     ax.set_title(f"{args.sample} (n={len(lengths):,} seqlets)".strip())
-    pk.despine(ax)
+    pk.despine(ax, offset=7.5)
 
     pk.save_figure(fig, args.output)
 

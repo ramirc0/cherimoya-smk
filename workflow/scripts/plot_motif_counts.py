@@ -34,7 +34,7 @@ def main():
     import poikilos as pk
     import polars as pl
 
-    pk.use("plain")
+    pk.use("zed")
 
     counts = pl.read_csv(args.counts, separator="\t")
     total = counts["count"].sum()
@@ -46,10 +46,10 @@ def main():
     )
 
     fig, ax = plt.subplots(figsize=(4.5, 0.6 + 0.18 * len(top)))
-    ax.barh(top["motifs"], top["count"] / total)
+    ax.barh(top["motifs"], top["count"] / total, height=0.67)
     ax.set_xlabel("Fraction of seqlets")
     ax.set_title(f"{args.sample} (n={total:,} seqlets)".strip())
-    pk.despine(ax, categorical_y=True)
+    pk.despine(ax, categorical_y=True, offset=7.5)
 
     pk.save_figure(fig, args.output)
 

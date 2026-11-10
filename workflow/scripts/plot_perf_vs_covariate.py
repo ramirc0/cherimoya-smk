@@ -43,7 +43,8 @@ def main():
     import pandas as pd
     import poikilos as pk
 
-    pk.use("plain")
+    pk.use("zed")
+    zed = pk.PALETTES["zed"].colors
 
     df = pd.read_csv(args.metrics, sep="\t").dropna(
         subset=[args.covariate, args.metric]
@@ -54,7 +55,7 @@ def main():
     rho = np.corrcoef(np.argsort(np.argsort(x)), np.argsort(np.argsort(y)))[0, 1]
 
     fig, ax = plt.subplots(figsize=(5, 4))
-    ax.scatter(x, y, s=6, alpha=0.25, edgecolor="none", color="#3b6ea5")
+    ax.scatter(x, y, s=1.5**2, c=zed["silver"], linewidths=0.15)
 
     # Binned median trend on a log-x grid (depth/peaks span orders of magnitude).
     lx = np.log10(x)
@@ -66,16 +67,14 @@ def main():
         if m.sum() >= 5:
             centers.append(10 ** ((edges[b] + edges[b + 1]) / 2))
             meds.append(np.median(y[m]))
-    ax.plot(
-        centers, meds, color="#d1495b", lw=2, marker="o", ms=3, label="binned median"
-    )
+    ax.plot(centers, meds, color=zed["red"], marker="o", label="binned median")
 
     ax.set_xscale("log")
     ax.set_xlabel(args.covariate)
     ax.set_ylabel(args.metric)
     ax.set_title(f"{args.metric} vs {args.covariate}  (Spearman rho={rho:.2f})")
-    ax.legend(frameon=False, fontsize=8)
-    pk.despine(ax)
+    ax.legend()
+    pk.despine(ax, offset=7.5)
     pk.save_figure(fig, args.output)
 
 

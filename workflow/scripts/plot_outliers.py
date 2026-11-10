@@ -45,7 +45,8 @@ def main():
     import pandas as pd
     import poikilos as pk
 
-    pk.use("plain")
+    pk.use("zed")
+    zed = pk.PALETTES["zed"].colors
 
     df = pd.read_csv(args.metrics, sep="\t").dropna(subset=[args.metric])
     df = df.sort_values(args.metric, ascending=True).reset_index(drop=True)
@@ -58,29 +59,21 @@ def main():
 
     fig, ax = plt.subplots(figsize=(6, 3.6))
     rank = np.arange(len(df))
-    ax.scatter(
-        rank[~is_out],
-        y[~is_out],
-        s=5,
-        color="#3b6ea5",
-        alpha=0.5,
-        edgecolor="none",
-        label="pass",
-    )
+    # Ranked points overlap into a curve, which white marker edges would wash out.
+    ax.scatter(rank[~is_out], y[~is_out], c=zed["silver"], linewidths=0, label="pass")
     ax.scatter(
         rank[is_out],
         y[is_out],
-        s=14,
-        color="#d1495b",
-        edgecolor="none",
+        c=zed["red"],
+        linewidths=0,
         label=f"outlier (< {fence:.2f})",
     )
-    ax.axhline(fence, color="#d1495b", lw=1, ls="--")
+    ax.axhline(fence, color=zed["red"], linestyle="--")
     ax.set_xlabel(f"models ranked by {args.metric}")
     ax.set_ylabel(args.metric)
     ax.set_title(f"{args.metric}: {int(is_out.sum())} of {len(df)} below Tukey fence")
-    ax.legend(frameon=False, fontsize=8, loc="lower right")
-    pk.despine(ax)
+    ax.legend(loc="lower right")
+    pk.despine(ax, offset=7.5)
     pk.save_figure(fig, args.output)
 
     print(f"{int(is_out.sum())} outliers (fence={fence:.3f})")

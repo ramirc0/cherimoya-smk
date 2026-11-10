@@ -67,7 +67,7 @@ def main():
     import polars as pl
     from matplotlib.colors import PowerNorm
 
-    pk.use("plain")
+    pk.use("zed")
 
     frames = []
     for path in args.counts:
@@ -125,7 +125,7 @@ def main():
     # Evenly spaced under the sqrt norm; linear ticks crowd its top end.
     ticks = M.max() * numpy.linspace(0, 1, 5) ** 2
     cbar.set_ticks(ticks, labels=[f"{t:.2g}" for t in ticks])
-    pk.despine(ax, categorical_x=True, categorical_y=True)
+    pk.despine(ax, categorical_x=True, categorical_y=True, offset=7.5)
 
     pk.save_figure(fig, args.output)
 
