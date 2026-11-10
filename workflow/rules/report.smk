@@ -114,15 +114,16 @@ rule outliers:
         """
 
 
-# Run-level plot: distribution of model performance, faceted across metrics.
-
-
+# Run-level plot: distribution of model performance, one PDF page per metric
+# family. The page names match PAGES in plot_performance_dist.py.
 rule performance_distribution:
     input:
         performance=_ALL_PERFORMANCE,
     output:
-        plot=f"{OUTDIR}/report/performance_distribution.svg",
-        plot_png=f"{OUTDIR}/report/performance_distribution.png",
+        plot=f"{OUTDIR}/report/performance_distribution.pdf",
+        pages=[f"{OUTDIR}/report/performance_distribution.{page}.{ext}"
+               for page in ("counts", "profile", "peak_vs_negative")
+               for ext in ("svg", "png")],
     log:
         f"{LOGDIR}/performance_distribution/all.log",
     benchmark:

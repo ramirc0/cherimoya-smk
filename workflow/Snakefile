@@ -16,7 +16,7 @@ PREPROCESS = [
 ]
 TRAIN = PREPROCESS + per_fold("epochs.svg", "count_scatter.svg", "summary.txt") + [
     f"{OUTDIR}/report/metrics.tsv",
-    *([f"{OUTDIR}/report/performance_distribution.svg",
+    *([f"{OUTDIR}/report/performance_distribution.pdf",
        *[f"{OUTDIR}/report/count_pearson_vs_{c}.svg" for c in COVARIATES],
        f"{OUTDIR}/report/outliers.svg"] if RUN_PLOTS else []),
 ]
