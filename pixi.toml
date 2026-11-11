@@ -4,6 +4,14 @@
 name = "cherimoya-smk"
 channels = ["conda-forge"]
 platforms = ["linux-64"]
+exclude-newer = "7d"
+
+# certifi releases remove compromised CAs, so it is exempt from the cutoff.
+[exclude-newer]
+certifi = "0d"
+
+[pypi-exclude-newer]
+certifi = "0d"
 
 [dependencies]
 python = "3.13.*"
