@@ -50,7 +50,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2026c-h151e31d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/wheel-0.48.0-pyhd8ed1ab_0.conda
       - pypi: git+https://github.com/jmschrei/cherimoya.git?rev=8ecf7f791ec07c05a701076cc58a0f845bf97609#8ecf7f791ec07c05a701076cc58a0f845bf97609
-      - pypi: git+https://github.com/jmschrei/tangermeme?rev=eb25075f7909a6ef1ff3a0bd9b8aa3c1aabb5764#eb25075f7909a6ef1ff3a0bd9b8aa3c1aabb5764
       - pypi: git+https://github.com/macs3-project/MACS.git?rev=170556de25475fc59b1e219e898c21b7eecd5dd8#170556de25475fc59b1e219e898c21b7eecd5dd8
       - pypi: git+https://github.com/ramirc0/poikilos?rev=21f8f6c9984662259638ccc409cffaa6f4ebc414#21f8f6c9984662259638ccc409cffaa6f4ebc414
       - pypi: https://files.pythonhosted.org/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl
@@ -127,6 +126,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/8b/9d/b3589d3877982d4f2329302ef98a8026e7f4443c765c46cfecc8858c6b4b/pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/8d/59/b4572118e098ac8e46e399a1dd0f2d85403ce8bbaad9ec79373ed6badaf9/PySocks-1.7.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/90/24/48cd98388e4ac2c08d0800af36d15413db15e20387f1038123a2c86cb2f6/pydantic_core-2.50.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/91/f0/1477766333ca59fac002bf8a87d3774975d5e87081b43ef1e99e10c93f2e/tangermeme-1.6.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/92/9d/c4e665119135114480843e7ab388fa94d8480650450e6f8e26b70d323a4c/urllib3-2.8.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/99/91/8acff4f5e50511b911bbccb72b8628a49c68ce14148cd9f6431094859a90/annotated_types-0.8.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/9b/41/b5af3c12d874fcbdb45abd67500aff8030de0d350a5d6163da45378609c4/session_info2-0.4.2-py3-none-any.whl
@@ -225,7 +225,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2026c-h151e31d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/wheel-0.48.0-pyhd8ed1ab_0.conda
       - pypi: git+https://github.com/jmschrei/cherimoya.git?rev=8ecf7f791ec07c05a701076cc58a0f845bf97609#8ecf7f791ec07c05a701076cc58a0f845bf97609
-      - pypi: git+https://github.com/jmschrei/tangermeme?rev=eb25075f7909a6ef1ff3a0bd9b8aa3c1aabb5764#eb25075f7909a6ef1ff3a0bd9b8aa3c1aabb5764
       - pypi: git+https://github.com/macs3-project/MACS.git?rev=170556de25475fc59b1e219e898c21b7eecd5dd8#170556de25475fc59b1e219e898c21b7eecd5dd8
       - pypi: git+https://github.com/ramirc0/poikilos?rev=21f8f6c9984662259638ccc409cffaa6f4ebc414#21f8f6c9984662259638ccc409cffaa6f4ebc414
       - pypi: https://download-r2.pytorch.org/whl/cu126/torch-2.14.0%2Bcu126-cp312-cp312-manylinux_2_28_x86_64.whl
@@ -302,6 +301,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/8f/16/73727675941ab8e6ffd86ca3a4b7b47065edcca7a997920b831f8147c99d/nvidia_cufft_cu12-11.3.0.4-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/90/24/48cd98388e4ac2c08d0800af36d15413db15e20387f1038123a2c86cb2f6/pydantic_core-2.50.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/91/97/e3c6e58ece26a053419ba0a18444b5443cfc64451bbf37f84e8143b8bdca/cuda_bindings-12.9.7-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/91/f0/1477766333ca59fac002bf8a87d3774975d5e87081b43ef1e99e10c93f2e/tangermeme-1.6.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/92/9d/c4e665119135114480843e7ab388fa94d8480650450e6f8e26b70d323a4c/urllib3-2.8.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/99/91/8acff4f5e50511b911bbccb72b8628a49c68ce14148cd9f6431094859a90/annotated_types-0.8.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/9b/41/b5af3c12d874fcbdb45abd67500aff8030de0d350a5d6163da45378609c4/session_info2-0.4.2-py3-none-any.whl
@@ -2194,37 +2194,6 @@ packages:
   - furo>=2024.1 ; extra == 'docs'
   - sphinx-copybutton>=0.5 ; extra == 'docs'
   requires_python: '>=3.10'
-- pypi: git+https://github.com/jmschrei/tangermeme?rev=eb25075f7909a6ef1ff3a0bd9b8aa3c1aabb5764#eb25075f7909a6ef1ff3a0bd9b8aa3c1aabb5764
-  name: tangermeme
-  version: 1.5.0
-  requires_dist:
-  - figwig>=0.1.0
-  - joblib>=1.3
-  - matplotlib>=3.7
-  - memelite>=0.2
-  - numba>=0.58
-  - numpy>=1.23
-  - pandas>=2.0
-  - pyfaidx>=0.7.2.1
-  - scikit-learn>=1.3
-  - scipy>=1.10
-  - torch>=2.0
-  - tqdm>=4.65
-  - build>=1.0 ; extra == 'dev'
-  - captum>=0.5.0 ; extra == 'dev'
-  - mpld3>=0.5 ; extra == 'dev'
-  - pybigtools>=0.2.5,<0.3 ; extra == 'dev'
-  - pytest>=7.0 ; extra == 'dev'
-  - ruff>=0.4 ; extra == 'dev'
-  - twine>=4.0 ; extra == 'dev'
-  - jinja2>=3.1.3 ; extra == 'docs'
-  - jupyter>=1.0 ; extra == 'docs'
-  - nbconvert>=7.0 ; extra == 'docs'
-  - nbsphinx>=0.9 ; extra == 'docs'
-  - sphinx-rtd-theme>=2.0 ; extra == 'docs'
-  - sphinx>=7.0 ; extra == 'docs'
-  - mpld3>=0.5 ; extra == 'interactive'
-  requires_python: '>=3.10'
 - pypi: git+https://github.com/macs3-project/MACS.git?rev=170556de25475fc59b1e219e898c21b7eecd5dd8#170556de25475fc59b1e219e898c21b7eecd5dd8
   name: macs3
   version: 3.0.5
@@ -3614,6 +3583,38 @@ packages:
   - pytest>=6.2.4 ; extra == 'test'
   - pytest-benchmark>=3.4.1 ; extra == 'test'
   - pyglet>=2.1.9 ; extra == 'test'
+- pypi: https://files.pythonhosted.org/packages/91/f0/1477766333ca59fac002bf8a87d3774975d5e87081b43ef1e99e10c93f2e/tangermeme-1.6.0-py3-none-any.whl
+  name: tangermeme
+  version: 1.6.0
+  sha256: 3209febe10f97c991335dc8cd4555a2d5081cadfacc1903edddea8859b43048a
+  requires_dist:
+  - figwig>=0.1.0
+  - joblib>=1.3
+  - matplotlib>=3.7
+  - memelite>=0.2
+  - numba>=0.58
+  - numpy>=1.23
+  - pandas>=2.0
+  - pyfaidx>=0.7.2.1
+  - scikit-learn>=1.3
+  - scipy>=1.10
+  - torch>=2.0
+  - tqdm>=4.65
+  - build>=1.0 ; extra == 'dev'
+  - captum>=0.5.0 ; extra == 'dev'
+  - mpld3>=0.5 ; extra == 'dev'
+  - pybigtools>=0.2.5,<0.3 ; extra == 'dev'
+  - pytest>=7.0 ; extra == 'dev'
+  - ruff>=0.4 ; extra == 'dev'
+  - twine>=4.0 ; extra == 'dev'
+  - jinja2>=3.1.3 ; extra == 'docs'
+  - jupyter>=1.0 ; extra == 'docs'
+  - nbconvert>=7.0 ; extra == 'docs'
+  - nbsphinx>=0.9 ; extra == 'docs'
+  - sphinx-rtd-theme>=2.0 ; extra == 'docs'
+  - sphinx>=7.0 ; extra == 'docs'
+  - mpld3>=0.5 ; extra == 'interactive'
+  requires_python: '>=3.10'
 - pypi: https://files.pythonhosted.org/packages/92/9d/c4e665119135114480843e7ab388fa94d8480650450e6f8e26b70d323a4c/urllib3-2.8.0-py3-none-any.whl
   name: urllib3
   version: 2.8.0
