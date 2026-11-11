@@ -28,7 +28,7 @@ default-resources:
   mem_mb: 4000
 
 set-threads:
-  macs3: 1
+  macs3: 8
   bam2bw: 4
   negatives: 1
   fit: 4
@@ -39,7 +39,7 @@ set-threads:
 set-resources:
   macs3:
     mem_mb: 16000
-    runtime: 30m             # macs3 main: K562 DNase 1:43 at 1 CPU
+    runtime: 30m             # macs3 ebdc441: K562 DNase 13 s at 8 threads
   bam2bw:
     mem_mb: 16000
     runtime: 480m

@@ -61,6 +61,7 @@ rule macs3:
             -g {params.gsize:q} \
             -n {params.name:q} \
             -q {params.q:q} \
+            --threads {threads} \
             -t {input.signal:q}
 
         sync {output:q}

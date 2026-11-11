@@ -33,7 +33,7 @@ default-resources:
   slurm_extra: "--exclude=z020,z1056,z1062"
 
 set-threads:
-  macs3: 1
+  macs3: 8
   bam2bw: 2
   negatives: 1
   fit: 4
@@ -47,9 +47,8 @@ set-threads:
 # to catch stragglers, bump the preset and rerun (only the failed jobs re-run).
 set-resources:
   macs3:
-    constraint: cascadelake   # macs3 builds with $CFLAGS (x86-64-v4, AVX512); broadwell SIGILLs
     mem_mb: 16000
-    runtime: 30m             # macs3 main: K562 DNase 1:43 at 1 CPU
+    runtime: 30m             # macs3 ebdc441: K562 DNase 13 s at 8 threads
   bam2bw:
     mem_mb: 32000
     runtime: 240m

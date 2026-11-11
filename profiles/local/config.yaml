@@ -21,6 +21,7 @@ default-resources:          # fallback for the trivial rules (~1s, ~60 MB)
   runtime: 30m
 
 set-threads:
+  macs3: 8
   bam2bw: 2      # I/O-bound: benched ~1 core of real work
   fit: 8
   evaluate: 8
