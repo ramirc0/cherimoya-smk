@@ -53,7 +53,6 @@ environments:
       - pypi: git+https://github.com/jmschrei/cherimoya.git?rev=5729b57745912e77239b50e99ffc9be25d94ef90#5729b57745912e77239b50e99ffc9be25d94ef90
       - pypi: git+https://github.com/kundajelab/tfmodisco.git?rev=28154f18ec422c0738d3e45316c8a2fc76e6c88f#28154f18ec422c0738d3e45316c8a2fc76e6c88f
       - pypi: git+https://github.com/macs3-project/MACS.git?rev=ebdc4417ab304b2cd9e00486800e6f349d06ef9c#ebdc4417ab304b2cd9e00486800e6f349d06ef9c
-      - pypi: git+https://github.com/ramirc0/poikilos?rev=21f8f6c9984662259638ccc409cffaa6f4ebc414#21f8f6c9984662259638ccc409cffaa6f4ebc414
       - pypi: https://files.pythonhosted.org/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/08/93/2a6556bbdb8e918175af9d849a5d0b367b5644e41939d040f3a7215b1339/pydantic_core-2.50.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/0a/66/9a06c2227fedfd4919f0eaaa8b94377d9730882a7e4f95823c9a331ab5e1/tzdata-2026.6-py2.py3-none-any.whl
@@ -84,6 +83,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/3f/34/c500f90c7ae641b8e0f98965b36b8a7ac79cc8b296e8d251fe3eb592ee54/nvidia_nccl_cu13-2.30.7-py3-none-manylinux_2_18_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/3f/c9/af85b25e0d98bd921a7646ad1db1c8746250ee04b8f1595982d29b6283cf/triton-3.9.0-cp312-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/40/9e/2b38731e0fc536806f16490e1a12d7f0dc2a1235aa8cc07bcc75416a7daa/pluggy-1.7.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/fb/12f748f82d12946f53ea824420780ca99b1c4508430895b9d1b0f423fc4b/poikilos-1.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/41/28/868ed0c6ade5e6a75b25166b3cf191f4a2ff58ad618c1e40befb776c97c5/nvidia_cufft-12.2.0.57-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/41/5b/058db09c45ba58a7321bdf2294cae651b37d6fec68117265af90cde043b0/legacy_api_wrap-1.5-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/42/43/612036bf387d34afff1ec77d3aabe0d16776f1727b00b8bc4540fe5472b1/torch-2.15.0-cp312-cp312-manylinux_2_28_x86_64.whl
@@ -231,7 +231,6 @@ environments:
       - pypi: git+https://github.com/jmschrei/cherimoya.git?rev=5729b57745912e77239b50e99ffc9be25d94ef90#5729b57745912e77239b50e99ffc9be25d94ef90
       - pypi: git+https://github.com/kundajelab/tfmodisco.git?rev=28154f18ec422c0738d3e45316c8a2fc76e6c88f#28154f18ec422c0738d3e45316c8a2fc76e6c88f
       - pypi: git+https://github.com/macs3-project/MACS.git?rev=ebdc4417ab304b2cd9e00486800e6f349d06ef9c#ebdc4417ab304b2cd9e00486800e6f349d06ef9c
-      - pypi: git+https://github.com/ramirc0/poikilos?rev=21f8f6c9984662259638ccc409cffaa6f4ebc414#21f8f6c9984662259638ccc409cffaa6f4ebc414
       - pypi: https://download-r2.pytorch.org/whl/cu126/torch-2.14.1%2Bcu126-cp312-cp312-manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/06/1e/b8b7c2f4099a37b96af5c9bb158632ea9e5d9d27d7391d7eb8fc45236674/nvidia_cusparse_cu12-12.5.4.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
@@ -258,6 +257,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/39/88/4131c51ff87b7cd7f82a1194d0c0a2b7ca68c72d9da04c3b7e69ab91a79f/pydantic_settings-2.16.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/3d/b1/88f9aa5052f6d69afc4507763517b84872a76d3f7644edddca8bb4e3729a/cuda_pathfinder-1.8.5-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/40/9e/2b38731e0fc536806f16490e1a12d7f0dc2a1235aa8cc07bcc75416a7daa/pluggy-1.7.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/fb/12f748f82d12946f53ea824420780ca99b1c4508430895b9d1b0f423fc4b/poikilos-1.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/41/5b/058db09c45ba58a7321bdf2294cae651b37d6fec68117265af90cde043b0/legacy_api_wrap-1.5-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/43/23/0813ab091f60403c33cb741392ae77db13324587748df6f52167bf3a2404/numba-0.68.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/43/3f/f88a53f60a472b46f4023f56d204dd7de33d34c5d2acbfa0d70a674e639e/threadpoolctl-3.7.0-py3-none-any.whl
@@ -2156,13 +2156,6 @@ packages:
   - hmmlearn>=0.3.2
   - scikit-learn>=1.3
   requires_python: '>=3.12'
-- pypi: git+https://github.com/ramirc0/poikilos?rev=21f8f6c9984662259638ccc409cffaa6f4ebc414#21f8f6c9984662259638ccc409cffaa6f4ebc414
-  name: poikilos
-  version: 1.2.0
-  requires_dist:
-  - matplotlib>=3.11
-  - adjusttext>=1.4.0 ; extra == 'labels'
-  requires_python: '>=3.11'
 - pypi: https://download-r2.pytorch.org/whl/cu126/torch-2.14.1%2Bcu126-cp312-cp312-manylinux_2_28_x86_64.whl
   name: torch
   version: 2.14.1+cu126
@@ -2793,6 +2786,14 @@ packages:
   version: 1.7.0
   sha256: 7dd7b0d8832ba3cb632c306926ded123429211b83641b35dc5c41ad2d34f9bec
   requires_python: '>=3.10'
+- pypi: https://files.pythonhosted.org/packages/40/fb/12f748f82d12946f53ea824420780ca99b1c4508430895b9d1b0f423fc4b/poikilos-1.2.0-py3-none-any.whl
+  name: poikilos
+  version: 1.2.0
+  sha256: 30d4f98f148675337e635fd02a8f6e21c3371128c69333d1a55a591faaad4063
+  requires_dist:
+  - matplotlib>=3.11
+  - adjusttext>=1.4.0 ; extra == 'labels'
+  requires_python: '>=3.11'
 - pypi: https://files.pythonhosted.org/packages/41/28/868ed0c6ade5e6a75b25166b3cf191f4a2ff58ad618c1e40befb776c97c5/nvidia_cufft-12.2.0.57-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
   name: nvidia-cufft
   version: 12.2.0.57

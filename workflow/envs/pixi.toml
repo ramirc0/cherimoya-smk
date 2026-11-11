@@ -76,7 +76,7 @@ mpmath = "==1.3.0"
 multidict = "==7.2.1"
 networkx = "==3.7"
 pluggy = "==1.7.0"
-poikilos = { git = "https://github.com/ramirc0/poikilos", rev = "21f8f6c9984662259638ccc409cffaa6f4ebc414", extras = ["labels"] }
+poikilos = { version = "==1.2.0", extras = ["labels"] }
 propcache = "==0.5.4"
 pybigwig = "==0.3.29"
 pygments = "==2.21.0"
