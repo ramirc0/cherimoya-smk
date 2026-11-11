@@ -90,7 +90,7 @@ set-resources:
     mem_mb: 8000            # dnase peaks at 3 GB
     runtime: 30m
   modisco_motifs:
-    constraint: cascadelake # 16 cores: atac 1h15, ctcf 4h35 at 11 GB
+    constraint: cascadelake # 16 CPUs (Zen 5): atac 3, dnase 7, ctcf 11 min at <= 7 GB
     mem_mb: 32000
     runtime: 720m
   modisco_report:

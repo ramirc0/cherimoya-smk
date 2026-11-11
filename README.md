@@ -134,7 +134,7 @@ Later, run `all` with the same `run_id`. Only the missing stages run.
 
 `profiles/slurm` sends `fit`, `evaluate`, `attribute` and `marginalize` to the `gpuh200` partition with one
 GPU and everything else to CPU partitions. `modisco_motifs` takes 16 cores on
-cascadelake nodes (1 to 5 h). `modisco_report` also runs on cascadelake: without
+cascadelake nodes (minutes per model). `modisco_report` also runs on cascadelake: without
 AVX512, the seqlet examples it picks differ. Resources are fixed per rule. If a
 job runs out of memory or time, raise its value in the profile and rerun. Only
 failed jobs re-run. Set your own `slurm_account` before using it.
