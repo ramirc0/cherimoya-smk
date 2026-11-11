@@ -1,0 +1,140 @@
+// cherimoya-smk rule graph. Structure only; the style adds every visual.
+// Render: just -f ~/.claude/skills/graphviz-dot-theme/justfile render workflow.gv snakemake {TB,LR} {png,svg} files
+digraph workflow {
+  label = "cherimoya-smk"
+
+  subgraph cluster_inputs {
+    label = "Inputs"
+    sheet    [class = data, label = "samples.tsv"]
+    signal   [class = data, label = "signal\nBAM, fragments or bigWig"]
+    control  [class = data, label = "control (optional)"]
+    peaks_in [class = data, label = "peaks.narrowPeak (optional)"]
+    genome   [class = data, label = "genome.fa\nblacklist.bed"]
+    folds    [class = data, label = "fold_<k>.json"]
+    motifs   [class = data, label = "motifs.meme"]
+  }
+
+  subgraph cluster_preprocess {
+    label = "Preprocess"
+    is_bigwig       [class = decision, label = "Signal is bigWig?"]
+    has_peaks       [class = decision, label = "Peaks given?"]
+    config_snapshot [class = step, label = "Config snapshot\nJSON"]
+    prep_peaks      [class = step, label = "Prep peaks\ngunzip"]
+    macs3           [class = step, label = "MACS3\ncallpeak"]
+    bam2bw          [class = step, label = "Bam2bw\nfigwig"]
+    bam2bw_control  [class = step, label = "Bam2bw control\nfigwig"]
+    count_fragments [class = step, label = "Count fragments\npysam"]
+    negatives       [class = step, label = "Negatives\ntangermeme"]
+    peaks           [class = data, label = "<sample>.peaks.narrowPeak"]
+    signal_bw       [class = data, label = "<sample>.bw"]
+    control_bw      [class = data, label = "<sample>.control.bw"]
+    n_fragments     [class = data, label = "<sample>.n_fragments.txt"]
+    negatives_bed   [class = data, label = "<sample>.negatives.bed"]
+  }
+
+  subgraph cluster_train {
+    label = "Train"
+    fit           [class = step, label = "Fit\ncherimoya"]
+    evaluate      [class = step, label = "Evaluate\ncherimoya"]
+    model_summary [class = step, label = "Model summary\ntorchinfo"]
+    model         [class = data, label = "<sample>.torch"]
+    performance   [class = data, label = "<sample>.performance.tsv"]
+  }
+
+  subgraph cluster_interpret {
+    label = "Interpret"
+    attribute           [class = step, label = "Attribute\ntangermeme DeepLIFT"]
+    attribution_profile [class = step, label = "Attribution profile\npoikilos"]
+    seqlets             [class = step, label = "Seqlets\ntangermeme"]
+    seqlet_lengths      [class = step, label = "Seqlet lengths\npoikilos"]
+    annotate            [class = step, label = "Annotate\nmemelite TomTom"]
+    motif_counts        [class = step, label = "Motif counts\npoikilos"]
+    modisco_motifs      [class = step, label = "Modisco motifs\nmodiscolite"]
+    modisco_report      [class = step, label = "Modisco report\nmodisco, MEME TomTom"]
+    marginalize         [class = step, label = "Marginalize\nbpnet-lite"]
+    attributions        [class = data, label = "<sample>.attributions.npz"]
+    seqlets_bed         [class = data, label = "<sample>.seqlets.bed"]
+    motif_seqlet_count  [class = data, label = "<sample>.motif_seqlet_count.tsv"]
+    modisco_h5          [class = data, label = "<sample>.modisco_results.h5"]
+  }
+
+  subgraph cluster_report {
+    label = "Report"
+    gather_metrics           [class = step, label = "Gather metrics\npandas"]
+    perf_vs_covariate        [class = step, label = "Perf vs covariate\npoikilos"]
+    outliers                 [class = step, label = "Outliers\npoikilos"]
+    performance_distribution [class = step, label = "Performance distribution\npoikilos"]
+    performance_table        [class = step, label = "Performance table\ngreat-tables"]
+    motif_heatmap            [class = step, label = "Motif heatmap\npoikilos"]
+    metrics                  [class = data, label = "metrics.tsv"]
+  }
+
+  snapshot_json      [class = result, label = "config.snapshot.json"]
+  eval_plots         [class = result, label = "epochs.svg\ncount_scatter.svg"]
+  summary_txt        [class = result, label = "<sample>.summary.txt"]
+  profile_svg        [class = result, label = "attribution_profile.svg"]
+  lengths_svg        [class = result, label = "seqlet_lengths.svg"]
+  annotated_bed      [class = result, label = "seqlets_annotated.bed"]
+  motif_counts_svg   [class = result, label = "motif_counts.svg"]
+  modisco_html       [class = result, label = "modisco/report.html"]
+  marginalize_html   [class = result, label = "marginalization.html"]
+  covariate_svg      [class = result, label = "count_pearson_vs_<cov>.svg"]
+  outliers_svg       [class = result, label = "outliers.svg"]
+  distribution_pdf   [class = result, label = "performance_distribution.pdf"]
+  summary_html       [class = result, label = "performance_summary.html"]
+  heatmap_svg        [class = result, label = "motif_heatmap.svg"]
+
+  sheet -> config_snapshot -> snapshot_json
+
+  signal -> is_bigwig
+  is_bigwig -> bam2bw [label = "no"]
+  is_bigwig -> count_fragments [label = "no"]
+  is_bigwig -> fit [label = "yes"]
+  bam2bw -> signal_bw
+  control -> bam2bw_control -> control_bw
+  count_fragments -> n_fragments
+
+  peaks_in -> has_peaks
+  has_peaks -> prep_peaks [label = "yes"]
+  has_peaks -> macs3 [label = "no"]
+  prep_peaks -> peaks
+  macs3 -> peaks
+  genome -> negatives
+  peaks -> negatives -> negatives_bed
+
+  signal_bw -> fit
+  control_bw -> fit
+  peaks -> fit
+  negatives_bed -> fit
+  folds -> fit
+  fit -> model
+  model -> evaluate
+  negatives_bed -> evaluate
+  evaluate -> performance
+  evaluate -> eval_plots
+  model -> model_summary -> summary_txt
+
+  model -> attribute -> attributions
+  attributions -> attribution_profile -> profile_svg
+  attributions -> seqlets -> seqlets_bed
+  seqlets_bed -> seqlet_lengths -> lengths_svg
+  seqlets_bed -> annotate
+  motifs -> annotate
+  annotate -> annotated_bed
+  annotate -> motif_seqlet_count
+  motif_seqlet_count -> motif_counts -> motif_counts_svg
+  attributions -> modisco_motifs -> modisco_h5
+  modisco_h5 -> modisco_report -> modisco_html
+  model -> marginalize
+  negatives_bed -> marginalize
+  marginalize -> marginalize_html
+
+  performance -> gather_metrics
+  n_fragments -> gather_metrics
+  gather_metrics -> metrics
+  metrics -> perf_vs_covariate -> covariate_svg
+  metrics -> outliers -> outliers_svg
+  performance -> performance_distribution -> distribution_pdf
+  performance -> performance_table -> summary_html
+  motif_seqlet_count -> motif_heatmap -> heatmap_svg
+}

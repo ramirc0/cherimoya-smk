@@ -1,0 +1,69 @@
+// cherimoya-smk stages, with related rules merged. workflow.gv has every rule.
+// Render: just -f ~/.claude/skills/graphviz-dot-theme/justfile render workflow-condensed.gv snakemake {TB,LR} {png,svg} files
+digraph workflow {
+  label = "cherimoya-smk"
+
+  subgraph cluster_inputs {
+    label = "Inputs"
+    signal   [class = data, label = "signal and control\nBAM, fragments or bigWig"]
+    peaks_in [class = data, label = "peaks.narrowPeak (optional)"]
+  }
+
+  subgraph cluster_preprocess {
+    label = "Preprocess"
+    tracks    [class = step, label = "Tracks\nbam2bw, skipped for bigWig"]
+    peaks     [class = step, label = "Peaks\nprep_peaks, or macs3 without peaks"]
+    negatives [class = step, label = "Negatives\ntangermeme"]
+    signal_bw [class = data, label = "<sample>.bw"]
+    peaks_bed [class = data, label = "<sample>.peaks.narrowPeak"]
+    neg_bed   [class = data, label = "<sample>.negatives.bed"]
+  }
+
+  subgraph cluster_train {
+    label = "Train"
+    fit         [class = step, label = "Fit\ncherimoya"]
+    evaluate    [class = step, label = "Evaluate\ncherimoya"]
+    model       [class = data, label = "<sample>.torch"]
+    performance [class = data, label = "<sample>.performance.tsv"]
+  }
+
+  subgraph cluster_interpret {
+    label = "Interpret"
+    attribute    [class = step, label = "Attribute\nDeepLIFT"]
+    seqlets      [class = step, label = "Seqlets\nseqlets, annotate"]
+    modisco      [class = step, label = "Modisco\nmodisco_motifs, modisco_report"]
+    marginalize  [class = step, label = "Marginalize\nbpnet-lite"]
+    attributions [class = data, label = "<sample>.attributions.npz"]
+    motif_counts [class = data, label = "<sample>.motif_seqlet_count.tsv"]
+  }
+
+  subgraph cluster_report {
+    label = "Report"
+    report [class = step, label = "Report\ngather_metrics, run-level plots, table"]
+  }
+
+  eval_plots   [class = result, label = "per-model plots"]
+  modisco_html [class = result, label = "modisco/report.html"]
+  margin_html  [class = result, label = "marginalization.html"]
+  report_files [class = result, label = "report/"]
+
+  signal -> tracks -> signal_bw
+  signal -> peaks
+  peaks_in -> peaks -> peaks_bed
+  peaks_bed -> negatives -> neg_bed
+
+  signal_bw -> fit
+  peaks_bed -> fit
+  neg_bed -> fit
+  fit -> model -> evaluate -> performance
+  evaluate -> eval_plots
+
+  model -> attribute -> attributions
+  attributions -> seqlets -> motif_counts
+  attributions -> modisco -> modisco_html
+  model -> marginalize -> margin_html
+
+  performance -> report
+  motif_counts -> report
+  report -> report_files
+}

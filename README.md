@@ -7,16 +7,12 @@ stale outputs re-run, samples fan out from a sheet, and each CV fold is its
 own job. A SLURM profile is included. The model itself stays in the library.
 Each stage is a small script in `workflow/scripts/` that imports it.
 
-```
-macs3 (no peaks provided) ┐
-signal ── bam2bw ─────────┼─ negatives ─ fit* ─ evaluate* ─ performance + counts
-peaks  ── prep_peaks ─────┘                 │      └─ per-model and run-level QC plots
-                                            ├─ attribute* ─┬─ seqlets* ─ annotate*
-                                            │              └─ modisco_motifs* ─ modisco_report*
-                                            └─ marginalize*
-```
+![Stages of cherimoya-smk](docs/workflow-condensed-snakemake-LR.png)
 
-`*` runs once per CV fold in `folds`.
+Each box merges related rules. `tracks` skips bigWig input, and `peaks` runs
+macs3 when a sample has no peaks. Preprocess runs once per sample, Train and
+Interpret once per CV fold in `folds`, and Report once per run. The
+[full rule graph](docs/workflow-snakemake-TB.png) shows every rule.
 
 ## Quick start
 
@@ -51,7 +47,7 @@ would otherwise race to install them.
 | `peaks`     | no       | narrowPeak. If empty, macs3 calls peaks from the BAM |
 
 A bigWig signal or control skips `bam2bw` but can't be used for peak calling,
-so its row needs a `peaks` file. See `docs/run-paths.svg` for every entry path.
+so its row needs a `peaks` file.
 
 **Config** (`config/config.yaml`, gitignored). Start from one of the three
 templates:
