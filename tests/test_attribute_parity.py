@@ -27,7 +27,7 @@ pytestmark = [
 DEVICE = os.environ.get("CHERIMOYA_SMK_SMOKE_DEVICE", "cuda")
 
 
-def _official(fx, out, output):
+def _official(fx, out, output, fast):
     # The JSON `cherimoya pipeline` writes for step 2, then its CLI.
     from cherimoya_cli.defaults import (
         default_attribute_parameters,
@@ -48,6 +48,7 @@ def _official(fx, out, output):
         parameters, default_attribute_parameters, "attribute_parameters"
     )
     attribute_parameters["output"] = output
+    attribute_parameters["fast"] = fast
     _check_set(attribute_parameters, "ohe_filename", str(out / "o.ohe.npz"))
     _check_set(attribute_parameters, "attr_filename", str(out / "o.attr.npz"))
     _check_set(attribute_parameters, "idx_filename", str(out / "o.idxs.npy"))
@@ -58,7 +59,7 @@ def _official(fx, out, output):
     subprocess.run([str(cli), "attribute", "-p", str(name)], check=True)
 
 
-def _ours(fx, out, output):
+def _ours(fx, out, output, fast):
     # attribute.py as the rule calls it: chroms are the fold's train + valid.
     fold = json.loads((fx / "fold.json").read_text())
     exclusion = (
@@ -88,6 +89,7 @@ def _ours(fx, out, output):
             "--idx_filename",
             str(out / "s.idxs.npy"),
             *exclusion,
+            *([] if fast else ["--no_fast"]),
         ],
         check=True,
     )
@@ -95,12 +97,16 @@ def _ours(fx, out, output):
 
 # Two official GPU runs differ by up to ~2e-5 on counts (full ATAC peaks,
 # |attr| up to ~0.4) and up to 8.9e-5 on profile (chr20 peaks of ATAC, DNase
-# and CTCF, |attr| up to ~0.5). DeepLIFT is not bitwise reproducible.
-@pytest.mark.parametrize("output, atol", [("counts", 1e-4), ("profile", 2e-4)])
-def test_attribute_matches_pipeline(tmp_path, output, atol):
+# and CTCF, |attr| up to ~0.5). DeepLIFT is not bitwise reproducible. The fast
+# log-count path differed by 6e-8 on full ATAC peaks (2026-11-11, H200).
+@pytest.mark.parametrize(
+    "output, fast, atol",
+    [("logcounts", True, 1e-4), ("logcounts", False, 1e-4), ("profile", True, 2e-4)],
+)
+def test_attribute_matches_pipeline(tmp_path, output, fast, atol):
     fx = Path(FIXTURES)
-    _official(fx, tmp_path, output)
-    _ours(fx, tmp_path, output)
+    _official(fx, tmp_path, output, fast)
+    _ours(fx, tmp_path, output, fast)
 
     idxs = numpy.load(tmp_path / "o.idxs.npy")
     numpy.testing.assert_array_equal(numpy.load(tmp_path / "s.idxs.npy"), idxs)

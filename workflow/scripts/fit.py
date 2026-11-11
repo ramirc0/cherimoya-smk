@@ -111,6 +111,12 @@ def build_parser():
 
     # Runtime
     parser.add_argument("--num_workers", type=int, default=1)
+    parser.add_argument(
+        "--num_threads",
+        type=int,
+        default=4,
+        help="PyTorch CPU threads of the training process.",
+    )
     parser.add_argument("--dtype", default="float32")
     parser.add_argument("--device", default="cuda")
     parser.add_argument("--compile", action="store_true", default=True)
@@ -164,6 +170,8 @@ def main():
     from tangermeme.io import _interleave_loci, extract_loci
 
     lightning.seed_everything(args.random_state, verbose=False)
+    # Before any data loads, so PyTorch starts its thread pool at this size.
+    torch.set_num_threads(args.num_threads)
 
     # --stranded wraps the flat file lists into one (+, -) group each; else
     # each file is its own unstranded group. The structured spec preserves

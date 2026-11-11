@@ -99,7 +99,7 @@ evaluate:
 
 attribute:
   algorithm: deep_lift_shap   # or saturation_mutagenesis
-  output: counts          # counts | profile head
+  output: logcounts       # logcounts | profile head
   group: 0                # signal group of that head
   attr_window: 400        # saved central slice
   n_shuffles: 20          # deep_lift_shap references per locus

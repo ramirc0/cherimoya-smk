@@ -1,6 +1,7 @@
 """Compute hypothetical attributions of a trained Cherimoya model over peaks."""
 
 import argparse
+import warnings
 
 
 def build_parser():
@@ -61,7 +62,12 @@ def build_parser():
         default="deep_lift_shap",
         choices=["deep_lift_shap", "saturation_mutagenesis"],
     )
-    parser.add_argument("--output", default="counts", choices=["counts", "profile"])
+    parser.add_argument(
+        "--output",
+        default="logcounts",
+        choices=["logcounts", "profile", "counts"],
+        help="Head to attribute. counts is a deprecated name for logcounts.",
+    )
     parser.add_argument(
         "--group",
         type=int,
@@ -85,6 +91,12 @@ def build_parser():
         help="Compile the model (saturation_mutagenesis only).",
     )
     parser.add_argument("--compile_mode", default="max-autotune")
+    parser.add_argument(
+        "--no_fast",
+        dest="fast",
+        action="store_false",
+        help="Always use tangermeme's DeepLIFT path, not cherimoya's fast one.",
+    )
     parser.add_argument("-v", "--verbose", action="store_true", default=False)
     return parser
 
@@ -92,15 +104,22 @@ def build_parser():
 def main():
     """Compute and save the attributions of one model."""
     args = build_parser().parse_args()
+    if args.output == "counts":
+        warnings.warn(
+            '`output` "counts" is deprecated; use "logcounts".',
+            FutureWarning,
+            stacklevel=2,
+        )
+        args.output = "logcounts"
 
     import numpy
     from cherimoya import Cherimoya, ControlWrapper, LogCountWrapper, ProfileWrapper
-    from cherimoya.deep_lift_shap import attribution_ops
-    from tangermeme.deep_lift_shap import deep_lift_shap
+    from cherimoya.deep_lift_shap import deep_lift_shap
     from tangermeme.io import extract_loci
     from tangermeme.saturation_mutagenesis import saturation_mutagenesis
 
-    # DeepLIFT is never compiled: its backward hooks cause graph breaks.
+    # DeepLIFT is never compiled: its backward hooks cause graph breaks. Its
+    # fast path compiles its own passes on a GPU.
     model = Cherimoya.load(
         args.model,
         device=args.device,
@@ -125,9 +144,6 @@ def main():
     X = X[no_n]
     idxs[idxs.clone()] = no_n
 
-    head = LogCountWrapper if args.output == "counts" else ProfileWrapper
-    wrapper = head(ControlWrapper(model), group=args.group)
-
     if args.attr_window > X.shape[-1]:
         raise ValueError(
             f"attr_window ({args.attr_window}) is wider than in_window ({X.shape[-1]})"
@@ -137,19 +153,23 @@ def main():
 
     if args.algorithm == "deep_lift_shap":
         X_attr = deep_lift_shap(
-            wrapper,
+            model,
             X,
+            output=args.output,
+            group=args.group,
             hypothetical=True,
             n_shuffles=args.n_shuffles,
             batch_size=args.batch_size,
             warning_threshold=args.warning_threshold,
-            additional_nonlinear_ops=attribution_ops(),
             dtype=args.dtype,
             device=args.device,
             random_state=args.random_state,
             verbose=args.verbose,
+            fast=args.fast,
         )[:, :, start:end].float()
     else:
+        head = LogCountWrapper if args.output == "logcounts" else ProfileWrapper
+        wrapper = head(ControlWrapper(model), group=args.group)
         X_attr = saturation_mutagenesis(
             wrapper,
             X,

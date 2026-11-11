@@ -44,6 +44,7 @@ FIT_KEYS = [
     "lw_wd",
     "lw_momentum",
     "num_workers",
+    "num_threads",
     "dtype",
     "device",
     "compile",
@@ -88,6 +89,7 @@ ATTR_KEYS = [
     "idx_filename",
     "dtype",
     "device",
+    "fast",
     "verbose",
     "exclusion_lists",
 ]

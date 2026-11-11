@@ -49,7 +49,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/setuptools-84.0.0-pyh332efcf_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2026c-h151e31d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/wheel-0.48.0-pyhd8ed1ab_0.conda
-      - pypi: git+https://github.com/jmschrei/cherimoya.git?rev=8ecf7f791ec07c05a701076cc58a0f845bf97609#8ecf7f791ec07c05a701076cc58a0f845bf97609
+      - pypi: git+https://github.com/jmschrei/cherimoya.git?rev=5729b57745912e77239b50e99ffc9be25d94ef90#5729b57745912e77239b50e99ffc9be25d94ef90
       - pypi: git+https://github.com/macs3-project/MACS.git?rev=170556de25475fc59b1e219e898c21b7eecd5dd8#170556de25475fc59b1e219e898c21b7eecd5dd8
       - pypi: git+https://github.com/ramirc0/poikilos?rev=21f8f6c9984662259638ccc409cffaa6f4ebc414#21f8f6c9984662259638ccc409cffaa6f4ebc414
       - pypi: https://files.pythonhosted.org/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl
@@ -224,7 +224,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/setuptools-84.0.0-pyh332efcf_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2026c-h151e31d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/wheel-0.48.0-pyhd8ed1ab_0.conda
-      - pypi: git+https://github.com/jmschrei/cherimoya.git?rev=8ecf7f791ec07c05a701076cc58a0f845bf97609#8ecf7f791ec07c05a701076cc58a0f845bf97609
+      - pypi: git+https://github.com/jmschrei/cherimoya.git?rev=5729b57745912e77239b50e99ffc9be25d94ef90#5729b57745912e77239b50e99ffc9be25d94ef90
       - pypi: git+https://github.com/macs3-project/MACS.git?rev=170556de25475fc59b1e219e898c21b7eecd5dd8#170556de25475fc59b1e219e898c21b7eecd5dd8
       - pypi: git+https://github.com/ramirc0/poikilos?rev=21f8f6c9984662259638ccc409cffaa6f4ebc414#21f8f6c9984662259638ccc409cffaa6f4ebc414
       - pypi: https://download-r2.pytorch.org/whl/cu126/torch-2.14.0%2Bcu126-cp312-cp312-manylinux_2_28_x86_64.whl
@@ -2171,9 +2171,9 @@ packages:
   run_exports: {}
   size: 34528
   timestamp: 1786613220176
-- pypi: git+https://github.com/jmschrei/cherimoya.git?rev=8ecf7f791ec07c05a701076cc58a0f845bf97609#8ecf7f791ec07c05a701076cc58a0f845bf97609
+- pypi: git+https://github.com/jmschrei/cherimoya.git?rev=5729b57745912e77239b50e99ffc9be25d94ef90#5729b57745912e77239b50e99ffc9be25d94ef90
   name: cherimoya
-  version: 0.3.0
+  version: 0.3.1
   requires_dist:
   - numpy>=1.14.2
   - scipy>=1.0.0
@@ -2183,7 +2183,7 @@ packages:
   - tqdm>=4.64.1
   - seaborn>=0.11.2
   - modisco>=2.0.0
-  - tangermeme>=1.5.0
+  - tangermeme>=1.6.0
   - macs3
   - figwig[bam2bw]>=0.1.0
   - bpnet-lite>=1.0.0
