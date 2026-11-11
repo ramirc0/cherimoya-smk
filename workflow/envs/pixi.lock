@@ -84,7 +84,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/41/5b/058db09c45ba58a7321bdf2294cae651b37d6fec68117265af90cde043b0/legacy_api_wrap-1.5-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/43/e3/7d92a15f894aa0c9c4b49b8ee9ac9850d6e63b03c9c32c0367a13ae62209/mpmath-1.3.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/48/4d/c58385ec1e841a833753c3b61840efa0f3e216b411cd713a52bb2a0b0823/great_tables-1.1.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/48/d0/b1e0ed480da3eaff0bec35863b96d312ee8a5c144b3c8c70b7d616fb298a/figwig-0.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/49/d3/b8441a820a491ddfc024b0b0cf0393375b75ea13866d9c66727e54c2fc80/typing_extensions-4.16.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4a/cc/aa1a47f8c92280d37498a5ea56a2a36606d034383e3e6472d64cbb56cf85/msgspec-0.22.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/4f/cf/ba8e4cc1b982ff6dc6f9fdef0e4074605438b82640f6270888a10e7e42c3/pytorch_lightning-2.6.6-py3-none-any.whl
@@ -103,6 +102,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/67/81/4add07e5172b7ac40d8ed5ff580409a7801a4fe26d529bdd915401dabfbe/typing_inspection-0.4.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/67/f4/58e4e91b6919367c7aafb8e36fce9aad1a3047e536bf7e2fd560927d3a4c/nvidia_nccl_cu13-2.29.7-py3-none-manylinux_2_18_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/6a/bd/d91c5e39f490a49df14320f4e8c80161cfcce09f1e2cde1edd16a551abb3/frozenlist-1.8.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/6c/11/56155bddf2653388c6f5694aadcee776f867e1a328f98d7ca5fe7ac7609f/figwig-0.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/6c/c2/63fdda36c56437eeb44aaf9493c8bcd62ce230ab1598924fc626ffbfa943/scikit_learn-1.9.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/6e/17/556451fb9294df13779787f65257f28fb296b8868b3615572918948f449a/multimark-0.4.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/6e/5e/edb9c0ae051602c3ccaffe424256463636d639e27d7f302dde9975ef9e7a/nvidia_cudnn_cu13-9.20.0.48-py3-none-manylinux_2_27_x86_64.whl
@@ -256,7 +256,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/43/e3/7d92a15f894aa0c9c4b49b8ee9ac9850d6e63b03c9c32c0367a13ae62209/mpmath-1.3.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/46/0c/c75bbfb967457a0b7670b8ad267bfc4fffdf341c074e0a80db06c24ccfd4/nvidia_nvjitlink_cu12-12.9.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/48/4d/c58385ec1e841a833753c3b61840efa0f3e216b411cd713a52bb2a0b0823/great_tables-1.1.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/48/d0/b1e0ed480da3eaff0bec35863b96d312ee8a5c144b3c8c70b7d616fb298a/figwig-0.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/49/60/7b6497946d74bcf1de852a21824d63baad12cd417db4195fc1bfe59db953/nvidia_cuda_cupti_cu12-12.6.80-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/49/d3/b8441a820a491ddfc024b0b0cf0393375b75ea13866d9c66727e54c2fc80/typing_extensions-4.16.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4a/cc/aa1a47f8c92280d37498a5ea56a2a36606d034383e3e6472d64cbb56cf85/msgspec-0.22.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl
@@ -276,6 +275,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/65/b6/495438ad95e0102aff8f6786b5474202f38cd5d4700d03a72b77977dec10/importlib_metadata-10.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/67/81/4add07e5172b7ac40d8ed5ff580409a7801a4fe26d529bdd915401dabfbe/typing_inspection-0.4.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/6a/bd/d91c5e39f490a49df14320f4e8c80161cfcce09f1e2cde1edd16a551abb3/frozenlist-1.8.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/6c/11/56155bddf2653388c6f5694aadcee776f867e1a328f98d7ca5fe7ac7609f/figwig-0.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/6c/c2/63fdda36c56437eeb44aaf9493c8bcd62ce230ab1598924fc626ffbfa943/scikit_learn-1.9.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/6e/17/556451fb9294df13779787f65257f28fb296b8868b3615572918948f449a/multimark-0.4.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/71/43/1947f06babed6b3f1d7f38b0c767f52df66bfb2bc10b468c4a7de9eceff2/aiohappyeyeballs-2.7.1-py3-none-any.whl
@@ -2873,35 +2873,6 @@ packages:
   - svg-py ; extra == 'dev-no-pandas'
   - syrupy ; extra == 'dev-no-pandas'
   requires_python: '>=3.10'
-- pypi: https://files.pythonhosted.org/packages/48/d0/b1e0ed480da3eaff0bec35863b96d312ee8a5c144b3c8c70b7d616fb298a/figwig-0.1.0-py3-none-any.whl
-  name: figwig
-  version: 0.1.0
-  sha256: acb84a2e92c4167c8b9973c25b7e09654d49945f6a7afbab2cb0eb2d8d3ed020
-  requires_dist:
-  - numba>=0.58
-  - numpy>=1.23
-  - biopython>=1.73 ; extra == 'bam2bw'
-  - deflate>=0.9 ; extra == 'bam2bw'
-  - isal>=1.0 ; extra == 'bam2bw'
-  - pyfaidx>=0.8 ; extra == 'bam2bw'
-  - pysam>=0.22 ; extra == 'bam2bw'
-  - tqdm>=4.60 ; extra == 'bam2bw'
-  - biopython>=1.73 ; extra == 'dev'
-  - build>=1.0 ; extra == 'dev'
-  - deflate>=0.9 ; extra == 'dev'
-  - isal>=1.0 ; extra == 'dev'
-  - pybigtools>=0.2.5,<0.3 ; extra == 'dev'
-  - pybigwig>=0.3.26 ; sys_platform != 'win32' and extra == 'dev'
-  - pyfaidx>=0.8 ; extra == 'dev'
-  - pysam>=0.22 ; sys_platform != 'win32' and extra == 'dev'
-  - pytest>=7.0 ; extra == 'dev'
-  - ruff>=0.4 ; extra == 'dev'
-  - tqdm>=4.60 ; extra == 'dev'
-  - twine>=4.0 ; extra == 'dev'
-  - sphinx-rtd-theme>=2.0 ; extra == 'docs'
-  - sphinx>=7.0 ; extra == 'docs'
-  - deflate>=0.9 ; extra == 'fast'
-  requires_python: '>=3.10'
 - pypi: https://files.pythonhosted.org/packages/49/60/7b6497946d74bcf1de852a21824d63baad12cd417db4195fc1bfe59db953/nvidia_cuda_cupti_cu12-12.6.80-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
   name: nvidia-cuda-cupti-cu12
   version: 12.6.80
@@ -3181,6 +3152,39 @@ packages:
   version: 1.8.0
   sha256: 494a5952b1c597ba44e0e78113a7266e656b9794eec897b19ead706bd7074383
   requires_python: '>=3.9'
+- pypi: https://files.pythonhosted.org/packages/6c/11/56155bddf2653388c6f5694aadcee776f867e1a328f98d7ca5fe7ac7609f/figwig-0.2.0-py3-none-any.whl
+  name: figwig
+  version: 0.2.0
+  sha256: aca77f12a82101336d12a5ec44a7a0e1bbad1bcd307966d6dc3600c6bc86a0af
+  requires_dist:
+  - numba>=0.58
+  - numpy>=1.23
+  - biopython>=1.73 ; extra == 'bam2bw'
+  - deflate>=0.9 ; extra == 'bam2bw'
+  - isal>=1.0 ; extra == 'bam2bw'
+  - pyfaidx>=0.8 ; extra == 'bam2bw'
+  - pysam>=0.22 ; extra == 'bam2bw'
+  - tqdm>=4.60 ; extra == 'bam2bw'
+  - cupy-cuda12x>=13 ; extra == 'cuda'
+  - biopython>=1.73 ; extra == 'dev'
+  - build>=1.0 ; extra == 'dev'
+  - deflate>=0.9 ; extra == 'dev'
+  - isal>=1.0 ; extra == 'dev'
+  - kaitaistruct>=0.10 ; extra == 'dev'
+  - pybigtools>=0.2.5,<0.3 ; extra == 'dev'
+  - pybigwig>=0.3.26 ; sys_platform != 'win32' and extra == 'dev'
+  - pyfaidx>=0.8 ; extra == 'dev'
+  - pysam>=0.22 ; sys_platform != 'win32' and extra == 'dev'
+  - pytest-xdist>=3.5 ; extra == 'dev'
+  - pytest>=7.0 ; extra == 'dev'
+  - ruff>=0.4 ; extra == 'dev'
+  - tqdm>=4.60 ; extra == 'dev'
+  - twine>=4.0 ; extra == 'dev'
+  - sphinx-rtd-theme>=2.0 ; extra == 'docs'
+  - sphinx>=7.0 ; extra == 'docs'
+  - deflate>=0.9 ; extra == 'fast'
+  - isal>=1.8 ; extra == 'isal'
+  requires_python: '>=3.10'
 - pypi: https://files.pythonhosted.org/packages/6c/c2/63fdda36c56437eeb44aaf9493c8bcd62ce230ab1598924fc626ffbfa943/scikit_learn-1.9.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
   name: scikit-learn
   version: 1.9.0

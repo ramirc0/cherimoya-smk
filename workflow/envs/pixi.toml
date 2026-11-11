@@ -63,7 +63,7 @@ attrs = "==26.1.0"
 bpnet-lite = "==1.1.0"
 cherimoya = { git = "https://github.com/jmschrei/cherimoya.git", rev = "5729b57745912e77239b50e99ffc9be25d94ef90" }
 cuda-pathfinder = "==1.6.0"
-figwig = { version = "==0.1.0", extras = ["bam2bw"] }
+figwig = { version = "==0.2.0", extras = ["bam2bw"] }
 filelock = "==3.32.3"
 frozenlist = "==1.8.0"
 fsspec = "==2026.7.0"
@@ -94,6 +94,8 @@ typing-extensions = "==4.16.0"
 yarl = "==1.25.1"
 great-tables = "==1.1.0"
 selenium = "==4.52.0"
+# figwig 0.2.0 reads with ISA-L only under python-isal 1.8; 1.9 drops it to zlib.
+isal = "==1.8.0"
 
 # Plot rules only save figures. Without this, a job that inherits DISPLAY picks a GUI backend.
 [feature.cherimoya.activation.env]
