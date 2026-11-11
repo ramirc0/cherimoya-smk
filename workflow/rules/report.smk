@@ -142,6 +142,32 @@ rule performance_distribution:
         """
 
 
+# Run-level table: each metric's spread across models.
+rule performance_table:
+    input:
+        performance=_ALL_PERFORMANCE,
+    output:
+        table=f"{OUTDIR}/report/performance_summary.html",
+        table_png=f"{OUTDIR}/report/performance_summary.png",
+    log:
+        f"{LOGDIR}/performance_table/all.log",
+    benchmark:
+        f"{BENCHDIR}/performance_table/all.tsv"
+    software:
+        SOFTWARE_ENV
+    shell:
+        r"""
+        exec &> >(tee {log:q})
+
+        python {workflow.basedir:q}/scripts/performance_table.py \
+            -i {input.performance:q} \
+            -o {output.table:q} \
+            --png {output.table_png:q}
+
+        sync {output:q}
+        """
+
+
 # Run-level heatmap of the top motifs across every model.
 rule motif_heatmap:
     input:
