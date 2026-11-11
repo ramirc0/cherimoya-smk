@@ -1,4 +1,4 @@
-"""modisco 2.5.2 report vs pandas 3: a pattern with fewer TomTom matches than
+"""modisco report vs pandas 3: a pattern with fewer TomTom matches than
 n_matches crashes unless pandas' string inference is off (modisco_report.py)."""
 
 import pandas

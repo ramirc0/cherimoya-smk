@@ -713,7 +713,7 @@ def modisco_report_flags():
     """
     r = config["modisco_report"]
     flags = [
-        "--n_matches", r["n_matches"],
+        "--n-matches", r["n_matches"],
         "--n_examples", r["n_examples"],
         "--trim_threshold", r["trim_threshold"],
     ]

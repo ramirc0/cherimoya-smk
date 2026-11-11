@@ -97,6 +97,11 @@ def main():
 
     import modiscolite
     import numpy
+    from modiscolite import precompile
+
+    # As `modisco motifs` does: compile the numba kernels in forked children
+    # while the inputs load.
+    precompile.start()
 
     sequences = numpy.load(args.sequences)["arr_0"]
     attributions = numpy.load(args.attributions)["arr_0"]

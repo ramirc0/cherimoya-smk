@@ -2,8 +2,6 @@
 
 import inspect
 import re
-import subprocess
-import sys
 from pathlib import Path
 
 import annotate
@@ -163,17 +161,19 @@ def _template_block(template, name):
     return dict(re.findall(r"^  (\w+): *([^\s#]+)", block, re.MULTILINE))
 
 
-def _cli_defaults(*cmd):
-    """Map each `--flag` of a `modisco` subcommand to its help default string."""
-    exe = Path(sys.executable).parent / "modisco"
-    text = subprocess.run(
-        [str(exe), *cmd, "--help"], capture_output=True, text=True, check=True
-    ).stdout
-    blocks = [" ".join(b.split()) for b in re.split(r"\n(?=\s{2}-)", text)]
+def _cli_defaults(name):
+    """Map each long option of a `modisco` subcommand, with `_` for `-`, to its default."""
+    import click
+    from modiscolite.cli import cli
+
+    # The help text omits flag defaults, so read them from the command.
+    command = cli.commands[name]
+    context = click.Context(command)
     return {
-        m.group(1): re.findall(r"\(default: ([^)]*)\)", b)[-1]
-        for b in blocks
-        if (m := re.search(r"--(\w+)", b)) and "(default:" in b
+        opt.removeprefix("--").replace("-", "_"): str(param.get_default(context))
+        for param in command.params
+        for opt in param.opts
+        if opt.startswith("--")
     }
 
 
