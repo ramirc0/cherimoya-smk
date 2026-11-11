@@ -8,6 +8,7 @@ scratch
 .conda
 resources
 benchmarks
+transfer_to_aicr.sh
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
