@@ -19,69 +19,69 @@ certifi = "0d"
 certifi = "0d"
 
 [feature.cherimoya.dependencies]
-_openmp_mutex = { version = "==4.5", build = "20_gnu" }
-_python_abi3_support = { version = "==1.0", build = "hd8ed1ab_3" }
-bzip2 = { version = "==1.0.8", build = "hda65f42_10" }
-ca-certificates = { version = "==2026.10.19", build = "hbd8a1cb_0" }
-cpython = { version = "==3.12.13", build = "py312hd8ed1ab_1" }
-icu = { version = "==78.3", build = "py310h44b86e0_2" }
-ld_impl_linux-64 = { version = "==2.46.1", build = "default_hbd61a6d_102" }
-libexpat = { version = "==2.8.1", build = "hecca717_1" }
-libffi = { version = "==3.7.0", build = "h3435931_0" }
-libgcc = { version = "==16.1.0", build = "ha9f2e26_1" }
-libgomp = { version = "==16.1.0", build = "he0feb66_1" }
-liblzma = { version = "==5.8.3", build = "hb03c661_1" }
-libnsl = { version = "==2.0.1", build = "hb9d3cd8_1" }
-libsqlite = { version = "==3.53.4", build = "hf4e2dac_0" }
-libstdcxx = { version = "==16.1.0", build = "h934c35e_1" }
-libuuid = { version = "==2.42.2", build = "h5347b49_0" }
-libxcrypt = { version = "==4.4.38", build = "h280c20c_0" }
-libzlib = { version = "==1.3.2", build = "h25fd6f3_3" }
-ncurses = { version = "==6.6", build = "hdb14827_1" }
-openssl = { version = "==3.6.3", build = "h35e630c_1" }
-packaging = { version = "==26.3", build = "pyhc364b38_0" }
-pip = { version = "==26.2.2", build = "pyh8b19718_0" }
-polars = { version = "==1.43.2", build = "pyh8da0edf_0" }
-polars-runtime-32 = { version = "==1.43.2", build = "py310h9585f58_0" }
-python = { version = "==3.12.13", build = "h8ab3286_1_cpython" }
-python-gil = { version = "==3.12.13", build = "hd8ed1ab_1" }
-python_abi = { version = "==3.12", build = "8_cp312" }
-readline = { version = "==8.3", build = "h853b02a_0" }
-setuptools = { version = "==84.0.0", build = "pyh332efcf_0" }
-tk = { version = "==8.6.13", build = "noxft_hd70dff1_3" }
-tzdata = { version = "==2026c", build = "h151e31d_0" }
-wheel = { version = "==0.48.0", build = "pyhd8ed1ab_0" }
-zstd = { version = "==1.5.7", build = "hb78ec9c_7" }
-firefox = { version = "==159.0", build = "hee9eb32_0" }
-geckodriver = { version = "==0.37.1", build = "hbf1d777_0" }
+_openmp_mutex = "==4.5"
+_python_abi3_support = "==1.0"
+bzip2 = "==1.0.8"
+ca-certificates = "==2026.10.23"
+cpython = "==3.12.16"
+icu = "==79.1"
+ld_impl_linux-64 = "==2.46.1"
+libexpat = "==2.9.0"
+libffi = "==3.7.0"
+libgcc = "==16.2.0"
+libgomp = "==16.2.0"
+liblzma = "==5.8.3"
+libnsl = "==2.0.1"
+libsqlite = "==3.54.1"
+libstdcxx = "==16.2.0"
+libuuid = "==2.42.4"
+libxcrypt = "==4.4.38"
+libzlib = "==1.3.2"
+ncurses = "==6.6"
+openssl = "==3.6.5"
+packaging = "==26.3"
+pip = "==26.2.2"
+polars = "==2.1.0"
+polars-runtime-32 = "==2.1.0"
+python = "==3.12.16"
+python-gil = "==3.12.16"
+python_abi = "==3.12"
+readline = "==8.3"
+setuptools = "==84.2.1"
+tk = "==8.6.13"
+tzdata = "==2026e"
+wheel = "==0.48.0"
+zstd = "==1.5.7"
+firefox = "==159.0"
+geckodriver = "==0.37.1"
 
 [feature.cherimoya.pypi-dependencies]
 aiohappyeyeballs = "==2.7.1"
-aiohttp = "==3.14.3"
+aiohttp = "==3.14.5"
 aiosignal = "==1.4.0"
 attrs = "==26.1.0"
 bpnet-lite = "==1.1.0"
 cherimoya = { git = "https://github.com/jmschrei/cherimoya.git", rev = "5729b57745912e77239b50e99ffc9be25d94ef90" }
 figwig = { version = "==0.2.0", extras = ["bam2bw"] }
-filelock = "==3.32.3"
+filelock = "==4.2.8"
 frozenlist = "==1.8.0"
-fsspec = "==2026.7.0"
+fsspec = "==2026.9.0"
 hmmlearn = "==0.3.3"
-idna = "==3.18"
-iniconfig = "==2.3.0"
+idna = "==3.20"
+iniconfig = "==2.3.1"
 lightning-utilities = "==0.15.3"
 lightning = "==2.6.6"
 macs3 = { git = "https://github.com/macs3-project/MACS.git", rev = "ebdc4417ab304b2cd9e00486800e6f349d06ef9c" }
 mpmath = "==1.3.0"
-multidict = "==6.9.1"
-networkx = "==3.6.1"
-pluggy = "==1.6.0"
+multidict = "==7.2.1"
+networkx = "==3.7"
+pluggy = "==1.7.0"
 poikilos = { git = "https://github.com/ramirc0/poikilos", rev = "21f8f6c9984662259638ccc409cffaa6f4ebc414", extras = ["labels"] }
 propcache = "==0.5.4"
-pybigwig = "==0.3.25"
-pygments = "==2.20.0"
-pysam = "==0.24.0"
-pytest = "==9.1.1"
+pybigwig = "==0.3.29"
+pygments = "==2.21.0"
+pysam = "==0.24.1"
+pytest = "==9.2.0"
 pytorch-lightning = "==2.6.6"
 pyyaml = "==6.0.3"
 seaborn = "==0.13.2"
@@ -101,36 +101,36 @@ isal = "==1.8.0"
 MPLBACKEND = "Agg"
 
 [feature.pypi-shared.pypi-dependencies]
-contourpy = "==1.3.3"
+contourpy = "==1.4.0"
 cycler = "==0.12.1"
-fonttools = "==4.63.0"
+fonttools = "==4.68.0"
 h5py = "==3.16.0"
-hdf5plugin = "==7.0.0"
+hdf5plugin = "==7.1.0"
 igraph = "==1.0.0"
 jinja2 = "==3.1.6"
-joblib = "==1.5.3"
-kiwisolver = "==1.5.0"
+joblib = "==1.6.0"
+kiwisolver = "==1.5.1"
 leidenalg = "==0.11.0"
-llvmlite = "==0.49.0"
+llvmlite = "==0.50.0"
 logomaker = "==0.8.7"
-markupsafe = "==3.0.3"
-matplotlib = "==3.11.1"
+markupsafe = "==3.0.4"
+matplotlib = "==3.11.2"
 memelite = "==0.5.0"
 modisco = { git = "https://github.com/kundajelab/tfmodisco.git", rev = "28154f18ec422c0738d3e45316c8a2fc76e6c88f" }
-narwhals = "==2.24.0"
-numba = "==0.67.0"
-numpy = "==2.5.2"
-pandas = "==3.0.5"
-pillow = "==12.3.0"
-pyfaidx = "==0.9.0.4"
-pyparsing = "==3.3.2"
-python-dateutil = "==2.9.0.post0"
-scikit-learn = "==1.9.0"
-scipy = "==1.18.0"
+narwhals = "==2.28.0"
+numba = "==0.68.1"
+numpy = "==2.5.4"
+pandas = "==3.1.1"
+pillow = "==13.0.0"
+pyfaidx = "==0.9.2.2"
+pyparsing = "==3.3.3"
+python-dateutil = "==4.0.0"
+scikit-learn = "==1.9.1"
+scipy = "==1.18.1"
 six = "==1.17.0"
-texttable = "==1.7.0"
-threadpoolctl = "==3.6.0"
-tqdm = "==4.70.0"
+texttable = "==1.7.2"
+threadpoolctl = "==3.7.0"
+tqdm = "==4.70.1"
 
 [feature.cuda13.pypi-dependencies]
 torch = "==2.15.0"
@@ -145,105 +145,105 @@ triton = "==3.8.0"
 channels = ["conda-forge", "bioconda"]
 
 [feature.modisco-report.dependencies]
-_openmp_mutex = { version = "==4.5", build = "20_gnu" }
-bzip2 = { version = "==1.0.8", build = "hda65f42_10" }
-ca-certificates = { version = "==2026.10.19", build = "hbd8a1cb_0" }
-expat = { version = "==2.8.5", build = "hd2095e1_0" }
-icu = { version = "==75.1", build = "he02047a_0" }
-ld_impl_linux-64 = { version = "==2.46.1", build = "default_hbd61a6d_102" }
-libexpat = { version = "==2.8.5", build = "hd2095e1_0" }
-libffi = { version = "==3.7.0", build = "h81df57d_1" }
-libgcc = { version = "==16.2.0", build = "ha9f2e26_7" }
-libgcc-ng = { version = "==16.2.0", build = "h69a702a_7" }
-libgomp = { version = "==16.2.0", build = "he0feb66_7" }
-libiconv = { version = "==1.18", build = "h0cb94f2_3" }
-liblzma = { version = "==5.8.3", build = "hb03c661_1" }
-libnsl = { version = "==2.0.1", build = "hb9d3cd8_1" }
-libsqlite = { version = "==3.53.4", build = "h0737f62_1" }
-libstdcxx = { version = "==16.2.0", build = "h934c35e_7" }
-libstdcxx-ng = { version = "==16.2.0", build = "hdf11a46_7" }
-libuuid = { version = "==2.42.4", build = "hcfc3c73_0" }
-libxcrypt = { version = "==4.4.38", build = "h280c20c_0" }
-libxml2 = { version = "==2.13.9", build = "h04c0eec_0" }
-libxslt = { version = "==1.1.43", build = "h7a3aeb2_0" }
-libzlib = { version = "==1.3.2", build = "h25fd6f3_3" }
-meme = { version = "==5.5.9", build = "pl5321he99cc7f_1" }
-ncurses = { version = "==6.6", build = "hdb14827_1" }
-openssl = { version = "==3.6.4", build = "h781a0a9_0" }
-packaging = { version = "==26.3", build = "pyhc364b38_0" }
-perl = { version = "==5.32.1", build = "10_h7cc23a3_perl5" }
-perl-app-cpanminus = { version = "==1.7048", build = "pl5321hd8ed1ab_0" }
-perl-b-cow = { version = "==0.7", build = "pl5321hb9d3cd8_1" }
-perl-base = { version = "==2.23", build = "pl5321hd8ed1ab_0" }
-perl-business-isbn = { version = "==3.7", build = "pl5321hd8ed1ab_0" }
-perl-business-isbn-data = { version = "==20210112.6", build = "pl5321hd8ed1ab_0" }
-perl-carp = { version = "==1.50", build = "pl5321hd8ed1ab_0" }
-perl-cgi = { version = "==4.72", build = "pl5321hab16a5f_0" }
-perl-clone = { version = "==0.46", build = "pl5321hb9d3cd8_1" }
-perl-common-sense = { version = "==3.75", build = "pl5321hd8ed1ab_0" }
-perl-compress-raw-bzip2 = { version = "==2.214", build = "pl5321hda65f42_0" }
-perl-compress-raw-zlib = { version = "==2.214", build = "pl5321h4dac143_0" }
-perl-config-general = { version = "==2.67", build = "pl5321hdfd78af_0" }
-perl-constant = { version = "==1.33", build = "pl5321hd8ed1ab_0" }
-perl-dbi = { version = "==1.651", build = "pl5321hb03c661_0" }
-perl-digest-md5 = { version = "==2.59", build = "pl5321hb9d3cd8_3" }
-perl-encode = { version = "==3.24", build = "pl5321hb03c661_0" }
-perl-encode-locale = { version = "==1.5", build = "pl5321hdfd78af_7" }
-perl-exporter = { version = "==5.74", build = "pl5321hd8ed1ab_0" }
-perl-extutils-makemaker = { version = "==7.70", build = "pl5321hd8ed1ab_0" }
-perl-file-path = { version = "==2.18", build = "pl5321hd8ed1ab_0" }
-perl-file-spec = { version = "==3.48_1", build = "pl5321hdfd78af_2" }
-perl-file-temp = { version = "==0.2304", build = "pl5321hd8ed1ab_0" }
-perl-file-which = { version = "==1.24", build = "pl5321hd8ed1ab_0" }
-perl-html-parser = { version = "==3.85", build = "pl5321hc52dbad_0" }
-perl-html-tagset = { version = "==3.24", build = "pl5321hdfd78af_0" }
-perl-html-template = { version = "==2.97", build = "pl5321hdfd78af_2" }
-perl-html-tree = { version = "==5.7", build = "pl5321hdfd78af_2" }
-perl-http-date = { version = "==6.8", build = "pl5321hdfd78af_0" }
-perl-http-message = { version = "==7.4", build = "pl5321hdfd78af_0" }
-perl-inc-latest = { version = "==0.500", build = "pl5321ha770c72_0" }
-perl-io-html = { version = "==1.4", build = "pl5321hdfd78af_0" }
-perl-json = { version = "==4.11", build = "pl5321hdfd78af_0" }
-perl-json-xs = { version = "==4.4", build = "pl5321h9948957_0" }
-perl-log-log4perl = { version = "==1.56", build = "pl5321hd8ed1ab_0" }
-perl-lwp-mediatypes = { version = "==6.4", build = "pl5321hdfd78af_1" }
-perl-math-cdf = { version = "==0.1", build = "pl5321h7b50bb2_11" }
-perl-mime-base64 = { version = "==3.16", build = "pl5321hb9d3cd8_3" }
-perl-module-build = { version = "==0.4234", build = "pl5321ha770c72_1" }
-perl-parent = { version = "==0.243", build = "pl5321hd8ed1ab_0" }
-perl-pathtools = { version = "==3.75", build = "pl5321hb9d3cd8_2" }
-perl-scalar-list-utils = { version = "==1.70", build = "pl5321hb03c661_0" }
-perl-storable = { version = "==3.15", build = "pl5321hb9d3cd8_2" }
-perl-sys-info = { version = "==0.7811", build = "pl5321hdfd78af_1" }
-perl-sys-info-base = { version = "==0.7807", build = "pl5321hdfd78af_1" }
-perl-sys-info-driver-linux = { version = "==0.7911", build = "pl5321hdfd78af_0" }
-perl-test-fatal = { version = "==0.16", build = "pl5321ha770c72_0" }
-perl-test-needs = { version = "==0.2009", build = "pl5321hd8ed1ab_0" }
-perl-test-nowarnings = { version = "==1.6", build = "pl5321ha770c72_0" }
-perl-test-warnings = { version = "==0.31", build = "pl5321ha770c72_0" }
-perl-text-template-simple = { version = "==0.91", build = "pl5321hdfd78af_1" }
-perl-time-local = { version = "==1.35", build = "pl5321hdfd78af_0" }
-perl-timedate = { version = "==2.35", build = "pl5321hdfd78af_0" }
-perl-try-tiny = { version = "==0.31", build = "pl5321ha770c72_0" }
-perl-types-serialiser = { version = "==1.1", build = "pl5321hdfd78af_0" }
-perl-unix-processors = { version = "==2.46", build = "pl5321hb9d3cd8_1002" }
-perl-uri = { version = "==5.35", build = "pl5321ha770c72_0" }
-perl-url-encode = { version = "==0.3", build = "pl5321h9ee0642_1" }
-perl-xml-namespacesupport = { version = "==1.12", build = "pl5321hd8ed1ab_0" }
-perl-xml-parser = { version = "==2.44_1", build = "pl5321hf2e2c51_1004" }
-perl-xml-sax = { version = "==1.2", build = "pl5321hd8ed1ab_0" }
-perl-xml-sax-base = { version = "==1.9", build = "pl5321hd8ed1ab_0" }
-perl-xml-sax-expat = { version = "==0.51", build = "pl5321hd8ed1ab_0" }
-perl-xml-simple = { version = "==2.25", build = "pl5321hdfd78af_2" }
-perl-yaml = { version = "==1.30", build = "pl5321hdfd78af_0" }
-pip = { version = "==26.2.2", build = "pyh8b19718_0" }
-python = { version = "==3.12.13", build = "h8ab3286_1_cpython" }
-readline = { version = "==8.3", build = "hd6e31c0_1" }
-setuptools = { version = "==84.0.0", build = "pyh332efcf_0" }
-tk = { version = "==8.6.13", build = "noxft_h1df4ec4_4" }
-tzdata = { version = "==2026c", build = "h151e31d_0" }
-wheel = { version = "==0.48.0", build = "pyhd8ed1ab_0" }
-zstd = { version = "==1.5.7", build = "hb78ec9c_7" }
+_openmp_mutex = "==4.5"
+bzip2 = "==1.0.8"
+ca-certificates = "==2026.10.23"
+expat = "==2.9.0"
+icu = "==75.1"
+ld_impl_linux-64 = "==2.46.1"
+libexpat = "==2.9.0"
+libffi = "==3.7.0"
+libgcc = "==16.2.0"
+libgcc-ng = "==16.2.0"
+libgomp = "==16.2.0"
+libiconv = "==1.18"
+liblzma = "==5.8.3"
+libnsl = "==2.0.1"
+libsqlite = "==3.53.4"
+libstdcxx = "==16.2.0"
+libstdcxx-ng = "==16.2.0"
+libuuid = "==2.42.4"
+libxcrypt = "==4.4.38"
+libxml2 = "==2.13.9"
+libxslt = "==1.1.43"
+libzlib = "==1.3.2"
+meme = "==5.5.9"
+ncurses = "==6.6"
+openssl = "==3.6.5"
+packaging = "==26.3"
+perl = "==5.32.1"
+perl-app-cpanminus = "==1.7048"
+perl-b-cow = "==0.7"
+perl-base = "==2.23"
+perl-business-isbn = "==3.7"
+perl-business-isbn-data = "==20210112.6"
+perl-carp = "==1.50"
+perl-cgi = "==5.2"
+perl-clone = "==0.46"
+perl-common-sense = "==3.75"
+perl-compress-raw-bzip2 = "==2.214"
+perl-compress-raw-zlib = "==2.214"
+perl-config-general = "==2.67"
+perl-constant = "==1.33"
+perl-dbi = "==1.651"
+perl-digest-md5 = "==2.59"
+perl-encode = "==3.24"
+perl-encode-locale = "==1.5"
+perl-exporter = "==5.74"
+perl-extutils-makemaker = "==7.70"
+perl-file-path = "==2.18"
+perl-file-spec = "==3.48_1"
+perl-file-temp = "==0.2304"
+perl-file-which = "==1.24"
+perl-html-parser = "==3.85"
+perl-html-tagset = "==3.24"
+perl-html-template = "==2.97"
+perl-html-tree = "==5.7"
+perl-http-date = "==6.8"
+perl-http-message = "==7.4"
+perl-inc-latest = "==0.500"
+perl-io-html = "==1.4"
+perl-json = "==4.11"
+perl-json-xs = "==4.4"
+perl-log-log4perl = "==1.56"
+perl-lwp-mediatypes = "==6.4"
+perl-math-cdf = "==0.1"
+perl-mime-base64 = "==3.16"
+perl-module-build = "==0.4234"
+perl-parent = "==0.243"
+perl-pathtools = "==3.75"
+perl-scalar-list-utils = "==1.70"
+perl-storable = "==3.15"
+perl-sys-info = "==0.7811"
+perl-sys-info-base = "==0.7807"
+perl-sys-info-driver-linux = "==0.7911"
+perl-test-fatal = "==0.16"
+perl-test-needs = "==0.2009"
+perl-test-nowarnings = "==1.6"
+perl-test-warnings = "==0.31"
+perl-text-template-simple = "==0.91"
+perl-time-local = "==1.35"
+perl-timedate = "==2.35"
+perl-try-tiny = "==0.31"
+perl-types-serialiser = "==1.1"
+perl-unix-processors = "==2.46"
+perl-uri = "==5.35"
+perl-url-encode = "==0.3"
+perl-xml-namespacesupport = "==1.12"
+perl-xml-parser = "==2.44_1"
+perl-xml-sax = "==1.2"
+perl-xml-sax-base = "==1.9"
+perl-xml-sax-expat = "==0.51"
+perl-xml-simple = "==2.25"
+perl-yaml = "==1.30"
+pip = "==26.2.2"
+python = "==3.12.13"
+readline = "==8.3"
+setuptools = "==84.2.1"
+tk = "==8.6.13"
+tzdata = "==2026e"
+wheel = "==0.48.0"
+zstd = "==1.5.7"
 
 [environments]
 cherimoya = { features = ["cherimoya", "pypi-shared", "cuda13"], no-default-feature = true }
