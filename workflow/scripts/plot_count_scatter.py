@@ -1,8 +1,9 @@
 """Observed vs predicted log-count scatter for one model (count-head QC).
 
 Every point is a test peak: x = observed log-counts, y = the model's predicted
-log-counts. Density-shaded and annotated with the Pearson r that count_pearson
-summarises, so a weak count head is visible at a glance.
+log-counts. Points are colored by density as the lab's R heatscatters are, and
+the title has the Pearson r that count_pearson summarises, so a weak count head
+is visible at a glance.
 """
 
 import argparse
@@ -36,6 +37,7 @@ def main():
     import numpy as np
     import pandas as pd
     import poikilos as pk
+    from heatscatter import heatscatter
 
     pk.use("zed")
     zed = pk.PALETTES["zed"].colors
@@ -45,9 +47,8 @@ def main():
     y = df["pred_logcount"].to_numpy(float)
     r = np.corrcoef(x, y)[0, 1]
 
-    fig, ax = plt.subplots(figsize=(4.2, 4))
-    hb = ax.hexbin(x, y, gridsize=45, mincnt=1, cmap="viridis", bins="log")
-    fig.colorbar(hb, ax=ax, label="peaks")
+    fig, ax = plt.subplots(figsize=(4, 4))
+    heatscatter(ax, x, y, size=2)
 
     lo, hi = min(x.min(), y.min()), max(x.max(), y.max())
     ax.plot([lo, hi], [lo, hi], color=zed["black"], label="y = x")
