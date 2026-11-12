@@ -1,5 +1,5 @@
 # ATAC-seq / accessibility template (cherimoya "DNase-seq" recipe).
-# One unstranded signal track, Tn5 shift, no control. Copy to config/config.yaml.
+# One unstranded signal track, Tn5 shift, no control. Copy to config/<run_id>/config.yaml.
 #   https://cherimoya.readthedocs.io/en/latest/recipes/dnaseq.html
 # Sample sheet: sample_id, signal (BAM/fragments/bigWig), genome, [peaks]. No control.
 samples: config/samples.tsv

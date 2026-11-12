@@ -1,5 +1,5 @@
 # Transcription-factor ChIP-seq template (cherimoya "TF ChIP-seq" recipe).
-# Stranded (+/-) signal, no shift, with input/control tracks. Copy to config/config.yaml.
+# Stranded (+/-) signal, no shift, with input/control tracks. Copy to config/<run_id>/config.yaml.
 #   https://cherimoya.readthedocs.io/en/latest/recipes/chipseq_tf.html
 # Sample sheet: sample_id, signal (ChIP BAM), control (input BAM), genome, [peaks].
 # The `control` column is used as macs3 -c for peak calling and, converted by
