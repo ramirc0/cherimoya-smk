@@ -23,7 +23,7 @@ snakemake = { git = "https://github.com/snakemake/snakemake.git", rev = "86c3113
 snakemake-software-deployment-plugin-pixi = { git = "https://github.com/cademirch/snakemake-software-deployment-plugin-pixi.git", rev = "315e0f3113daefc2dfeda3a48777cd1acb2707e0" }
 snakemake-executor-plugin-slurm = "==2.8.0"
 snakemake-executor-plugin-slurm-jobstep = "==0.6.1"
-snakemake-executor-plugin-local-gpu = { path = "../../snakemake-executor-plugin-local-gpu/main", editable = true }
+snakemake-executor-plugin-local-gpu = { git = "https://github.com/ramirc0/snakemake-executor-plugin-local-gpu.git", rev = "374ac4dab8d2d995213c238a6ae9ef471cb65576" }
 
 [feature.lint.dependencies]
 ruff = ">=0.17.3,<0.18"
