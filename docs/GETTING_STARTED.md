@@ -115,7 +115,7 @@ Plots are written as SVG and PNG.
 
 ## Profiles
 
-`profiles/local` runs every job on the current host. Without a GPU, set `fit.device`, `evaluate.device`, `attribute.device` and `marginalize.device` to `cpu`.
+`profiles/local` runs every job on the current host through the `local-gpu` executor. Each `fit`, `evaluate`, `attribute` and `marginalize` job waits for a GPU that no process uses, then runs on it alone. Set `--resources gpu=<n>` to the GPUs you may use (profile default 8), and raise `--cores` to fit that many 8-thread jobs. Without a GPU, pass `--executor local` and set `fit.device`, `evaluate.device`, `attribute.device` and `marginalize.device` to `cpu`.
 
 `profiles/slurm` sends `fit`, `evaluate`, `attribute` and `marginalize` to the `gpuh200` partition with one GPU, and everything else to CPU partitions. `modisco_motifs` takes 16 cores on cascadelake nodes (minutes per model). `modisco_report` also runs on cascadelake: without AVX512, the seqlet examples it picks differ. Resources are fixed per rule. If a job runs out of memory or time, raise its value in the profile and rerun. Only failed jobs rerun. Set your own `slurm_account` before using it.
 
