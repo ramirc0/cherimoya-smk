@@ -5,6 +5,11 @@ software-deployment-method:
 # One copy per user instead of one per workdir.
 software-deployment-cache-prefix: ~/.cache/snakemake/software
 
+# Each job with a gpu resource gets that many free GPUs of the node, exported
+# as CUDA_VISIBLE_DEVICES. Lower gpu to the GPUs free for this run.
+executor: local-gpu
+resources:
+  gpu: 8
 cores: 16
 printshellcmds: true
 # Job selection reruns once per timespan and stats every ready job's input on
@@ -32,5 +37,7 @@ set-resources:                 # mem tuned from the MOHD benchmark run
   macs3:     {mem_mb: 8000}    # estimate (un-benched)
   bam2bw:    {mem_mb: 6000}    # bench: ~3.5 GB
   negatives: {mem_mb: 2000}    # bench: ~0.35 GB
-  fit:       {mem_mb: 48000}   # un-benched
-  evaluate:  {mem_mb: 48000}   # un-benched
+  fit:         {mem_mb: 48000, gpu: 1}  # un-benched
+  evaluate:    {mem_mb: 48000, gpu: 1}  # un-benched
+  attribute:   {gpu: 1}
+  marginalize: {gpu: 1}
