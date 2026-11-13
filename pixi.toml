@@ -1,5 +1,6 @@
-# Launcher: Snakemake with the pixi software-deployment and SLURM executor
-# plugins. Rule envs live in their own workspace, workflow/envs/pixi.toml.
+# Launcher: Snakemake with the pixi software-deployment plugin and the SLURM
+# and local-gpu executor plugins. Rule envs live in their own workspace,
+# workflow/envs/pixi.toml.
 [workspace]
 name = "cherimoya-smk"
 channels = ["conda-forge"]
@@ -22,6 +23,7 @@ snakemake = { git = "https://github.com/snakemake/snakemake.git", rev = "86c3113
 snakemake-software-deployment-plugin-pixi = { git = "https://github.com/cademirch/snakemake-software-deployment-plugin-pixi.git", rev = "315e0f3113daefc2dfeda3a48777cd1acb2707e0" }
 snakemake-executor-plugin-slurm = "==2.8.0"
 snakemake-executor-plugin-slurm-jobstep = "==0.6.1"
+snakemake-executor-plugin-local-gpu = { path = "../../snakemake-executor-plugin-local-gpu/main", editable = true }
 
 [feature.lint.dependencies]
 ruff = ">=0.17.3,<0.18"

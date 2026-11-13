@@ -42,6 +42,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/python-gil-3.13.18-h4df99d1_100.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/python_abi-3.13-9_cp313.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2026e-h5d301ff_0.conda
+      - pypi: ../../snakemake-executor-plugin-local-gpu/main
       - pypi: git+https://github.com/cademirch/snakemake-software-deployment-plugin-pixi.git?rev=315e0f3113daefc2dfeda3a48777cd1acb2707e0#315e0f3113daefc2dfeda3a48777cd1acb2707e0
       - pypi: git+https://github.com/snakemake/snakemake.git?rev=86c31130239381055fea37fe0c369c6775cb75c3#86c31130239381055fea37fe0c369c6775cb75c3
       - pypi: https://files.pythonhosted.org/packages/01/7c/562ddff1940562f7701a7e8b0a90a900be606af334cc5f69543293e2293a/platformdirs-4.14.4-py3-none-any.whl
@@ -1048,6 +1049,14 @@ packages:
   run_exports: {}
   size: 107485
   timestamp: 1789566710244
+- pypi: ../../snakemake-executor-plugin-local-gpu/main
+  name: snakemake-executor-plugin-local-gpu
+  requires_dist:
+  - attrs
+  - snakemake @ git+https://github.com/snakemake/snakemake.git@86c31130239381055fea37fe0c369c6775cb75c3
+  - snakemake-interface-common>=1.24,<2
+  - snakemake-interface-executor-plugins>=9.4,<10
+  requires_python: '>=3.11,<4.0'
 - pypi: git+https://github.com/cademirch/snakemake-software-deployment-plugin-pixi.git?rev=315e0f3113daefc2dfeda3a48777cd1acb2707e0#315e0f3113daefc2dfeda3a48777cd1acb2707e0
   name: snakemake-software-deployment-plugin-pixi
   version: 0.1.0
