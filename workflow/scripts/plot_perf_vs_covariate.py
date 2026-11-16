@@ -9,6 +9,11 @@ import argparse
 
 from performance_metrics import METRICS
 
+COVARIATE_LABELS = {
+    "n_peaks": "peaks in the sample",
+    "n_fragments": "fragments in the sample",
+}
+
 
 def build_parser():
     """Build the plot_perf_vs_covariate.py command-line parser.
@@ -72,10 +77,11 @@ def main():
     ax.plot(centers, meds, color=zed["red"], marker="o", label="binned median")
 
     group, name, unit = METRICS[args.metric]
+    covariate = COVARIATE_LABELS.get(args.covariate, args.covariate)
     ax.set_xscale("log")
-    ax.set_xlabel(args.covariate)
+    ax.set_xlabel(covariate)
     ax.set_ylabel(f"{group}\n{unit}")
-    ax.set_title(f"{group}, {name} vs {args.covariate}\nSpearman ρ = {rho:.2f}")
+    ax.set_title(f"{group}, {name} vs {covariate}\nSpearman ρ = {rho:.2f}")
     ax.legend()
     pk.despine(ax, offset=7.5)
     pk.save_figure(fig, args.output)
