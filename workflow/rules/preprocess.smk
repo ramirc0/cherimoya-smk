@@ -105,8 +105,8 @@ rule bam2bw:
         ),
     params:
         name=lambda wc: prefix(wc.sample),
-        pos_shift=lambda _: config["preprocess"]["pos_shift"],
-        neg_shift=lambda _: config["preprocess"]["neg_shift"],
+        pos_shift=lambda wc: shift_of(wc.sample, "pos_shift"),
+        neg_shift=lambda wc: shift_of(wc.sample, "neg_shift"),
         scale_factor=lambda _: config["preprocess"]["scale_factor"],
         extra=lambda _: _bam2bw_extra(),
     log:
@@ -147,8 +147,8 @@ rule bam2bw_control:
         ),
     params:
         name=lambda wc: f"{prefix(wc.sample)}.control",
-        pos_shift=lambda _: config["preprocess"]["pos_shift"],
-        neg_shift=lambda _: config["preprocess"]["neg_shift"],
+        pos_shift=lambda wc: shift_of(wc.sample, "pos_shift"),
+        neg_shift=lambda wc: shift_of(wc.sample, "neg_shift"),
         extra=lambda _: _bam2bw_extra(),
     log:
         f"{LOGDIR}/bam2bw_control/{{sample}}.log",

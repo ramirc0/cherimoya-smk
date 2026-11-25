@@ -39,8 +39,12 @@ The sheet is a TSV with one row per sample:
 | `genome`    | yes      | a key under `genomes:` in config |
 | `control`   | no       | control BAM, or prebuilt bigWigs as for `signal`. Fed to the model. A BAM also goes to `macs3 -c` |
 | `peaks`     | no       | narrowPeak. If empty, macs3 calls peaks from the BAM |
+| `pos_shift` | no       | `bam2bw` shift of this row's + strand ends. If empty, `preprocess.pos_shift` |
+| `neg_shift` | no       | the same for the − strand ends and `preprocess.neg_shift` |
 
 A bigWig signal or control skips `bam2bw` but can't be used for peak calling, so its row needs a `peaks` file.
+
+Set the shift columns when one sheet mixes conventions. A fragments file that an upstream pipeline already shifted by +4/−5 takes `0` and `1`. A raw one takes `4` and `-4`.
 
 ### Config
 

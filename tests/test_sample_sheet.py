@@ -51,6 +51,7 @@ def _dry_run(tmp_path, *rows, stranded=True, genomes=None, extra=None):
             '{"train": ["chr1"], "valid": ["chr2"], "test": ["chr3"]}'
         )
     cols = ["sample_id", "signal", "genome", "control", "peaks"]
+    cols += sorted({c for row in rows for c in row} - set(cols))
     sheet = ["\t".join(cols)]
     for row in rows:
         sheet.append("\t".join(row.get(c, "") for c in cols))
@@ -89,6 +90,14 @@ def _command(out, script, sample="S"):
         if f"scripts/{script}" in block and f"/{sample}/fold_0/{sample}" in block:
             return block
     raise AssertionError(f"no {script} command for {sample}:\n{out}")
+
+
+def _bam2bw(out, name):
+    """Return the `figwig bam2bw` command that a dry run printed for track `name`."""
+    for block in out.split("\n\n"):
+        if "figwig bam2bw" in block and f"-n results/default/{name} " in block:
+            return block
+    raise AssertionError(f"no bam2bw command for {name}:\n{out}")
 
 
 def test_stranded_run_takes_a_prebuilt_pair_in_order(tmp_path):
@@ -176,3 +185,37 @@ def test_top_level_blacklist_is_rejected(tmp_path):
     )
     assert code != 0
     assert "genomes.<genome>.blacklist" in out, out
+
+
+def test_sheet_shifts_override_the_config_per_sample(tmp_path):
+    # One sheet may mix fragments that an upstream pipeline already shifted
+    # with raw ones, so the shift is a property of the row.
+    code, out = _dry_run(
+        tmp_path,
+        {
+            "sample_id": "A",
+            "signal": "a.bam",
+            "control": "a_ctl.bam",
+            "peaks": "a.narrowPeak",
+            "pos_shift": "4",
+            "neg_shift": "-4",
+        },
+        {"sample_id": "B", "signal": "b.bam", "peaks": "b.narrowPeak"},
+    )
+    assert code == 0, out
+    for name in ("A/A", "A/A.control"):
+        command = _bam2bw(out, name)
+        assert "-ps 4 " in command, command
+        assert "-ns -4 " in command, command
+    command = _bam2bw(out, "B/B")
+    assert "-ps 0 " in command, command
+    assert "-ns 0 " in command, command
+
+
+def test_rejects_a_shift_that_is_not_an_integer(tmp_path):
+    code, out = _dry_run(
+        tmp_path,
+        {"signal": "x.bam", "peaks": "peaks.narrowPeak", "pos_shift": "four"},
+    )
+    assert code != 0
+    assert "not an integer" in out, out

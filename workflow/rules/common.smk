@@ -1,6 +1,7 @@
 # Load config + sample sheet, derive per-sample lookups and the rule helpers.
 
 import json
+import re
 from pathlib import Path
 
 import polars as pl
@@ -115,6 +116,9 @@ SIGNAL_OF = _column("signal")
 CONTROL_OF = _column("control")
 PEAKS_OF = _column("peaks")
 GENOME_OF = _column("genome")
+# One sheet can mix fragments that an upstream pipeline already Tn5-shifted
+# with raw ones, so a row may carry its own bam2bw shifts.
+SHIFT_OF = {column: _column(column) for column in ("pos_shift", "neg_shift")}
 
 # QC covariates for perf_vs_covariate, gated by config["qc"] and computability:
 # n_peaks is always derivable; n_fragments needs a scannable (non-bigWig) signal.
@@ -140,6 +144,14 @@ _unknown_genomes = sorted({g for g in GENOME_OF.values() if g not in GENOMES})
 if _unknown_genomes:
     raise WorkflowError(
         f"genome(s) not defined in config['genomes']: {_unknown_genomes}"
+    )
+_bad_shifts = sorted({
+    sample for shifts in SHIFT_OF.values() for sample, shift in shifts.items()
+    if shift is not None and not re.fullmatch(r"[+-]?\d+", shift.strip())})
+if _bad_shifts:
+    raise WorkflowError(
+        f"{len(_bad_shifts)} sample(s) give a `pos_shift` or `neg_shift` that is "
+        f"not an integer (e.g. {_bad_shifts[:3]})."
     )
 # Each cell is (number of files, all bigWig): one BAM/fragments file for bam2bw,
 # or pre-built bigWigs. A stranded run takes those as a (+, -) pair,
@@ -306,6 +318,26 @@ def chrom_sizes_of(sample):
         Pre-generated chrom.sizes file.
     """
     return GENOMES[GENOME_OF[sample]]["chrom_sizes"]
+
+
+def shift_of(sample, column):
+    """Return a bam2bw shift of a sample.
+
+    Parameters
+    ----------
+    sample : str
+        Sample ID from the sheet.
+    column : {"pos_shift", "neg_shift"}
+        Strand whose shift to return.
+
+    Returns
+    -------
+    int
+        The sample's value in sheet column `column`. `preprocess.<column>`
+        when the sheet has no such column or the cell is empty.
+    """
+    shift = SHIFT_OF[column].get(sample)
+    return config["preprocess"][column] if shift is None else int(shift)
 
 
 def blacklist_of(sample):
