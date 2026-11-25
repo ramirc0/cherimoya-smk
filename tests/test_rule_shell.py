@@ -1,4 +1,4 @@
-"""Static checks on the rules' shell blocks."""
+"""Static checks on the rule files."""
 
 import re
 from pathlib import Path
@@ -30,3 +30,25 @@ def test_command_does_not_end_on_a_params_only_line(name, shell):
     assert not re.fullmatch(r"(\{params\.\w+:q\}\s*)+", last), (
         f"rule {name} ends on {last!r}; move optional flags before required ones"
     )
+
+
+def test_bare_config_reads_hold_for_the_whole_run():
+    # A row's `overrides` reach a setting only through `config_of(sample)`. A
+    # bare `config[...]` read ignores them, so it must name a run-level key.
+    reads = set()
+    for smk in [*RULES.glob("*.smk"), RULES.parent / "Snakefile"]:
+        for section, key in re.findall(
+            r'(?<![\w.])config\["(\w+)"\](?:\["(\w+)"\])?', smk.read_text()
+        ):
+            reads.add(f"{section}.{key}" if key else section)
+    assert reads == {
+        "outdir",
+        "samples",
+        "pixi_env",
+        "folds",
+        "genomes",
+        "qc",
+        "preprocess.unstranded",
+        "annotate.motifs",
+        "attribute",  # only to reject the removed `attribute.folds`
+    }

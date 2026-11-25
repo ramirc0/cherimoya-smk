@@ -103,7 +103,7 @@ rule model_summary:
     output:
         summary=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.summary.txt",
     params:
-        in_window=lambda _: config["fit"]["in_window"],
+        in_window=lambda wc: config_of(wc.sample)["fit"]["in_window"],
     log:
         f"{LOGDIR}/model_summary/{{sample}}.fold_{{fold}}.log",
     benchmark:

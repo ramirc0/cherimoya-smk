@@ -78,7 +78,7 @@ rule annotate:
         bed=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.seqlets_annotated.bed",
         counts=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.motif_seqlet_count.tsv",
     params:
-        flags=annot_flags(),
+        flags=lambda wc: annot_flags(wc.sample),
     log:
         f"{LOGDIR}/annotate/{{sample}}.fold_{{fold}}.log",
     benchmark:
@@ -110,7 +110,7 @@ rule modisco_motifs:
     output:
         h5=f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.modisco_results.h5",
     params:
-        flags=lambda wc: modisco_flags(),
+        flags=lambda wc: modisco_flags(wc.sample),
     log:
         f"{LOGDIR}/modisco_motifs/{{sample}}.fold_{{fold}}.log",
     benchmark:
@@ -141,7 +141,7 @@ rule modisco_report:
     output:
         report=directory(f"{OUTDIR}/{{sample}}/fold_{{fold}}/{{sample}}.modisco"),
     params:
-        flags=lambda wc: modisco_report_flags(),
+        flags=lambda wc: modisco_report_flags(wc.sample),
     log:
         f"{LOGDIR}/modisco_report/{{sample}}.fold_{{fold}}.log",
     benchmark:

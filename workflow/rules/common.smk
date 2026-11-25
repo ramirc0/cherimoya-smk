@@ -1,10 +1,11 @@
 # Load config + sample sheet, derive per-sample lookups and the rule helpers.
 
+import copy
 import json
-import re
 from pathlib import Path
 
 import polars as pl
+import yaml
 from snakemake.exceptions import WorkflowError
 
 
@@ -48,7 +49,7 @@ _SHEET = Path(config["samples"])
 if not _SHEET.exists():
     raise WorkflowError(
         f"Sample sheet not found: {_SHEET}\n"
-        "Create it (columns: sample_id, signal, genome, [control], [peaks]); "
+        "Create it (columns: sample_id, signal, genome, [control], [peaks], [overrides]); "
         "signal is a BAM/fragments file (bam2bw + macs3) or an already-built "
         "bigWig, as a `plus.bw,minus.bw` pair in a stranded run (requires "
         "provided peaks). See config/samples.tsv.template for the layout."
@@ -111,14 +112,70 @@ def _is_bigwig(cell):
     return all(path.lower().endswith((".bw", ".bigwig")) for path in _paths(cell))
 
 
+# Keys with one value per run: they name the output tree, shape the DAG, pick
+# the env or feed the run-level plots. A row's `overrides` cannot set them.
+RUN_LEVEL = {
+    "samples", "outdir", "run_id", "pixi_env", "folds", "genomes", "qc",
+    "preprocess.unstranded", "annotate.motifs",
+}
+_KINDS = {bool: "bool", int: "number", float: "number", str: "string", list: "list"}
+
+
+def _with_overrides(cell):
+    """Return the run config with one `overrides` cell applied.
+
+    Parameters
+    ----------
+    cell : str
+        A YAML flow mapping from dotted config key to value, such as
+        `{preprocess.pos_shift: 0, fit.n_filters: 64}`.
+
+    Returns
+    -------
+    dict
+        A copy of `config` with each named key replaced.
+
+    Raises
+    ------
+    ValueError
+        If the cell is not a mapping, or a key is unknown, run-level or given
+        a value of another kind than the config's. A null passes on either
+        side.
+    """
+    try:
+        overrides = yaml.safe_load(cell)
+    except yaml.YAMLError:
+        overrides = None
+    if not isinstance(overrides, dict):
+        raise ValueError(
+            f"`{cell}` is not a mapping such as `{{preprocess.pos_shift: 0}}`."
+        )
+    resolved = copy.deepcopy(config)
+    for key, value in overrides.items():
+        parts = str(key).split(".")
+        if any(".".join(parts[:n]) in RUN_LEVEL for n in range(1, len(parts) + 1)):
+            raise ValueError(f"`{key}` holds for the whole run.")
+        *path, name = parts
+        section = resolved
+        for part in path:
+            section = section.get(part) if isinstance(section, dict) else None
+        if (not isinstance(section, dict) or name not in section
+                or isinstance(section[name], dict)):
+            raise ValueError(f"`{key}` is not a config key.")
+        kind = _KINDS.get(type(section[name]))
+        if (value is not None and section[name] is not None
+                and _KINDS.get(type(value)) != kind):
+            raise ValueError(f"`{key}` takes a {kind}, not {value!r}.")
+        section[name] = value
+    return resolved
+
+
 SAMPLES = _manifest.get_column("sample_id").to_list()
 SIGNAL_OF = _column("signal")
 CONTROL_OF = _column("control")
 PEAKS_OF = _column("peaks")
 GENOME_OF = _column("genome")
-# One sheet can mix fragments that an upstream pipeline already Tn5-shifted
-# with raw ones, so a row may carry its own bam2bw shifts.
-SHIFT_OF = {column: _column(column) for column in ("pos_shift", "neg_shift")}
+OVERRIDES_OF = _column("overrides")
 
 # QC covariates for perf_vs_covariate, gated by config["qc"] and computability:
 # n_peaks is always derivable; n_fragments needs a scannable (non-bigWig) signal.
@@ -145,14 +202,17 @@ if _unknown_genomes:
     raise WorkflowError(
         f"genome(s) not defined in config['genomes']: {_unknown_genomes}"
     )
-_bad_shifts = sorted({
-    sample for shifts in SHIFT_OF.values() for sample, shift in shifts.items()
-    if shift is not None and not re.fullmatch(r"[+-]?\d+", shift.strip())})
-if _bad_shifts:
-    raise WorkflowError(
-        f"{len(_bad_shifts)} sample(s) give a `pos_shift` or `neg_shift` that is "
-        f"not an integer (e.g. {_bad_shifts[:3]})."
-    )
+# Rows share a few distinct cells, so each cell is resolved once.
+_CONFIG_OF_CELL = {}
+for _cell in sorted({cell for cell in OVERRIDES_OF.values() if cell}):
+    try:
+        _CONFIG_OF_CELL[_cell] = _with_overrides(_cell)
+    except ValueError as error:
+        _bad_overrides = [s for s in SAMPLES if OVERRIDES_OF[s] == _cell]
+        raise WorkflowError(
+            f"{len(_bad_overrides)} sample(s) give `overrides` this run cannot "
+            f"take (e.g. {_bad_overrides[:3]}). {error}"
+        )
 # Each cell is (number of files, all bigWig): one BAM/fragments file for bam2bw,
 # or pre-built bigWigs. A stranded run takes those as a (+, -) pair,
 # `plus.bw,minus.bw`, since one bigWig cannot be split into strands.
@@ -320,24 +380,25 @@ def chrom_sizes_of(sample):
     return GENOMES[GENOME_OF[sample]]["chrom_sizes"]
 
 
-def shift_of(sample, column):
-    """Return a bam2bw shift of a sample.
+def config_of(sample):
+    """Return the config of a sample: the run's, with the row's `overrides` applied.
+
+    Every per-sample setting is read here. A bare `config[...]` read ignores
+    the sheet, so it fits the `RUN_LEVEL` keys only.
 
     Parameters
     ----------
     sample : str
         Sample ID from the sheet.
-    column : {"pos_shift", "neg_shift"}
-        Strand whose shift to return.
 
     Returns
     -------
-    int
-        The sample's value in sheet column `column`. `preprocess.<column>`
-        when the sheet has no such column or the cell is empty.
+    dict
+        `config` itself for a row without overrides. Otherwise a copy with
+        the row's keys replaced.
     """
-    shift = SHIFT_OF[column].get(sample)
-    return config["preprocess"][column] if shift is None else int(shift)
+    cell = OVERRIDES_OF.get(sample)
+    return _CONFIG_OF_CELL[cell] if cell else config
 
 
 def blacklist_of(sample):
@@ -485,7 +546,7 @@ def macs3_format(wildcards):
     str
         A macs3 format such as `BAM`, `BAMPE` or `FRAG`.
     """
-    pp = config["preprocess"]
+    pp = config_of(wildcards.sample)["preprocess"]
     if pp["fragments"]:
         return "FRAG"
     fname = SIGNAL_OF[wildcards.sample]
@@ -515,7 +576,7 @@ def _list_flag(name, values):
 
 
 def fit_flags(sample, fold):
-    """Return the fit.py flag tokens from `config["fit"]`.
+    """Return the fit.py flag tokens from the sample's `fit` settings.
 
     Training and validation chroms come from the sample's genome CV fold.
 
@@ -531,7 +592,8 @@ def fit_flags(sample, fold):
     list of str
         Flag tokens. `shell:` quotes each with `:q`.
     """
-    f = config["fit"]
+    cfg = config_of(sample)
+    f = cfg["fit"]
     flags = [
         "--n_filters", f["n_filters"],
         "--n_layers", f["n_layers"],
@@ -556,7 +618,7 @@ def fit_flags(sample, fold):
         "--dtype", f["dtype"],
         "--device", f["device"],
         "--compile_mode", f["compile_mode"],
-        "--random_state", config["random_state"],
+        "--random_state", cfg["random_state"],
         *_list_flag("training_chroms", _fold(sample, fold)["train"]),
         *_list_flag("validation_chroms", _fold(sample, fold)["valid"]),
     ]
@@ -578,7 +640,7 @@ def fit_flags(sample, fold):
 
 
 def eval_flags(sample, fold):
-    """Return the evaluate.py flag tokens from `config["evaluate"]`.
+    """Return the evaluate.py flag tokens from the sample's `evaluate` settings.
 
     Eval chroms are the test set of the sample's genome CV fold. Windows and
     summits are fit's, as the CLI's evaluate inherits them.
@@ -595,11 +657,12 @@ def eval_flags(sample, fold):
     list of str
         Flag tokens. `shell:` quotes each with `:q`.
     """
-    e = config["evaluate"]
+    cfg = config_of(sample)
+    e = cfg["evaluate"]
     flags = [
         "--batch_size", e["batch_size"],
-        "--in_window", config["fit"]["in_window"],
-        "--out_window", config["fit"]["out_window"],
+        "--in_window", cfg["fit"]["in_window"],
+        "--out_window", cfg["fit"]["out_window"],
         "--dtype", e["dtype"],
         "--device", e["device"],
         "--compile_mode", e["compile_mode"],
@@ -609,7 +672,7 @@ def eval_flags(sample, fold):
         flags.append("--stranded")
     if e["reverse_complement_average"]:
         flags.append("--reverse_complement_average")
-    if config["fit"]["summits"]:
+    if cfg["fit"]["summits"]:
         flags.append("--summits")
     if not e["compile"]:
         flags.append("--no_compile")
@@ -619,7 +682,7 @@ def eval_flags(sample, fold):
 
 
 def attr_flags(sample, fold):
-    """Return the attribute.py flag tokens from `config["attribute"]`.
+    """Return the attribute.py flag tokens from the sample's `attribute` settings.
 
     Chroms are the train and valid sets of the sample's genome CV fold.
     `in_window` is fit's. `cherimoya pipeline` shares both.
@@ -636,7 +699,8 @@ def attr_flags(sample, fold):
     list of str
         Flag tokens. `shell:` quotes each with `:q`.
     """
-    a = config["attribute"]
+    cfg = config_of(sample)
+    a = cfg["attribute"]
     flags = [
         "--algorithm", a["algorithm"],
         "--output", a["output"],
@@ -644,9 +708,9 @@ def attr_flags(sample, fold):
         "--attr_window", a["attr_window"],
         "--n_shuffles", a["n_shuffles"],
         "--warning_threshold", a["warning_threshold"],
-        "--random_state", config["random_state"],
+        "--random_state", cfg["random_state"],
         "--batch_size", a["batch_size"],
-        "--in_window", config["fit"]["in_window"],
+        "--in_window", cfg["fit"]["in_window"],
         "--dtype", a["dtype"],
         "--device", a["device"],
         "--compile_mode", a["compile_mode"],
@@ -660,7 +724,7 @@ def attr_flags(sample, fold):
 
 
 def seqlet_flags(sample, fold):
-    """Return the seqlets.py flag tokens from `config["seqlets"]`.
+    """Return the seqlets.py flag tokens from the sample's `seqlets` settings.
 
     Chroms are attribute's, so loci line up with its index mask.
 
@@ -676,7 +740,7 @@ def seqlet_flags(sample, fold):
     list of str
         Flag tokens. `shell:` quotes each with `:q`.
     """
-    s = config["seqlets"]
+    s = config_of(sample)["seqlets"]
     flags = [
         "--threshold", s["threshold"],
         "--min_seqlet_len", s["min_seqlet_len"],
@@ -688,15 +752,20 @@ def seqlet_flags(sample, fold):
     return [str(x) for x in flags]
 
 
-def annot_flags():
-    """Return the annotate.py flag tokens from `config["annotate"]`.
+def annot_flags(sample):
+    """Return the annotate.py flag tokens from the sample's `annotate` settings.
+
+    Parameters
+    ----------
+    sample : str
+        Sample ID from the sheet.
 
     Returns
     -------
     list of str
         Flag tokens. `shell:` quotes each with `:q`.
     """
-    a = config["annotate"]
+    a = config_of(sample)["annotate"]
     flags = [
         "--n_score_bins", a["n_score_bins"],
         "--n_median_bins", a["n_median_bins"],
@@ -709,15 +778,20 @@ def annot_flags():
     return [str(x) for x in flags]
 
 
-def modisco_flags():
-    """Return the modisco_motifs.py flag tokens from `config["modisco"]`.
+def modisco_flags(sample):
+    """Return the modisco_motifs.py flag tokens from the sample's `modisco` settings.
+
+    Parameters
+    ----------
+    sample : str
+        Sample ID from the sheet.
 
     Returns
     -------
     list of str
         Flag tokens. `shell:` quotes each with `:q`.
     """
-    m = config["modisco"]
+    m = config_of(sample)["modisco"]
     flags = [
         "--n_seqlets", m["n_seqlets"],
         "--n_leiden", m["n_leiden"],
@@ -735,15 +809,20 @@ def modisco_flags():
     return [str(x) for x in flags]
 
 
-def modisco_report_flags():
-    """Return the `modisco report` flag tokens from `config["modisco_report"]`.
+def modisco_report_flags(sample):
+    """Return the `modisco report` flag tokens from the sample's `modisco_report` settings.
+
+    Parameters
+    ----------
+    sample : str
+        Sample ID from the sheet.
 
     Returns
     -------
     list of str
         Flag tokens. `shell:` quotes each with `:q`.
     """
-    r = config["modisco_report"]
+    r = config_of(sample)["modisco_report"]
     flags = [
         "--n-matches", r["n_matches"],
         "--n_examples", r["n_examples"],
@@ -755,7 +834,7 @@ def modisco_report_flags():
 
 
 def marginalize_flags(sample, fold):
-    """Return the marginalize.py flag tokens from `config["marginalize"]`.
+    """Return the marginalize.py flag tokens from the sample's `marginalize` settings.
 
     Chroms are the train set of the sample's genome CV fold, because
     `cherimoya pipeline` leaves marginalize at its `training_chroms` default.
@@ -773,12 +852,13 @@ def marginalize_flags(sample, fold):
     list of str
         Flag tokens. `shell:` quotes each with `:q`.
     """
-    m = config["marginalize"]
+    cfg = config_of(sample)
+    m = cfg["marginalize"]
     flags = [
         "--n_loci", m["n_loci"],
-        "--random_state", config["random_state"],
+        "--random_state", cfg["random_state"],
         "--batch_size", m["batch_size"],
-        "--in_window", config["fit"]["in_window"],
+        "--in_window", cfg["fit"]["in_window"],
         "--device", m["device"],
         "--compile_mode", m["compile_mode"],
         *_list_flag("chroms", _fold(sample, fold)["train"]),

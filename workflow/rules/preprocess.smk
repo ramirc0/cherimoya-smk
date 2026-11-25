@@ -38,11 +38,13 @@ rule macs3:
     params:
         fmt=macs3_format,
         gsize=lambda wc: gsize_of(wc.sample),
-        q=lambda _: config["preprocess"]["callpeaks_q"],
+        q=lambda wc: config_of(wc.sample)["preprocess"]["callpeaks_q"],
         name=lambda wc: prefix(wc.sample),
         control=lambda wc, input: ["-c", *input.control] if input.control else [],
-        max_count=lambda _: ["--max-count", "1"] if config["preprocess"]["fragments"] else [],
-        extra=lambda _: [str(a) for a in config["preprocess"]["macs3_extra"]],
+        max_count=lambda wc: (
+            ["--max-count", "1"] if config_of(wc.sample)["preprocess"]["fragments"] else []
+        ),
+        extra=lambda wc: [str(a) for a in config_of(wc.sample)["preprocess"]["macs3_extra"]],
     log:
         f"{LOGDIR}/macs3/{{sample}}.log",
     benchmark:
@@ -68,12 +70,17 @@ rule macs3:
         """
 
 
-def _bam2bw_extra():
+def _bam2bw_extra(sample):
     """Return the figwig bam2bw flags shared by the signal and control conversions.
 
     bam2bw emits `<name>.bw` with `-u`, else the `<name>.+.bw` and
     `<name>.-.bw` pair. So the same flags drive both the declared outputs and
     the tool.
+
+    Parameters
+    ----------
+    sample : str
+        Sample ID from the sheet.
 
     Returns
     -------
@@ -81,12 +88,13 @@ def _bam2bw_extra():
         Flags `-u`, `-f` and `-r`, each when `preprocess.unstranded`,
         `preprocess.fragments` or `preprocess.read_depth` is set.
     """
+    pp = config_of(sample)["preprocess"]
     return [
         flag
         for flag, on in [
-            ("-u", config["preprocess"]["unstranded"]),
-            ("-f", config["preprocess"]["fragments"]),
-            ("-r", config["preprocess"]["read_depth"]),
+            ("-u", pp["unstranded"]),
+            ("-f", pp["fragments"]),
+            ("-r", pp["read_depth"]),
         ]
         if on
     ]
@@ -105,10 +113,10 @@ rule bam2bw:
         ),
     params:
         name=lambda wc: prefix(wc.sample),
-        pos_shift=lambda wc: shift_of(wc.sample, "pos_shift"),
-        neg_shift=lambda wc: shift_of(wc.sample, "neg_shift"),
-        scale_factor=lambda _: config["preprocess"]["scale_factor"],
-        extra=lambda _: _bam2bw_extra(),
+        pos_shift=lambda wc: config_of(wc.sample)["preprocess"]["pos_shift"],
+        neg_shift=lambda wc: config_of(wc.sample)["preprocess"]["neg_shift"],
+        scale_factor=lambda wc: config_of(wc.sample)["preprocess"]["scale_factor"],
+        extra=lambda wc: _bam2bw_extra(wc.sample),
     log:
         f"{LOGDIR}/bam2bw/{{sample}}.log",
     benchmark:
@@ -147,9 +155,9 @@ rule bam2bw_control:
         ),
     params:
         name=lambda wc: f"{prefix(wc.sample)}.control",
-        pos_shift=lambda wc: shift_of(wc.sample, "pos_shift"),
-        neg_shift=lambda wc: shift_of(wc.sample, "neg_shift"),
-        extra=lambda _: _bam2bw_extra(),
+        pos_shift=lambda wc: config_of(wc.sample)["preprocess"]["pos_shift"],
+        neg_shift=lambda wc: config_of(wc.sample)["preprocess"]["neg_shift"],
+        extra=lambda wc: _bam2bw_extra(wc.sample),
     log:
         f"{LOGDIR}/bam2bw_control/{{sample}}.log",
     benchmark:
@@ -180,8 +188,12 @@ rule count_fragments:
     output:
         n_fragments=f"{OUTDIR}/{{sample}}/{{sample}}.n_fragments.txt",
     params:
-        fragments=lambda _: ["--fragments"] if config["preprocess"]["fragments"] else [],
-        paired_end=lambda _: ["--paired_end"] if config["preprocess"]["paired_end"] else [],
+        fragments=lambda wc: (
+            ["--fragments"] if config_of(wc.sample)["preprocess"]["fragments"] else []
+        ),
+        paired_end=lambda wc: (
+            ["--paired_end"] if config_of(wc.sample)["preprocess"]["paired_end"] else []
+        ),
     log:
         f"{LOGDIR}/count_fragments/{{sample}}.log",
     benchmark:

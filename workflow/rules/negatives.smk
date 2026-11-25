@@ -6,13 +6,13 @@ rule negatives:
     output:
         bed=f"{OUTDIR}/{{sample}}/{{sample}}.negatives.bed",
     params:
-        bin_width=lambda _: config["negatives"]["bin_width"],
-        max_n_perc=lambda _: config["negatives"]["max_n_perc"],
-        beta=lambda _: config["negatives"]["beta"],
-        in_window=lambda _: config["negatives"]["in_window"],
-        out_window=lambda _: config["negatives"]["out_window"],
-        random_state=lambda _: config["random_state"],
-        on_missing_contig=lambda _: config["peaks"]["on_missing_contig"],
+        bin_width=lambda wc: config_of(wc.sample)["negatives"]["bin_width"],
+        max_n_perc=lambda wc: config_of(wc.sample)["negatives"]["max_n_perc"],
+        beta=lambda wc: config_of(wc.sample)["negatives"]["beta"],
+        in_window=lambda wc: config_of(wc.sample)["negatives"]["in_window"],
+        out_window=lambda wc: config_of(wc.sample)["negatives"]["out_window"],
+        random_state=lambda wc: config_of(wc.sample)["random_state"],
+        on_missing_contig=lambda wc: config_of(wc.sample)["peaks"]["on_missing_contig"],
     log:
         f"{LOGDIR}/negatives/{{sample}}.log",
     benchmark:

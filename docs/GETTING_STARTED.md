@@ -39,12 +39,15 @@ The sheet is a TSV with one row per sample:
 | `genome`    | yes      | a key under `genomes:` in config |
 | `control`   | no       | control BAM, or prebuilt bigWigs as for `signal`. Fed to the model. A BAM also goes to `macs3 -c` |
 | `peaks`     | no       | narrowPeak. If empty, macs3 calls peaks from the BAM |
-| `pos_shift` | no       | `bam2bw` shift of this row's + strand ends. If empty, `preprocess.pos_shift` |
-| `neg_shift` | no       | the same for the − strand ends and `preprocess.neg_shift` |
+| `overrides` | no       | settings of this row that replace the config's, as `{key: value}` with dotted config keys |
 
 A bigWig signal or control skips `bam2bw` but can't be used for peak calling, so its row needs a `peaks` file.
 
-Set the shift columns when one sheet mixes conventions. A fragments file that an upstream pipeline already shifted by +4/−5 takes `0` and `1`. A raw one takes `4` and `-4`.
+Set `overrides` when one sheet mixes settings. A cell is a YAML flow mapping, such as `{preprocess.pos_shift: 0, preprocess.neg_shift: 1}`, and a JSON object works too. Each key replaces that config key for the row. It takes priority over `--config` and the config file. Values get the types they have in the config file, so write a float as `0.001` or `1.0e-3`, a list as `[1.333, 0.274]` and an unset value as `null`.
+
+A row cannot override the keys that hold for the whole run: `samples`, `outdir`, `run_id`, `pixi_env`, `folds`, `genomes`, `qc`, `preprocess.unstranded` and `annotate.motifs`. An unknown key or a value of the wrong type stops the run at load.
+
+For example, a fragments file that an upstream pipeline already shifted by +4/−5 takes `pos_shift` 0 and `neg_shift` 1. A raw one takes 4 and -4.
 
 ### Config
 
@@ -113,7 +116,7 @@ Everything goes under `results/<run_id>/`. Logs and benchmarks use the same layo
   - TF-MoDISco patterns (`modisco_results.h5`) and their HTML report (`modisco/report.html`). The report lists each pattern's top TomTom matches in `annotate.motifs`.
   - The marginalization report (`marginalize/marginalization.html`). It inserts each `annotate.motifs` consensus at the center of the first 100 training-chrom negatives and ranks the motifs by the mean change in predicted counts.
 - `report/`: `metrics.tsv` with an outlier flag per model, the performance distribution and summary table, count Pearson vs `n_peaks`/`n_fragments`, the outlier plot, and a heatmap of the top motifs by sample. The distribution, covariate and outlier plots need `qc.min_models` models (samples x folds, default 10).
-- `config.snapshot.json`: the fully resolved config, including `--config` overrides. Rerun it with `--configfile results/<run_id>/config.snapshot.json`.
+- `config.snapshot.json`: the fully resolved config, including `--config` overrides. Rerun it with `--configfile results/<run_id>/config.snapshot.json`. A row's `overrides` stay in the sample sheet.
 
 Plots are written as SVG and PNG.
 

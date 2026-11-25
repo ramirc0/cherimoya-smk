@@ -16,11 +16,19 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def _dry_run(tmp_path, *rows, stranded=True, genomes=None, extra=None):
-    """Dry-run fit and evaluate for sheet `rows`, and return the exit code and output.
+def _dry_run(
+    tmp_path,
+    *rows,
+    stranded=True,
+    genomes=None,
+    extra=None,
+    outputs=("performance.tsv",),
+):
+    """Dry-run `outputs` of fold 0 for sheet `rows`, and return the exit code and output.
 
     A row is sample `S` on genome `toy` unless it says otherwise. `genomes` maps
     each genome to extra keys of its config entry. `extra` adds top-level config.
+    `outputs` are suffixes of each row's fold prefix, such as `summary.txt`.
     """
     rows = [{"sample_id": "S", "genome": "toy", **row} for row in rows]
     genomes = genomes or {"toy": {}}
@@ -44,6 +52,7 @@ def _dry_run(tmp_path, *rows, stranded=True, genomes=None, extra=None):
     (tmp_path / "config" / "config.yaml").write_text(yaml.safe_dump(config))
 
     files = [p for entry in config["genomes"].values() for p in entry.values()]
+    files.append(config["annotate"]["motifs"])
     for g in genomes:
         folds = tmp_path / "resources" / "folds" / g
         folds.mkdir(parents=True)
@@ -60,11 +69,14 @@ def _dry_run(tmp_path, *rows, stranded=True, genomes=None, extra=None):
     (tmp_path / "samples.tsv").write_text("\n".join(sheet) + "\n")
     for name in files:
         if isinstance(name, str) and name.strip():
-            (tmp_path / name.strip()).touch()
+            path = tmp_path / name.strip()
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.touch()
 
     targets = [
-        f"results/default/{r['sample_id']}/fold_0/{r['sample_id']}.performance.tsv"
+        f"results/default/{r['sample_id']}/fold_0/{r['sample_id']}.{output}"
         for r in rows
+        for output in outputs
     ]
     result = subprocess.run(
         [
@@ -187,9 +199,9 @@ def test_top_level_blacklist_is_rejected(tmp_path):
     assert "genomes.<genome>.blacklist" in out, out
 
 
-def test_sheet_shifts_override_the_config_per_sample(tmp_path):
+def test_sheet_overrides_replace_the_config_per_sample(tmp_path):
     # One sheet may mix fragments that an upstream pipeline already shifted
-    # with raw ones, so the shift is a property of the row.
+    # with raw ones, so a row carries its own settings.
     code, out = _dry_run(
         tmp_path,
         {
@@ -197,8 +209,7 @@ def test_sheet_shifts_override_the_config_per_sample(tmp_path):
             "signal": "a.bam",
             "control": "a_ctl.bam",
             "peaks": "a.narrowPeak",
-            "pos_shift": "4",
-            "neg_shift": "-4",
+            "overrides": "{preprocess.pos_shift: 4, preprocess.neg_shift: -4}",
         },
         {"sample_id": "B", "signal": "b.bam", "peaks": "b.narrowPeak"},
     )
@@ -212,10 +223,79 @@ def test_sheet_shifts_override_the_config_per_sample(tmp_path):
     assert "-ns 0 " in command, command
 
 
-def test_rejects_a_shift_that_is_not_an_integer(tmp_path):
+def test_an_override_reaches_every_reader_of_its_key(tmp_path):
+    # Evaluate, attribute, marginalize and model_summary inherit fit's window.
     code, out = _dry_run(
         tmp_path,
-        {"signal": "x.bam", "peaks": "peaks.narrowPeak", "pos_shift": "four"},
+        {
+            "sample_id": "A",
+            "signal": "a.bam",
+            "peaks": "a.narrowPeak",
+            "overrides": "{fit.in_window: 1000}",
+        },
+        {"sample_id": "B", "signal": "b.bam", "peaks": "b.narrowPeak"},
+        outputs=(
+            "performance.tsv",
+            "summary.txt",
+            "attributions.attr.npz",
+            "marginalize",
+        ),
+    )
+    assert code == 0, out
+    for script in (
+        "fit.py",
+        "evaluate.py",
+        "model_summary.py",
+        "attribute.py",
+        "marginalize.py",
+    ):
+        overridden = _command(out, script, "A")
+        assert re.search(r"--in_window 1000\b", overridden), overridden
+        untouched = _command(out, script, "B")
+        assert re.search(r"--in_window 2114\b", untouched), untouched
+
+
+def test_overrides_keep_their_yaml_types(tmp_path):
+    code, out = _dry_run(
+        tmp_path,
+        {
+            "signal": "x.bam",
+            "peaks": "peaks.narrowPeak",
+            "overrides": "{fit.loss_weights: [1.5, 0.25], fit.early_stopping: 7,"
+            " fit.summits: true, fit.compile: false}",
+        },
+    )
+    assert code == 0, out
+    fit = _command(out, "fit.py")
+    assert "--loss_weights 1.5 0.25 " in fit, fit
+    assert "--early_stopping 7 " in fit, fit
+    assert "--summits " in fit, fit
+    assert "--no_compile " in fit, fit
+    evaluate = _command(out, "evaluate.py")
+    assert re.search(r"--summits\b", evaluate), evaluate
+
+
+@pytest.mark.parametrize(
+    "cell,reason",
+    [
+        ("4", "is not a mapping"),
+        ("{preprocess.pos_shift", "is not a mapping"),
+        ("{fit.n_filter: 64}", "is not a config key"),
+        ("{fit: 64}", "is not a config key"),  # a section
+        ("{folds: [0, 1]}", "holds for the whole run"),
+        ("{qc.n_peaks: false}", "holds for the whole run"),
+        ("{preprocess.unstranded: true}", "holds for the whole run"),
+        ("{annotate.motifs: other.meme}", "holds for the whole run"),
+        ("{fit.summits: 'false'}", "takes a bool"),
+        ("{preprocess.pos_shift: four}", "takes a number"),
+        ("{fit.n_filters: {a: 1}}", "takes a number"),
+    ],
+)
+def test_rejects_overrides_the_run_cannot_take(tmp_path, cell, reason):
+    code, out = _dry_run(
+        tmp_path,
+        {"signal": "x.bam", "peaks": "peaks.narrowPeak", "overrides": cell},
     )
     assert code != 0
-    assert "not an integer" in out, out
+    assert "`overrides`" in out, out
+    assert reason in out, out
