@@ -104,6 +104,10 @@ def main():
     """Evaluate one model and write its performance and counts tables."""
     args = build_parser().parse_args()
 
+    from cpu_threads import limit_cpu_threads
+
+    limit_cpu_threads()
+
     import torch
     from cherimoya import Cherimoya, ControlWrapper
     from cherimoya.io import channel_permutation_from_groups, normalize_signal_groups

@@ -115,7 +115,7 @@ def build_parser():
         "--num_threads",
         type=int,
         default=4,
-        help="PyTorch CPU threads of the training process.",
+        help="PyTorch and numba CPU threads of the training process.",
     )
     parser.add_argument("--dtype", default="float32")
     parser.add_argument("--device", default="cuda")
@@ -162,6 +162,11 @@ def main():
 
     os.environ["TORCH_CUDNN_V8_API_ENABLED"] = "1"
 
+    from cpu_threads import limit_cpu_threads
+
+    # Before any data loads, so PyTorch starts its thread pool at this size.
+    limit_cpu_threads(args.num_threads)
+
     import lightning
     import torch
     from cherimoya import Cherimoya
@@ -170,8 +175,6 @@ def main():
     from tangermeme.io import _interleave_loci, extract_loci
 
     lightning.seed_everything(args.random_state, verbose=False)
-    # Before any data loads, so PyTorch starts its thread pool at this size.
-    torch.set_num_threads(args.num_threads)
 
     # --stranded wraps the flat file lists into one (+, -) group each; else
     # each file is its own unstranded group. The structured spec preserves

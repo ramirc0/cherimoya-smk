@@ -102,6 +102,10 @@ def main():
     """Write the marginalization report of one model."""
     args = build_parser().parse_args()
 
+    from cpu_threads import limit_cpu_threads
+
+    limit_cpu_threads()
+
     import numpy
     from bpnetlite.marginalize import marginalization_report
     from cherimoya import Cherimoya, ControlWrapper

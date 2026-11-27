@@ -79,6 +79,10 @@ def main():
     """Call seqlets and write them as BED."""
     args = build_parser().parse_args()
 
+    from cpu_threads import limit_cpu_threads
+
+    limit_cpu_threads()
+
     import numpy
     import torch
     from tangermeme.io import _interleave_loci

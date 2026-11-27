@@ -112,6 +112,10 @@ def main():
         )
         args.output = "logcounts"
 
+    from cpu_threads import limit_cpu_threads
+
+    limit_cpu_threads()
+
     import numpy
     from cherimoya import Cherimoya, ControlWrapper, LogCountWrapper, ProfileWrapper
     from cherimoya.deep_lift_shap import deep_lift_shap
